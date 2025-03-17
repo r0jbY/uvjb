@@ -42,7 +42,7 @@ Buddys and Admins will be referred together as simply "Users".
 - Register a new client
 - Register a new admin
 - See an overview of all users profiles
-- Edit user (Buddy & Admin) profiles
-- Delete user (Buddy & Admin) profiles
+- Edit user profiles
+- Delete user profiles
 - Retrieve an overview of the popularity of all clients *(Optional)*
 
