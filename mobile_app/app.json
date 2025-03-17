@@ -22,7 +22,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "googleServiceFile": "./google-services.json"
+      "googleServiceFile": "./google-services.json",
+      "package": "com.ming99li.digitaalmaatjes"
     },
     "web": {
       "favicon": "./assets/favicon.png"
