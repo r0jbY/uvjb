@@ -8,6 +8,14 @@ export default class AuthController {
         try {
             const { email, password } = req.body;
       
+            if(!email || !password) {
+              return res.status(404).json({ message: "Missing", result: false });
+            }
+
+            if(typeof(email) !== "string" || typeof(password) !== "string" ) {
+              return res.status(404).json({ message: "Invalid format", result: false });
+            }
+
             // 1️⃣ Get user from database
             const user = await AuthService.getUserByEmail(email);
             if (!user) {
