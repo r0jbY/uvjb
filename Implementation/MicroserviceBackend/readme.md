@@ -50,6 +50,12 @@ Defines Typescript interfaces to ensure type safety.
 ### `/tests`
 Contains unit and integration tests for the microservice.
 
+## 🔧 Technologies Used
+
+- **TypeScript**: Enforces static typing and improves code maintainability.
+- **Prisma**: Used as the ORM for database modeling, migrations, and query operations.
+- **Zod**: Used for validating and parsing request payloads at runtime, ensuring API inputs match expected schemas.
+
 ## Development Notes
 - Each microservice follows this structure for consistency.
 - TypeScript is used for type safety and scalability.
