@@ -8,8 +8,10 @@ datasource db {
 }
 
 model User {
-  id  Int   @id 
+  id  String   @id 
   email String  @unique
   password  String
   role String
 }
+
+

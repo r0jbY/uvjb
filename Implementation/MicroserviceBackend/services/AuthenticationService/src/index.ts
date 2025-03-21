@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3001;
 app.use(express.json());
 app.use("/auth" ,router);
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/api-docs", swaggerUi.serve ,  swaggerUi.setup(swaggerDocument));
 
 app.listen(PORT, () => {
   console.log(`Running on http://localhost:${PORT}`);

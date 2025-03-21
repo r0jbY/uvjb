@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "swagger": "node src/config//swagger.ts",
-    "dev": "nodemon src/index.ts"
+    "dev": "nodemon"
   },
   "keywords": [],
   "author": "",
