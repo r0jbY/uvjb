@@ -50,7 +50,19 @@ export default class AuthController {
         }
     }
 
-    async logout (req: Request, res: Response) : Promise<Response> {
+    static async logout (req: Request, res: Response) : Promise<Response> {
+      res.cookie("accessToken", "", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        expires: new Date(0),
+      });
+      res.cookie("refreshToken", "", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        expires: new Date(0),
+      });
         return res.status(200).send("Logout successful");
     }
 }

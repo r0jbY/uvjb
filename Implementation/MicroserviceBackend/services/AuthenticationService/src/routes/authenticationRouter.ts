@@ -9,7 +9,7 @@ router.post("/login", validate(loginSchema), (req: Request, res: Response) => {
 });
 
 router.post("/logout", (req: Request, res: Response) => {
-    res.send("Hello world");
-})
+    AuthController.logout(req, res);
+});
 
 export default router;
