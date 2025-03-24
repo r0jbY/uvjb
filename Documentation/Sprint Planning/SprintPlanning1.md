@@ -17,5 +17,23 @@
    - Design initial microservices architecture.
    - Set up Express.js environment and create the first microservice.
 ---
-*End of Sprint 1 Planning Document*
+
+## Sprint 1 Review
+
+### Completed Items
+- **Project Charter**: Successfully created and finalized.
+- **Use Case Documentation**: All user roles and their use cases have been clearly identified and described.
+- **Backend Architecture Rework**:
+  - Designed the initial microservices architecture.
+  - Set up the Express.js environment.
+  - Created the first microservice: the **Authentication Service** (currently in progress).
+
+### Partially Completed
+- **Use Case Documentations**: List of users and use cases has been documented, but UML diagrams are still pending and will be carried into the next sprints.
+- **Authentication Service**: The service was created, but it is not yet fully implemented and tested.
+
+### Notes
+- Transitioning from the monolithic Spring Boot application to a microservices-based structure in Express.js has begun successfully, with a solid foundation laid during this sprint.
+- The remaining tasks (UML diagrams and finalizing the auth service) will be prioritized in Sprint 2.
+
 
