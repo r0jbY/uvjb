@@ -10,10 +10,40 @@ on:
       - 'Implementation/MicroserviceBackend/AuthenticationService/**'
 
 jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Implementation/MicroserviceBackend/AuthenticationService/
+
+    steps:
+      - name: 🛎️ Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🧰 Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      # - name: 🔧 Build the app
+      #   run: npm run build
+      #   # Make sure "build": "tsc" is in your package.json
+
+      - name: 🧪 Run tests
+        run: npm test
 
   sonarqube:
     name: SonarQube
     runs-on: windows-latest
+
+    defaults:
+      run:
+        working-directory: Implementation/MicroserviceBackend/AuthenticationService/
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,7 +63,6 @@ jobs:
 
       - name: 🧪 Run tests and coverage
         run: npm test
-        
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
