@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: Implementation/MicroServiceBackend/AuthenticationService/
+        working-directory: Implementation/MicroserviceBackend/AuthenticationService/
 
     steps:
       - name: 🛎️ Checkout code
