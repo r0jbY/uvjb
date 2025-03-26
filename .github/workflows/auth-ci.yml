@@ -70,5 +70,5 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          sonar.javascript.lcov.reportPaths: coverage/lcov-report/index.html
+          sonar.javascript.lcov.reportPaths: coverage/lcov.info
 

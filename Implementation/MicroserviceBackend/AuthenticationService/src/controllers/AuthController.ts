@@ -30,7 +30,7 @@ export default class AuthController {
               sameSite: "none",
             });
       
-            res.cookie("refreshToken", refreshToken, {
+            res.cookie("refreshToken", refreshToken,  {
               maxAge: 1 * 24 * 60 * 60 * 1000,
               httpOnly: true,
               secure: true,
