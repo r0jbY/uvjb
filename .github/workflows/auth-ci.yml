@@ -4,10 +4,10 @@ name: CI - Auth Service
 on:
   push:
     paths:
-      - 'Implementation/MicroServiceBackend/AuthenticationService/**'
+      - 'Implementation/MicroserviceBackend/AuthenticationService/**'
   pull_request:
     paths:
-      - 'Implementation/MicroServiceBackend/AuthenticationService/**'
+      - 'Implementation/MicroserviceBackend/AuthenticationService/**'
 
 jobs:
   build-and-test:
