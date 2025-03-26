@@ -63,6 +63,8 @@ jobs:
 
       - name: 🧪 Run tests and coverage
         run: npm test
+      - name: List Coverage Files
+        run: ls -la coverage
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
