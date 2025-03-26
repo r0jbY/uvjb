@@ -1,29 +1,28 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs"
+
 
 export default class AuthController {
-    constructor () {}
-
+    
     static async login (req: Request, res: Response) : Promise<Response> {
         try {
             const { email, password } = req.body;
-      
-
             // 1️⃣ Get user from database
             const user = await AuthService.getUserByEmail(email);
             if (!user) {
               return res.status(404).json({ message: "Invalid credentials", result: false });
             }
+
             // 2️⃣ Validate password
-            const isMatch = await AuthService.validatePassword(password, user.password);
+            const isMatch =await bcrypt.compare(password, user.password);
             if (!isMatch) {
-              return res.status(401).json({ message: "Invalid credentials", result: false });
+              return res.status(404).json({ message: "Invalid credentials", result: false });
             }
 
             const accessToken = jwt.sign({id: user.id, role: user.role}, process.env.JWT_SECRET as string, {expiresIn: '15min'})
             const refreshToken = jwt.sign({id: user.id, role: user.role}, process.env.JWT_SECRET as string, {expiresIn: '1d'})
-
 
             res.cookie("accessToken", accessToken, {
               httpOnly: true,

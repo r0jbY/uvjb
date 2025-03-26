@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import * as dotenv from "dotenv"; // Explicitly use named import
 import swaggerUi from "swagger-ui-express";
 import router from "./routes/authenticationRouter";
-import swaggerDocument from "./utils/swagger-output.json"; // Import generated JSON
+import swaggerDocument from "./config/swagger-output.json"; // Import generated JSON
 
 dotenv.config();
 
