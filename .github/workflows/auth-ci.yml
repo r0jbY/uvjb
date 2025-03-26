@@ -67,3 +67,6 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          sonar.javascript.lcov.reportPaths: coverage/lcov-report/index.html
+
