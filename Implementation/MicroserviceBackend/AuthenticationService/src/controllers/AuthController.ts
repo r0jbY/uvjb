@@ -25,7 +25,7 @@ export default class AuthController {
             const refreshToken = jwt.sign({id: user.id, role: user.role}, process.env.JWT_SECRET as string, {expiresIn: '1d'})
 
             res.cookie("accessToken", accessToken, {
-              httpOnly: true ,
+              httpOnly: true,
               secure: true,
               sameSite: "none",
             });
