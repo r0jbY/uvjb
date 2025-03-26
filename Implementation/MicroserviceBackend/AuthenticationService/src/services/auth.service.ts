@@ -1,11 +1,4 @@
 import { prisma } from "../config/database";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-
-interface JwtPayload {
-  id: string;
-  role: string;
-}
 
 export class AuthService {
   

@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import * as dotenv from "dotenv"; // Explicitly use named import
 import swaggerUi from "swagger-ui-express";
 import router from "./routes/authenticationRouter";

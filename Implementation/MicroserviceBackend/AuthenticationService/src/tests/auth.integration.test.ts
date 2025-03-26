@@ -1,8 +1,15 @@
 import request from "supertest";
 import app from "../app";
 import { AuthService } from "../services/auth.service";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken"
+
 
 jest.mock("../services/auth.service");
+
+jest.mock("bcryptjs", () => ({
+  compare: jest.fn(), 
+}));
 
 describe("Auth Routes - Integration (Mocked DB)", () => {
     beforeEach(() => {
@@ -29,9 +36,8 @@ describe("Auth Routes - Integration (Mocked DB)", () => {
             role: "user"
         });
 
-        const bcrypt = require("bcryptjs");
-        jest.spyOn(bcrypt, "compare").mockResolvedValue(false);
-
+        
+        (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
         const res = await request(app).post("/auth/login").send({
             email: "ghost@example.com",
@@ -50,10 +56,8 @@ describe("Auth Routes - Integration (Mocked DB)", () => {
           role: "user"
         });
     
-        const bcrypt = require("bcryptjs");
-        jest.spyOn(bcrypt, "compare").mockResolvedValue(true);
+        (bcrypt.compare as jest.Mock).mockResolvedValue(true);
     
-        const jwt = require("jsonwebtoken");
         jest.spyOn(jwt, "sign").mockImplementation(() => "mocked-token");
     
         const res = await request(app).post("/auth/login").send({
@@ -70,12 +74,10 @@ describe("Auth Routes - Integration (Mocked DB)", () => {
       });
 
       test.each([
-        [{ email: "", password: "correct-password" }, "missing email"],
-        [{ email: "test@example.com", password: "" }, "missing password"],
-        [{ email: "", password: "" }, "missing both"],
-        [{}, "empty body"]])
-      ("should return 400 for invalid input: %s (%s)", async (body, descirption) => {
-        
+        [{ email: "", password: "correct-password" }],
+        [{ email: "test@example.com", password: "" }],
+        [{ email: "", password: "" }],
+        [{}]])("should return 400 for invalid input: %s (%s)", async (body) => {
         const res = await request(app).post("/auth/login").send(body);
     
         expect(res.status).toBe(400);
