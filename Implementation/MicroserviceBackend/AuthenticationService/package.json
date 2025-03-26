@@ -8,7 +8,8 @@
     "swagger": "node src/config//swagger.ts",
     "dev": "nodemon",
     "test": "jest --verbose",
-    "coverage": "jest --coverage"
+    "coverage": "jest --coverage",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
