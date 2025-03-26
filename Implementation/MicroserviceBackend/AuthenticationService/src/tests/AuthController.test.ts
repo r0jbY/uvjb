@@ -2,14 +2,15 @@ import AuthController from "../controllers/AuthController";
 import { AuthService } from "../services/auth.service";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { Request, Response } from "express";
 
 jest.mock("../services/auth.service");
 jest.mock("bcryptjs");
 jest.mock("jsonwebtoken");
 
 describe("AuthController", () => {
-  let req: any;
-  let res: any;
+  let req: Partial<Request>;
+  let res: Partial<Response>;
 
   beforeEach(() => {
     req = {
@@ -28,7 +29,7 @@ describe("AuthController", () => {
     it("should return 404 if user not found", async () => {
       (AuthService.getUserByEmail as jest.Mock).mockResolvedValue(null);
 
-      await AuthController.login(req, res);
+      await AuthController.login(req as Request, res as Response);
 
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({ message: "Invalid credentials", result: false });
@@ -38,7 +39,7 @@ describe("AuthController", () => {
       (AuthService.getUserByEmail as jest.Mock).mockResolvedValue({ password: "hashed" });
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
-      await AuthController.login(req, res);
+      await AuthController.login(req as Request, res as Response);
 
       expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({ message: "Invalid credentials", result: false });
@@ -50,7 +51,7 @@ describe("AuthController", () => {
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (jwt.sign as jest.Mock).mockImplementation((payload) => `token-${payload.id}`);
 
-      await AuthController.login(req, res);
+      await AuthController.login(req as Request, res as Response);
 
       expect(res.cookie).toHaveBeenCalledTimes(2);
       expect(res.status).toHaveBeenCalledWith(200);
@@ -64,19 +65,19 @@ describe("AuthController", () => {
     it("should return 500 when a database error occurs", async () => {
       (AuthService.getUserByEmail as jest.Mock).mockRejectedValue(new Error("DB Failure"));
 
-      await AuthController.login(req, res);
+      await AuthController.login(req as Request, res as Response);
 
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
         message: "Internal server error",
       });
 
-    })
+    });
   });
 
   describe("logout", () => {
     it("should clear cookies and return 200", async () => {
-      await AuthController.logout(req, res);
+      await AuthController.logout(req as Request, res as Response);
 
       expect(res.cookie).toHaveBeenCalledWith("accessToken", "", expect.objectContaining({ expires: expect.any(Date) }));
       expect(res.cookie).toHaveBeenCalledWith("refreshToken", "", expect.objectContaining({ expires: expect.any(Date) }));

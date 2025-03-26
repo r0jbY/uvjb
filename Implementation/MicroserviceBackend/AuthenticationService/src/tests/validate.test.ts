@@ -1,6 +1,6 @@
 import { validate } from "../middleware/validate";
 import {z} from "zod";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 
 describe("validate middleware", () => {
     const mockSchema = z.object({
