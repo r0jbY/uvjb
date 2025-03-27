@@ -31,7 +31,7 @@ describe("AuthController", () => {
   });
 
   describe("login", () => {
-    it("should return 404 if user not found", async () => {
+    it("should return 404 if user not found",  async () => {
       (AuthService.getUserByEmail as jest.Mock).mockResolvedValue(null);
 
       await AuthController.login(req as Request, res as Response);
