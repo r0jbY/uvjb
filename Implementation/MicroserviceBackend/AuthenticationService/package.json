@@ -10,7 +10,7 @@
     "test": "jest --verbose",
     "coverage": "jest --coverage",
     "build": "tsc",
-    "lint": "eslint . --ext .ts --max-warnings=0"
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",

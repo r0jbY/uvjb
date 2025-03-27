@@ -57,14 +57,12 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
-      # - name: 🔧 Build the app
-      #   run: npm run build
-      #   # Make sure "build": "tsc" is in your package.json
-
       - name: 🧪 Run tests and coverage
         run: npm test
+
       - name: List Coverage Files
         run: ls -la coverage
+
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
