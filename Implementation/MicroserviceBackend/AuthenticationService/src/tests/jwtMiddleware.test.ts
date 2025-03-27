@@ -35,7 +35,7 @@ describe("jwt middleware", () => {
         req.cookies = { accessToken: 'validToken' };
     
         (jwt.verify as jest.Mock).mockImplementation((token, secret, callback) => {
-          callback(null, { id: '123' });
+          callback(null);
         });
     
         verifyJwt(req as Request, res as Response, next);
@@ -52,7 +52,7 @@ describe("jwt middleware", () => {
        
         const error = new Error('Expired token') as VerifyErrors;
         (jwt.verify as jest.Mock).mockImplementation((token, secret, callback) => {
-          callback(error, undefined);
+          callback(error);
         });
     
         verifyJwt(req as Request, res as Response, next);

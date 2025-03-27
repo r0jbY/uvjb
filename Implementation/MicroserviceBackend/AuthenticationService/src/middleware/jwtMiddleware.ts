@@ -7,7 +7,7 @@ export const verifyJwt = (req: Request, res: Response, next: NextFunction): void
         const token = req.cookies.accessToken;
         const accessSecret: string = process.env.ACCESS_SECRET!;
 
-        jwt.verify(token, accessSecret, (err : VerifyErrors | null, _decoded: string | undefined | object) => {
+        jwt.verify(token, accessSecret, (err : VerifyErrors | null) => {
             if(err) {
                 refreshToken(req, res, next);
             }
