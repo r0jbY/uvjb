@@ -18,6 +18,9 @@ jobs:
     defaults:
       run:
         working-directory: Implementation/MicroserviceBackend/AuthenticationService/
+        
+    env:
+      ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
 
     steps:
       - uses: actions/checkout@v4

@@ -3,15 +3,20 @@ import app from "../app";
 import { AuthService } from "../services/auth.service";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
-
+import {v4 as uuidv4} from "uuid"
 
 jest.mock("../services/auth.service");
 
 jest.mock("bcryptjs", () => ({
   compare: jest.fn(), 
+  hash: jest.fn(),
 }));
 
-describe("Auth Routes - Integration (Mocked DB)", () => {
+jest.mock("uuid", () => ({
+  v4: jest.fn(),
+}));
+
+describe("Auth Routes (login + logout) - Integration (Mocked DB)", () => {
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -71,6 +76,8 @@ describe("Auth Routes - Integration (Mocked DB)", () => {
         expect(cookies.length).toBe(2);
         expect(cookies[0]).toMatch(/accessToken=mocked-token/);
         expect(cookies[1]).toMatch(/refreshToken=mocked-token/);
+
+        jest.restoreAllMocks();
       });
 
       test.each([
@@ -105,4 +112,101 @@ describe("Auth Routes - Integration (Mocked DB)", () => {
 
       });
 
+      
+
+});
+
+describe("Auth Routes - Register", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should return 200 and 'Account created' on successful registration", async () => {
+    
+    (uuidv4 as jest.Mock).mockReturnValue("test-uuid");
+    (bcrypt.hash as jest.Mock).mockResolvedValue("hashed-password");
+    (AuthService.createAccount as jest.Mock).mockResolvedValue(true);
+
+    const accessToken = jwt.sign({id: '123', role: 'user'}, process.env.ACCESS_SECRET as string, {expiresIn: '15m'})
+
+
+
+    const res = await request(app)
+      .post("/auth/register")
+      .set("Cookie", [`accessToken=${accessToken}`])
+      .send({
+        email: "newuser@example.com",
+        password: "newpassword",
+        role: "user",
+      });
+
+    
+    expect(res.status).toBe(200);
+    expect(res.text).toEqual("Account created");
+    
+    expect(uuidv4).toHaveBeenCalled();
+    expect(bcrypt.hash).toHaveBeenCalledWith("newpassword", 12);
+    expect(AuthService.createAccount).toHaveBeenCalledWith(
+      "test-uuid",
+      "newuser@example.com",
+      "hashed-password",
+      "user"
+    );
+  });
+
+
+  it("should return 400 and 'Account creation failed' if an error occurs during registration", async () => {
+    // Arrange
+    (uuidv4 as jest.Mock).mockReturnValue("test-uuid");
+    (bcrypt.hash as jest.Mock).mockResolvedValue("hashed-password");
+    (AuthService.createAccount as jest.Mock).mockRejectedValue(new Error("Creation error"));
+
+    const validToken = jwt.sign({ id: "admin" }, process.env.ACCESS_SECRET!, {expiresIn: '1min'});
+
+    const res = await request(app)
+      .post("/auth/register")
+      .set("Cookie", [`accessToken=${validToken}`])
+      .send({
+        email: "failuser@example.com",
+        password: "failpassword",
+        role: "user",
+      });
+
+    // Assert
+    expect(res.status).toBe(400);
+    expect(res.text).toEqual("Account creation failed");
+  });
+
+  it("should return 401 if token is invalid", async () => {
+    (uuidv4 as jest.Mock).mockReturnValue("test-uuid");
+    (bcrypt.hash as jest.Mock).mockResolvedValue("hashed-password");
+    (AuthService.createAccount as jest.Mock).mockResolvedValue(false);
+
+
+    const res = await request(app)
+      .post("/auth/register")
+      .send({
+        email: "failuser@example.com",
+        password: "failpassword",
+        role: "user",
+      });
+
+    expect(res.status).toBe(401);
+  });
+
+  test.each([
+    [{ email: "", password: "password", role: "user" }],
+    [{ email: "newuser@example.com", password: "", role: "user" }],
+    [{ email: "newuser@example.com", password: "password", role: "123" }],
+    [{}],
+  ])("should return 400 for invalid input: %o", async (body) => {
+
+    const validToken = jwt.sign({ id: "admin" }, process.env.ACCESS_SECRET!, {expiresIn: '1min'});
+
+    const res = await request(app)
+      .post("/auth/register")
+      .set("Cookie", [`accessToken=${validToken}`])
+      .send(body);
+    expect(res.status).toBe(400);
+  });
 });
