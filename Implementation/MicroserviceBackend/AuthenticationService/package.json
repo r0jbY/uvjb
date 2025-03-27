@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "swagger": "node src/config//swagger.ts",
+    "swagger": "ts-node src/config//swagger.ts",
     "dev": "nodemon",
     "test": "jest --verbose",
     "coverage": "jest --coverage",
@@ -19,6 +19,7 @@
     "@prisma/client": "^6.5.0",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-validator": "^7.2.1",
@@ -26,8 +27,8 @@
     "prisma": "^6.5.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "zod": "^3.24.2",
-    "cookie-parser": "^1.4.7"
+    "uuid": "^11.1.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
@@ -40,6 +41,7 @@
     "@types/supertest": "^6.0.3",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
     "cookie-parser": "^1.4.7",

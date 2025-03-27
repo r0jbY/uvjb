@@ -12,4 +12,14 @@ export class AuthService {
     }
     
   }
+
+  static async createAccount(id: string, email: string, password: string, role: string) {
+    try {
+      await prisma.user.create({data : {id, email, password, role}});
+      return true;
+    } catch (err) {
+      console.log(err);
+      throw new Error("User could not be created");
+    }
+  } 
 }

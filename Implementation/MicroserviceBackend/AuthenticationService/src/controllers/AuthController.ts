@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs"
+import {v4 as uuidv4} from "uuid";
 
 
 export default class AuthController {
@@ -22,7 +23,6 @@ export default class AuthController {
             }
 
             const accessToken = jwt.sign({id: user.id, role: user.role}, process.env.ACCESS_SECRET as string, {expiresIn: '15m'})
-            console.log(accessToken);
             const refreshToken = jwt.sign({id: user.id, role: user.role}, process.env.REFRESH_SECRET as string, {expiresIn: '1d'})
 
             res.cookie("accessToken", accessToken, {
@@ -64,5 +64,21 @@ export default class AuthController {
         expires: new Date(0),
       });
         return res.status(200).send("Logout successful");
+    }
+
+    static async register(req: Request, res: Response): Promise<Response> {
+
+      const id = uuidv4();
+      const {email, password, role} = req.body;
+
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      try {
+        await AuthService.createAccount(id, email, hashedPassword, role);
+        return res.status(200).send("Account created");
+      } catch (error) {
+        console.log(error);
+        return res.status(400).send("Account creation failed");
+      }
     }
 }
