@@ -21,8 +21,9 @@ export default class AuthController {
               return res.status(404).json({ message: "Invalid credentials", result: false });
             }
 
-            const accessToken = jwt.sign({id: user.id, role: user.role}, process.env.JWT_SECRET as string, {expiresIn: '15min'})
-            const refreshToken = jwt.sign({id: user.id, role: user.role}, process.env.JWT_SECRET as string, {expiresIn: '1d'})
+            const accessToken = jwt.sign({id: user.id, role: user.role}, process.env.ACCESS_SECRET as string, {expiresIn: '15m'})
+            console.log(accessToken);
+            const refreshToken = jwt.sign({id: user.id, role: user.role}, process.env.REFRESH_SECRET as string, {expiresIn: '1d'})
 
             res.cookie("accessToken", accessToken, {
               httpOnly: true,
