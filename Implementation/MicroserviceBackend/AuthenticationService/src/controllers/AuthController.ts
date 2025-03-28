@@ -75,7 +75,7 @@ export default class AuthController {
 
       try {
         await AuthService.createAccount(id, email, hashedPassword, role);
-        return res.status(200).send("Account created");
+        return res.status(200).send("Account created") ;
       } catch (error) {
         console.log(error);
         return res.status(400).send("Account creation failed");
