@@ -3,27 +3,23 @@ import {createProxyMiddleware} from 'http-proxy-middleware'
 
 const app = express();
 
-// Proxy configuration for Service 1
-
 app.use('/auth/login', createProxyMiddleware({
-    target: 'http://localhost:3001/auth/login', // AuthService URL
+    target: 'http://localhost:3001/auth/login',
     changeOrigin: true,
 }));
 
 app.use('/auth/logout', createProxyMiddleware({
-    target: 'http://localhost:3001/auth/logout', // AuthService URL
+    target: 'http://localhost:3001/auth/logout', 
     changeOrigin: true,
 }));
 
 app.use('/auth/register', createProxyMiddleware({
-    target: 'http://localhost:3001/auth/register', // AuthService URL
+    target: 'http://localhost:3001/auth/register', 
     changeOrigin: true,
 }));
   
 
-// Proxy configuration for Service 2
 
-// Optional: A default route for the gateway itself
 app.get('/', (req, res) => {
     res.send('Welcome to the API Gateway!');
 });

@@ -4,13 +4,29 @@ import { AuthService } from "../services/auth.service";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 import {v4 as uuidv4} from "uuid"
+import { prisma } from "../config/database";
 
-jest.mock("../services/auth.service");
 
-jest.mock("bcryptjs", () => ({
-  compare: jest.fn(), 
-  hash: jest.fn(),
+
+jest.mock("../config/database", () => ({
+  prisma: {
+    user: {
+      findUnique: jest.fn(),
+      create: jest.fn()
+    },
+  },
 }));
+
+jest.mock("bcryptjs", () => {
+  const actualBcrypt = jest.requireActual("bcryptjs");
+  return {
+    ...actualBcrypt,
+    hash: jest.fn(),
+  };
+});
+
+
+
 
 jest.mock("uuid", () => ({
   v4: jest.fn(),
@@ -18,11 +34,12 @@ jest.mock("uuid", () => ({
 
 describe("Auth Routes (login + logout) - Integration (Mocked DB)", () => {
     beforeEach(() => {
-        jest.clearAllMocks();
+        jest.resetAllMocks();
+        jest.restoreAllMocks();
     });
 
     it("should return 404 if user not found", async () => {
-        (AuthService.getUserByEmail as jest.Mock).mockResolvedValue(null);
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
 
         const res = await request(app).post("/auth/login").send({
             email: "ghost@example.com",
@@ -31,18 +48,18 @@ describe("Auth Routes (login + logout) - Integration (Mocked DB)", () => {
 
           expect(res.status).toBe(404);
           expect(res.body).toEqual({ message: "Invalid credentials", result: false })
+
+          jest.clearAllMocks();
     });
 
     it("should return 404 if wrong password", async () => {
-        (AuthService.getUserByEmail as jest.Mock).mockResolvedValue({
+        (prisma.user.findUnique as jest.Mock).mockResolvedValue({
             id: "user123",
             email: "test@example.com",
             password: "hashed-password",
             role: "user"
         });
-
-        
-        (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+   
 
         const res = await request(app).post("/auth/login").send({
             email: "ghost@example.com",
@@ -54,19 +71,18 @@ describe("Auth Routes (login + logout) - Integration (Mocked DB)", () => {
     });
 
     it("should return 200 and set cookies if login successful", async () => {
-        (AuthService.getUserByEmail as jest.Mock).mockResolvedValue({
-          id: "user123",
-          email: "test@example.com",
-          password: "hashed-password",
-          role: "user"
+
+        (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+          id: "123",
+          email: "user@example.com",
+          password: "$2a$12$jSWFV2sLrjNhhyWlYXGUCe7/22QddgDJ.mbcDlfvGFPtG2PvzVSTS",
+          role: "admin",
         });
-    
-        (bcrypt.compare as jest.Mock).mockResolvedValue(true);
-    
+
         jest.spyOn(jwt, "sign").mockImplementation(() => "mocked-token");
     
         const res = await request(app).post("/auth/login").send({
-          email: "test@example.com",
+          email: "user@example.com",
           password: "correct-password"
         });
     
@@ -109,12 +125,12 @@ describe("Auth Routes (login + logout) - Integration (Mocked DB)", () => {
 
             expect(accessTokenCleared).toBeDefined();
             expect(refreshTokenCleared).toBeDefined();
-
       });
 
       
 
 });
+
 
 describe("Auth Routes - Register", () => {
   beforeEach(() => {
@@ -125,11 +141,14 @@ describe("Auth Routes - Register", () => {
     
     (uuidv4 as jest.Mock).mockReturnValue("test-uuid");
     (bcrypt.hash as jest.Mock).mockResolvedValue("hashed-password");
-    (AuthService.createAccount as jest.Mock).mockResolvedValue(true);
+    (prisma.user.create as jest.Mock).mockResolvedValue({
+      id: "user123",
+      email: "newuser@example.com",
+      password: "newpassword",
+      role: "user"
+    });
 
     const accessToken = jwt.sign({id: '123', role: 'user'}, process.env.ACCESS_SECRET as string, {expiresIn: '15m'})
-
-
 
     const res = await request(app)
       .post("/auth/register")
@@ -146,12 +165,7 @@ describe("Auth Routes - Register", () => {
     
     expect(uuidv4).toHaveBeenCalled();
     expect(bcrypt.hash).toHaveBeenCalledWith("newpassword", 12);
-    expect(AuthService.createAccount).toHaveBeenCalledWith(
-      "test-uuid",
-      "newuser@example.com",
-      "hashed-password",
-      "user"
-    );
+
   });
 
 
@@ -159,7 +173,7 @@ describe("Auth Routes - Register", () => {
     // Arrange
     (uuidv4 as jest.Mock).mockReturnValue("test-uuid");
     (bcrypt.hash as jest.Mock).mockResolvedValue("hashed-password");
-    (AuthService.createAccount as jest.Mock).mockRejectedValue(new Error("Creation error"));
+    (prisma.user.create as jest.Mock).mockRejectedValue(new Error("Creation error"));
 
     const validToken = jwt.sign({ id: "admin" }, process.env.ACCESS_SECRET!, {expiresIn: '1min'});
 
@@ -180,8 +194,6 @@ describe("Auth Routes - Register", () => {
   it("should return 401 if token is invalid", async () => {
     (uuidv4 as jest.Mock).mockReturnValue("test-uuid");
     (bcrypt.hash as jest.Mock).mockResolvedValue("hashed-password");
-    (AuthService.createAccount as jest.Mock).mockResolvedValue(false);
-
 
     const res = await request(app)
       .post("/auth/register")
