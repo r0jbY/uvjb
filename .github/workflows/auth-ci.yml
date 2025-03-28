@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jest-coverage
-          path: coverage/lcov.info
+          path: Implementation/MicroserviceBackend/AuthenticationService/coverage/lcov.info
           retention-days: 1
 
   sonarqube:
