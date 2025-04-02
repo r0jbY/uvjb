@@ -10,3 +10,4 @@ export const collectCoverageFrom = [
   "!src/**/index.ts", // <-- optional: ignore index.ts entry points
   "!src/config/**", // <-- optional: ignore config files
 ];
+export const testPathIgnorePatterns = ['/dist'];

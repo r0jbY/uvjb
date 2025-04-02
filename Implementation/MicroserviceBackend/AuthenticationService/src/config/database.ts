@@ -16,9 +16,9 @@ if (process.env.USE_MOCK_DB === 'true') {
         }
         return null;
       },
-      create: async (args: any) => {
-        return args.data;
-      },
+      // create: async (args: ) => {
+      //   return args.data;
+      // },
     },
   } as unknown as PrismaClient;
 } else {
