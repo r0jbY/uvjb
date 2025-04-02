@@ -5,9 +5,8 @@ import { refreshToken } from './refreshToken';
 export const verifyJwt = (req: Request, res: Response, next: NextFunction): void => {
     if(req.cookies && (req.cookies.accessToken || req.cookies.refreshToken)) {
         const token = req.cookies.accessToken;
-        const accessSecret: string = process.env.ACCESS_SECRET!;
         
-        jwt.verify(token, accessSecret, (err : VerifyErrors | null) => {
+        jwt.verify(token, process.env.ACCESS_SECRET as string, (err : VerifyErrors | null) => {
             if(err) {
                 refreshToken(req, res, next);
             }

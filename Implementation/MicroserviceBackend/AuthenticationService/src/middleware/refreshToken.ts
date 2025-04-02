@@ -11,9 +11,8 @@ export const refreshToken = (req: Request, res: Response, next: NextFunction): v
         res.sendStatus(401);
     }
 
-    const refreshSecret : string = process.env.REFRESH_SECRET!;
 
-    jwt.verify(refreshToken, refreshSecret, (err : VerifyErrors | null, _decoded: string | undefined | object) => {
+    jwt.verify(refreshToken, process.env.REFRESH_SECRET as string, (err : VerifyErrors | null, _decoded: string | undefined | object) => {
         
         if(err || !_decoded) {
             console.log('Expired access');
