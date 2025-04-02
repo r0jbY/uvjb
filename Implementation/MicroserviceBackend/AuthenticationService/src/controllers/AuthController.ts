@@ -9,6 +9,9 @@ export default class AuthController {
     
     static async login (req: Request, res: Response) : Promise<Response> {
         try {
+
+            console.log("Entered this!")
+
             const { email, password } = req.body;
             // 1️⃣ Get user from database
             const user = await AuthService.getUserByEmail(email);

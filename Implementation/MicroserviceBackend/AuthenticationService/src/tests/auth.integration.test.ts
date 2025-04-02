@@ -1,6 +1,5 @@
 import request from "supertest";
 import app from "../app";
-import { AuthService } from "../services/auth.service";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken"
 import {v4 as uuidv4} from "uuid"
