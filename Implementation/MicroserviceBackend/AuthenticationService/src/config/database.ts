@@ -16,15 +16,19 @@ if (process.env.USE_MOCK_DB === 'true') {
         }
         return null;
       },
-      // create: async (args: ) => {
-      //   return args.data;
-      // },
+      create: async (args: {data : {id: string, email: string, password: string, role: string}}) => {
+        const email = args.data.email;
+        if(email === "newuser@example.com") {
+          return ("Worked!");
+        } else if (email === "exists@gmail.com") {
+          throw new Error("User already exists");
+        }
+      },
     },
   } as unknown as PrismaClient;
 } else {
     
   // Use the real Prisma client
-  console.log("Went here!")
   prisma = new PrismaClient();
 }
 

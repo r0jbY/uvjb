@@ -1,7 +1,11 @@
 import express from 'express';
 import {createProxyMiddleware} from 'http-proxy-middleware'
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
+
 
 app.use('/auth/login', createProxyMiddleware({
     target: 'http://localhost:3001/auth/login',

@@ -1,7 +1,7 @@
 import { Server } from "http";
 import request from "supertest";
 import app from "../app"; // API Gateway's Express app
-
+import jwt from "jsonwebtoken"
 
 import { fork, ChildProcess } from "child_process";
 
@@ -27,7 +27,7 @@ afterAll((done) => {
   });
 });
 
-describe("Integration Test: API Gateway -> AuthService (login)", () => {
+describe("Integration Test: API Gateway -> AuthService (login + logout)", () => {
   it("should return 200 on successful login and contain correct cookies", async () => {
 
     const res = await request(app).post("/auth/login").send({
@@ -112,4 +112,72 @@ describe("Integration Test: API Gateway -> AuthService (login)", () => {
     expect(accessTokenCookie).toMatch(/Expires=Thu, 01 Jan 1970/);
     expect(refreshTokenCookie).toMatch(/Expires=Thu, 01 Jan 1970/);
   });
+
+});
+
+describe("Integration Test: API Gateway -> AuthService (register)", () => {
+    it("should return 401 when there is not JWT", async () => {
+  
+      const res = await request(app).post("/auth/register").send({
+        email: "robert@gmail.com",
+        password: "password",
+      });
+      
+      expect(res.status).toBe(401);
+    });
+
+    const invalidPayloads = [
+      { password: "password", role: "user" },
+      { email: "not-an-email", password: "password", role: "user" },
+      { email: "robert@gmail.com", role: "user" },
+      { email: "robert@gmail.com", password: "short", role: "user" },
+      { email: "robert@gmail.com", password: "password", role: "notarole" },
+      { email: "robert@gmail.com", password: "password" },
+    ];
+    it.each(invalidPayloads)("should return 400 on invalid input and valid JWT", async (payload) => {
+
+      const accessToken = jwt.sign({id: '123', role: 'user'}, process.env.ACCESS_SECRET as string, {expiresIn: '15m'})
+  
+      const res = await request(app)
+      .post("/auth/register")
+      .set("Cookie", [`accessToken=${accessToken}`])
+      .send(payload);
+      
+      expect(res.status).toBe(400);
+    });
+
+    it("should return 200 when registration works", async () => {
+  
+      const accessToken = jwt.sign({id: '123', role: 'user'}, process.env.ACCESS_SECRET as string, {expiresIn: '15m'})
+
+      const res = await request(app)
+      .post("/auth/register")
+      .set("Cookie", [`accessToken=${accessToken}`])
+      .send({
+        email: "newuser@example.com",
+        password: "newpassword",
+        role: "admin",
+      });
+  
+      expect(res.status).toBe(200);
+    });
+
+
+    it("should return 400 when registration fails but JWT passes", async () => {
+  
+      const accessToken = jwt.sign({id: '123', role: 'user'}, process.env.ACCESS_SECRET as string, {expiresIn: '15m'})
+
+      const res = await request(app)
+      .post("/auth/register")
+      .set("Cookie", [`accessToken=${accessToken}`])
+      .send({
+        email: "exists@gmail.com",
+        password: "newpassword",
+        role: "user",
+      });
+  
+      expect(res.status).toBe(400);
+      expect(res.text).toEqual("Account creation failed");
+    });
+
 });
