@@ -1,19 +1,13 @@
 import { useState } from "react";
 import logo from "../assets/Logo.png";
+import { login } from "../Services/AuthenticationService";
 
 function LoginComponent() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-
-    const changeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEmail(e.target.value);
-    };
-
-    const changePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPassword(e.target.value);
-    };
+    const [loginMessage, setLoginMessage] = useState("");
 
     const validate = () => {
         const newErrors: typeof errors = {};
@@ -29,11 +23,34 @@ function LoginComponent() {
         return Object.keys(newErrors).length === 0;
     }
 
-    const loginCall = () => {
+    const loginCall = async () => {
         if (validate()) {
-            console.log("Good!");
+            try {
+
+                const res = await login(email, password);
+                console.log(res);
+
+                setEmail("");
+                setPassword("");
+                setLoginMessage(`Login successful!`);
+                console.log("Good!");
+            } catch (error) {
+                setLoginMessage(`Invalid credentials. Try again!`);
+                console.error(error);
+            }
         }
     }
+
+
+
+    const changeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+    };
+
+    const changePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+    };
+
 
     return (
         <div className="flex flex-col w-[100vw] h-[100vh]">
@@ -52,7 +69,7 @@ function LoginComponent() {
                     onChange={changeEmail}
                     className="w-5/6 h-12 p-1 text-center text-base font-bold text-gray-500 bg-[#D9D9D9] border placeholder-gray-500 focus:placeholder-transparent sm:w-2/3 sm:h-14 sm:text-lg md:w-1/2 md:h-16 md:text-xl lg:w-1/3 lg:h-20 lg:text-2xl"
                 />
-                {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+                {errors.email && <p className="text-black">{errors.email}</p>}
 
                 <input
                     placeholder="Password"
@@ -61,7 +78,7 @@ function LoginComponent() {
                     onChange={changePassword}
                     className="w-5/6 h-12 p-1 text-center text-base font-bold text-gray-500 bg-[#D9D9D9] border placeholder-gray-500 focus:placeholder-transparent sm:w-2/3 sm:h-14 sm:text-lg md:w-1/2 md:h-16 md:text-xl lg:w-1/3 lg:h-20 lg:text-2xl"
                 />
-                {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
+                {errors.password && <p className="text-black text-sm">{errors.password}</p>}
 
                 <button
                     onClick={loginCall}
@@ -69,10 +86,14 @@ function LoginComponent() {
                 >
                     Log In
                 </button>
+
             </div>
 
+
             {/* 📦 Bottom Spacer */}
-            <div className="h-[25vh] sm:h-[20vh] md:h-[20vh] lg:h-[20vh] bg-[#D9D9D9]"></div>
+            <div className="h-[25vh] sm:h-[20vh] md:h-[20vh] lg:h-[20vh] bg-[#D9D9D9]">
+                <p className="text-gray-700 text-center text-lg font-semibold pt-5">{loginMessage}</p>
+            </div>
         </div>
 
 
