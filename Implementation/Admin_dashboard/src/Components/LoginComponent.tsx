@@ -36,30 +36,46 @@ function LoginComponent() {
     }
 
     return (
-        <div className="pt-0 flex flex-col items-center justify-center min-h-screen bg-[#D9D9D9] gap-0">
-            
-            <img src={logo} alt="Logo" className="ml-8 sm:ml-14 md:ml-14 lg:ml-20 mb-10 mt-0 p-0 w-32 sm:w-40 md:w-52 lg:w-60 xl:w-72 h-auto" />
-            <div className="mt-15 mb-10 w-full h-[30vh] sm:h-[40vh] md:h-[45vh] l:h-[50vh] bg-white shadow-lg p-6 flex flex-col gap-8 justify-center items-center border-t-1 border-b-1">
+        <div className="flex flex-col w-[100vw] h-[100vh]">
+
+            {/* 🐢 Logo Section */}
+            <div className="flex items-center justify-center h-[35vh] sm:h-[35vh] md:h-[35vh] lg:h-[40vh] bg-[#D9D9D9]">
+                <img src={logo} alt="Logo" className="w-40 ml-5 h-auto sm:w-52 sm:ml-10 md:w-64 md:ml-15 lg:w-72 lg:ml-20" />
+            </div>
+
+            {/* ⬜ Login Form */}
+            <div className="flex flex-col items-center justify-center gap-8 border-y h-[40vh] sm:h-[45vh] md:h-[50vh] lg:h-[50vh] bg-white">
+
                 <input
                     placeholder="Email"
-                    className="p-1 border-1 w-5/6 sm:w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4 bg-[#D9D9D9] h-12 sm:h-14 md:h-16 lg:h-20 xl:h-24 text-center font-bold text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-gray-500 placeholder-gray-500 focus:placeholder-transparent"
                     value={email}
                     onChange={changeEmail}
+                    className="w-5/6 h-12 p-1 text-center text-base font-bold text-gray-500 bg-[#D9D9D9] border placeholder-gray-500 focus:placeholder-transparent sm:w-2/3 sm:h-14 sm:text-lg md:w-1/2 md:h-16 md:text-xl lg:w-1/3 lg:h-20 lg:text-2xl"
                 />
                 {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+
                 <input
                     placeholder="Password"
                     type="password"
-                    className="p-1 border-1 w-5/6 sm:w-3/4 md:w-1/2 lg:w-1/3 xl:w-1/4 bg-[#D9D9D9] h-12 sm:h-14 md:h-16 lg:h-20 xl:h-24 text-center font-bold text-base sm:text-lg md:text-xl lg:text-2xl text-gray-500 xl:text-3xl placeholder-gray-500 focus:placeholder-transparent"
                     value={password}
                     onChange={changePassword}
+                    className="w-5/6 h-12 p-1 text-center text-base font-bold text-gray-500 bg-[#D9D9D9] border placeholder-gray-500 focus:placeholder-transparent sm:w-2/3 sm:h-14 sm:text-lg md:w-1/2 md:h-16 md:text-xl lg:w-1/3 lg:h-20 lg:text-2xl"
                 />
                 {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
-                <button className="p-1 border border-gray-500 bg-[#D9D9D9] h-10 sm:h-12 md:h-14 lg:h-16 xl:h-18 text-center font-bold text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-gray-500 w-1/3 sm:w-1/4 md:w-1/5 lg:w-1/6 xl:w-1/8 rounded-lg shadow hover:bg-gray-300 active:scale-95 transition duration-200 cursor-pointer" onClick={() => { loginCall() }}>
+
+                <button
+                    onClick={loginCall}
+                    className="w-1/2 h-10 p-1 text-center text-base font-bold text-gray-500 bg-[#D9D9D9] border border-gray-500 rounded-lg shadow hover:bg-gray-300 active:scale-95 transition duration-200 cursor-pointer sm:w-1/3 sm:h-12 sm:text-lg md:w-1/4 md:h-14 md:text-xl lg:w-1/5 lg:h-16 lg:text-2xl"
+                >
                     Log In
                 </button>
             </div>
+
+            {/* 📦 Bottom Spacer */}
+            <div className="h-[25vh] sm:h-[20vh] md:h-[20vh] lg:h-[20vh] bg-[#D9D9D9]"></div>
         </div>
+
+
     );
 }
 
