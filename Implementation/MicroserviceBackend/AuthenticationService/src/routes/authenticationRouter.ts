@@ -18,4 +18,8 @@ router.post("/register", verifyJwt, validate(registerSchema), (req: Request, res
     AuthController.register(req, res);
 });
 
+router.get("/whoAmI", verifyJwt, (req: Request, res: Response) => {
+    AuthController.whoAmI(req, res);
+});
+
 export default router;

@@ -27,7 +27,10 @@ app.use('/auth/register', createProxyMiddleware({
     changeOrigin: true,
 }));
   
-
+app.use('/auth/whoAmI', createProxyMiddleware({
+    target: 'http://localhost:3001/auth/whoAmI', 
+    changeOrigin: true,
+}));
 
 app.get('/', (req, res) => {
     res.send('Welcome to the API Gateway!');

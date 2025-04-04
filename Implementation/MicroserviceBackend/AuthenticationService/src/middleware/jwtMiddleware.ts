@@ -18,5 +18,6 @@ export const verifyJwt = (req: Request, res: Response, next: NextFunction): void
     } else {
         console.log('No token');
         res.status(401).json({message: "No token"});
+        return;
     }
 };

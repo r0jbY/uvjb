@@ -25,8 +25,6 @@ jest.mock("bcryptjs", () => {
 });
 
 
-
-
 jest.mock("uuid", () => ({
   v4: jest.fn(),
 }));
@@ -91,6 +89,27 @@ describe("Auth Routes (login + logout) - Integration (Mocked DB)", () => {
         expect(cookies.length).toBe(2);
         expect(cookies[0]).toMatch(/accessToken=mocked-token/);
         expect(cookies[1]).toMatch(/refreshToken=mocked-token/);
+
+        jest.restoreAllMocks();
+      });
+
+      it("should return 401 if user is not admin", async () => {
+
+        (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+          id: "123",
+          email: "user@example.com",
+          password: "$2a$12$jSWFV2sLrjNhhyWlYXGUCe7/22QddgDJ.mbcDlfvGFPtG2PvzVSTS",
+          role: "user",
+        });
+    
+        const res = await request(app).post("/auth/login").send({
+          email: "user@example.com",
+          password: "correct-password"
+        });
+    
+        expect(res.status).toBe(401);
+        expect(res.body.message).toBe("Access denied");
+    
 
         jest.restoreAllMocks();
       });
@@ -205,6 +224,7 @@ describe("Auth Routes - Register", () => {
     expect(res.status).toBe(401);
   });
 
+
   test.each([
     [{ email: "", password: "password", role: "user" }],
     [{ email: "newuser@example.com", password: "", role: "user" }],
@@ -219,5 +239,27 @@ describe("Auth Routes - Register", () => {
       .set("Cookie", [`accessToken=${validToken}`])
       .send(body);
     expect(res.status).toBe(400);
+  });
+});
+
+describe("Auth Routes - WhoAmI",  () => {
+  it("should return 401 if token is invalid", async () => {
+    const res = await request(app)
+    .get("/auth/whoAmI");
+
+   expect(res.status).toBe(401);
+  });
+
+  it("should return 400 and user id & role if token is valid", async () => {
+
+    const validToken = jwt.sign({ id: "123", role: "admin" }, process.env.ACCESS_SECRET!, {expiresIn: '1min'});
+
+    const res = await request(app)
+      .get("/auth/whoAmI")
+      .set("Cookie", [`accessToken=${validToken}`]);
+
+   expect(res.status).toBe(200);
+   console.log(res.body);
+   expect(res.body).toEqual({id: "123", role: "admin"});
   });
 });

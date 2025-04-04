@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
-import jwt from "jsonwebtoken";
+import jwt, { VerifyErrors } from "jsonwebtoken";
 import bcrypt from "bcryptjs"
 import {v4 as uuidv4} from "uuid";
 
@@ -24,6 +24,11 @@ export default class AuthController {
             if (!isMatch) {
               return res.status(404).json({ message: "Invalid credentials", result: false });
             }
+
+            if(user.role!=='admin') {
+              return res.status(401).json({message: "Access denied"});
+            }
+
 
             const accessToken = jwt.sign({id: user.id, role: user.role}, process.env.ACCESS_SECRET as string, {expiresIn: '15m'})
             const refreshToken = jwt.sign({id: user.id, role: user.role}, process.env.REFRESH_SECRET as string, {expiresIn: '1d'})
@@ -67,6 +72,31 @@ export default class AuthController {
         expires: new Date(0),
       });
         return res.status(200).send("Logout successful");
+    }
+
+    static async whoAmI(req: Request, res: Response): Promise<Response> {
+
+      const accessToken = res.locals.accessToken || req.cookies.accessToken;
+      
+      if (!accessToken) {
+        return res.status(401).json({ message: "Expired access" });
+      }
+
+      try {
+        const decoded = await new Promise<{ id: string; role: string }>((resolve, reject) => {
+          jwt.verify(accessToken, process.env.ACCESS_SECRET as string, (err : VerifyErrors | null, _decoded: string | undefined | object) => {
+            if (err || !_decoded) {
+              reject(new Error("Invalid or expired token"));
+            } else {
+              resolve(_decoded as { id: string; role: string });
+            }
+          });
+        });
+        return res.status(200).json({ id: decoded.id, role: decoded.role });
+    
+      } catch {
+        return res.status(401).json({ message: "Expired access" });
+      }
     }
 
     static async register(req: Request, res: Response): Promise<Response> {
