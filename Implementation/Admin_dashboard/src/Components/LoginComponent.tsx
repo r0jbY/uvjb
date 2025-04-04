@@ -1,6 +1,7 @@
 import { useState } from "react";
 import logo from "../assets/Logo.png";
 import { login } from "../Services/AuthenticationService";
+import { useNavigate } from "react-router";
 
 function LoginComponent() {
 
@@ -8,6 +9,7 @@ function LoginComponent() {
     const [password, setPassword] = useState("");
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
     const [loginMessage, setLoginMessage] = useState("");
+    const navigate = useNavigate();
 
     const validate = () => {
         const newErrors: typeof errors = {};
@@ -29,10 +31,10 @@ function LoginComponent() {
 
                 const res = await login(email, password);
                 console.log(res);
-
                 setEmail("");
                 setPassword("");
                 setLoginMessage(`Login successful!`);
+                navigate('/akkssk');
                 console.log("Good!");
             } catch (error) {
                 setLoginMessage(`Invalid credentials. Try again!`);

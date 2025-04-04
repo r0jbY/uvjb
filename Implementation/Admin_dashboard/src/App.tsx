@@ -1,11 +1,17 @@
 import './App.css'
 import LoginComponent from './Components/LoginComponent'
+import NavBarComponent from './Components/NavBarComponent'
+import { Route, Routes } from 'react-router';
 
 function App() {
   
 
   return (
-    <LoginComponent/>
+    <Routes>
+      <Route index element={<LoginComponent/>}/>
+      <Route path='*' element={<NavBarComponent/>}/>
+    </Routes>
+    
   );
 }
 
