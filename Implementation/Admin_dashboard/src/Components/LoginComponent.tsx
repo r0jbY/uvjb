@@ -4,6 +4,11 @@ import { login } from "../Services/AuthenticationService";
 import { useNavigate } from "react-router";
 import background from "../assets/background.png";
 import { useEffect } from "react";
+import { LockClosedIcon } from "@heroicons/react/24/outline";
+import { UserIcon } from "@heroicons/react/24/outline";
+import { EyeIcon } from "@heroicons/react/24/outline";
+import { EyeSlashIcon } from "@heroicons/react/24/solid";
+import { ToastContainer, toast } from "react-toastify";
 
 function useIsShortScreen(threshold = 600) {
     const [isShort, setIsShort] = useState(false);
@@ -28,23 +33,24 @@ function LoginComponent() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
     const [loginMessage, setLoginMessage] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const isShortScreen = useIsShortScreen();
 
     const validate = () => {
-        const newErrors: typeof errors = {};
-
-        if (!email) {
-            newErrors.email = "Email must be filled in.";
+        const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        if (!emailRegex.test(email)) {
+            toast.error("Invalid email format");
+            return false;
         }
 
         if (!password) {
-            newErrors.password = "Password must be filled in.";
+            toast.error("Password has to be filled in");
+            return false;
         }
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        
+        return true;
     }
 
     const loginCall = async () => {
@@ -65,7 +71,9 @@ function LoginComponent() {
         }
     }
 
-
+    const togglePasswordVisibility = () => {
+        setShowPassword((prev) => !prev);
+    };
 
     const changeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
@@ -82,44 +90,69 @@ function LoginComponent() {
              bg-[#F7EFDA] bg-contain bg-center lg:bg-cover overflow-y-auto px-4 pt-[12vh] pb-10"
             style={{ backgroundImage: `url(${background})` }}
         >
+            <ToastContainer
+                position="top-right"
+                autoClose={3000}
+                closeOnClick
+                pauseOnHover
+                theme="light"
+            />
             {/* 🐢 Logo */}
             {!isShortScreen && (<img
                 src={logo}
                 alt="Logo"
                 className="absolute top-[6vh] left-1/2 transform -translate-x-1/2 
-               w-[96px] sm:w-[120px] md:w-[140px] short:hidden"
+               w-[35vw] sm:w-[120px] md:w-[140px]"
             />)}
 
             {/* ⬜ Login Form */}
             <div
                 className="
-    flex flex-col items-center justify-center gap-5 w-full max-w-md py-6 px-6 rounded-2xl overflow-y-auto md:shadow-[0px_12px_32px_rgba(0,0,0,0.15)] md:bg-white md:border md:border-[#B7C0B2] md:h-auto xl:w-[27.77vw] xl:h-[46.88vh] xl:min-h-[350px]"
+    flex flex-col items-center justify-center gap-5 w-full max-w-md py-6 px-6 rounded-2xl overflow-y-auto shadow-[0px_12px_32px_rgba(0,0,0,0.15)] bg-white border border-[#B7C0B2] md:h-auto xl:w-[23vw] xl:h-[47vh] xl:min-h-[350px]"
             >
 
                 <h2 className="text-[#658F8D] text-3xl sm:text-4xl lg:text-[34px] font-bold mb-4 lg:mb-8">
                     Log in
                 </h2>
+                <div className="relative w-full max-w-[340px]" >
+                    <UserIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#658F8D]" />
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={changeEmail}
+                        className="w-full max-w-[340px] h-[48px] p-3 pl-9 border border-[#C3B295] rounded-lg
+                    text-[#658F8D] text-base sm:text-lg bg-white placeholder-[#658F8D]
+                    focus:outline-[#C3B295]"
+                    />
+                </div>
 
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={changeEmail}
-                    className="w-full max-w-[340px] h-[48px] p-3 border border-[#C3B295] rounded-lg
-                 text-[#658F8D] text-base sm:text-lg bg-white placeholder-[#658F8D]
-                 focus:outline-[#C3B295]"
-                />
+                <div className="relative w-full max-w-[340px]" >
+                    <LockClosedIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#658F8D]" />
 
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={changePassword}
-                    className="w-full max-w-[340px] h-[48px] p-3 border border-[#C3B295] rounded-lg
-                 text-[#658F8D] text-base sm:text-lg bg-white placeholder-[#658F8D]
-                 focus:outline-[#C3B295]"
-                />
+                    {/* 👁️ Toggle Button (Right) */}
+                    <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#658F8D]"
+                    >
+                        {showPassword ? (
+                            <EyeSlashIcon className="w-5 h-5" />
+                        ) : (
+                            <EyeIcon className="w-5 h-5" />
+                        )}
+                    </button>
 
+                    <input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Password"
+                        value={password}
+                        onChange={changePassword}
+                        className="w-full max-w-[340px] h-[48px] p-3 pl-9 border border-[#C3B295] rounded-lg
+                    text-[#658F8D] text-base sm:text-lg bg-white placeholder-[#658F8D]
+                    focus:outline-[#C3B295]"
+                    />
+                </div>
                 <button
                     onClick={loginCall}
                     className="w-full max-w-[340px] h-[48px] mt-2 lg:mt-6 p-2 rounded-lg
