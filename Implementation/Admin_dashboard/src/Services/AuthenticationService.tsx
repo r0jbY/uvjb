@@ -17,3 +17,19 @@ export const login = async (email: string, password: string) => {
     }
     
 };
+
+export const checkAuth = async () => {
+    let userId = null;
+    let isAuthenticated = false;
+    let role = null;
+    try {
+        const res =await axios.get("/auth/whoAmI", {withCredentials: true});
+        userId = res.data.id;
+        role = res.data.role;
+        isAuthenticated = true;
+        console.log(`${userId} ${role} is logged in right now!`)
+    } catch (error){
+        console.log(error);
+    }
+    return {userId, role, isAuthenticated};
+};

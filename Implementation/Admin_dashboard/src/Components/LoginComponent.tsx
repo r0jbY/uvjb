@@ -9,6 +9,7 @@ import { UserIcon } from "@heroicons/react/24/outline";
 import { EyeIcon } from "@heroicons/react/24/outline";
 import { EyeSlashIcon } from "@heroicons/react/24/solid";
 import { ToastContainer, toast } from "react-toastify";
+import { useAuth } from "../hooks/useAuth";
 
 function useIsShortScreen(threshold = 600) {
     const [isShort, setIsShort] = useState(false);
@@ -36,6 +37,7 @@ function LoginComponent() {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const isShortScreen = useIsShortScreen();
+    const {refreshAuth} = useAuth();
 
     const validate = () => {
         const emailRegex = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -61,6 +63,7 @@ function LoginComponent() {
                 console.log(res);
                 setEmail("");
                 setPassword("");
+                await refreshAuth();
                 navigate('/akkssk');
             } catch (error) {
                 toast.dismiss();
