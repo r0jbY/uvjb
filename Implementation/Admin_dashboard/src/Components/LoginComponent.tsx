@@ -33,40 +33,42 @@ function LoginComponent() {
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [loginMessage, setLoginMessage] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const isShortScreen = useIsShortScreen();
 
     const validate = () => {
-        const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        const emailRegex = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
+
         if (!emailRegex.test(email)) {
+            toast.dismiss();
             toast.error("Invalid email format");
             return false;
         }
 
         if (!password) {
+            toast.dismiss();
             toast.error("Password has to be filled in");
             return false;
         }
-        
         return true;
     }
 
     const loginCall = async () => {
         if (validate()) {
             try {
-
                 const res = await login(email, password);
                 console.log(res);
                 setEmail("");
                 setPassword("");
-                setLoginMessage(`Login successful!`);
                 navigate('/akkssk');
-                console.log("Good!");
             } catch (error) {
-                setLoginMessage(`Invalid credentials. Try again!`);
-                console.error(error);
+                toast.dismiss();
+                if (error instanceof Error) {
+                    toast.error(error.message);
+                } else {
+                    toast.error("Unknown error");
+                }
             }
         }
     }
@@ -107,8 +109,7 @@ function LoginComponent() {
 
             {/* ⬜ Login Form */}
             <div
-                className="
-    flex flex-col items-center justify-center gap-5 w-full max-w-md py-6 px-6 rounded-2xl overflow-y-auto shadow-[0px_12px_32px_rgba(0,0,0,0.15)] bg-white border border-[#B7C0B2] md:h-auto xl:w-[23vw] xl:h-[47vh] xl:min-h-[350px]"
+                className="flex flex-col items-center justify-center gap-5 w-full max-w-md py-6 px-6 rounded-2xl overflow-y-auto shadow-[0px_12px_32px_rgba(0,0,0,0.15)] bg-white border border-[#B7C0B2] md:h-auto xl:w-[23vw] xl:h-[47vh] xl:min-h-[350px]"
             >
 
                 <h2 className="text-[#658F8D] text-3xl sm:text-4xl lg:text-[34px] font-bold mb-4 lg:mb-8">
