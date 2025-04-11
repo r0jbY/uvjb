@@ -27,7 +27,6 @@ export const checkAuth = async () => {
         userId = res.data.id;
         role = res.data.role;
         isAuthenticated = true;
-        console.log(`${userId} ${role} is logged in right now!`)
     } catch (error){
         console.log(error);
     }
