@@ -17,6 +17,7 @@ describe("refreshToken middleware", () => {
     res = {
       sendStatus: jest.fn(),
       cookie: jest.fn(),
+      locals:{}
     };
     next = jest.fn();
 
@@ -69,7 +70,7 @@ describe("refreshToken middleware", () => {
       expect.any(Function)
     );
     expect(jwt.sign).toHaveBeenCalledWith(
-      { payload: decodedPayload },
+      { id: decodedPayload.id, role: decodedPayload.role},
       "testAccessSecret",
       { expiresIn: "15m" }
     );

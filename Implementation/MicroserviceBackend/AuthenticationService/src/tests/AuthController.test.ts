@@ -3,7 +3,7 @@ import { AuthService } from "../services/auth.service";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
-import {v4 as uuidv4} from "uuid"
+import { v4 as uuidv4 } from "uuid"
 
 jest.mock("../services/auth.service");
 jest.mock("bcryptjs");
@@ -25,13 +25,14 @@ describe("AuthController", () => {
       cookie: jest.fn(),
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
-      send: jest.fn()
+      send: jest.fn(),
+      locals: {}
     };
     (uuidv4 as jest.Mock).mockReturnValue("test-uuid");
   });
 
   describe("login", () => {
-    it("should return 404 if user not found",  async () => {
+    it("should return 404 if user not found", async () => {
       (AuthService.getUserByEmail as jest.Mock).mockResolvedValue(null);
 
       await AuthController.login(req as Request, res as Response);
@@ -51,7 +52,7 @@ describe("AuthController", () => {
     });
 
     it("should return 200 and set cookies if login is successful", async () => {
-      const mockUser = { id: "user123", password: "hashed", role: "user" };
+      const mockUser = { id: "user123", password: "hashed", role: "admin" };
       (AuthService.getUserByEmail as jest.Mock).mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
       (jwt.sign as jest.Mock).mockImplementation((payload) => `token-${payload.id}`);
@@ -64,6 +65,19 @@ describe("AuthController", () => {
         message: "User logged in successfully",
         result: true,
         userid: "user123"
+      });
+    });
+
+    it("should return 401 if role is not admin", async () => {
+      const mockUser = { id: "user123", password: "hashed", role: "user" };
+      (AuthService.getUserByEmail as jest.Mock).mockResolvedValue(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+
+      await AuthController.login(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({
+        message: "Access denied",
       });
     });
 
@@ -97,13 +111,13 @@ describe("AuthController", () => {
       (bcrypt.hash as jest.Mock).mockResolvedValue("hashed-password");
 
       await AuthController.register(req as Request, res as Response);
-      
+
 
       // Verify that dependencies were called with the expected values
       expect(uuidv4).toHaveBeenCalled();
       expect(bcrypt.hash).toHaveBeenCalledWith("password123", 12);
       expect(AuthService.createAccount).toHaveBeenCalledWith("test-uuid", "test@example.com", "hashed-password", "admin");
-  
+
       // Verify response
       expect(res.status).toHaveBeenCalledWith(200);
 
@@ -111,10 +125,52 @@ describe("AuthController", () => {
 
     it("should return 400 and 'Account creation failed' when AuthService.createAccount throws an error", async () => {
       (AuthService.createAccount as jest.Mock).mockRejectedValue(new Error("Creation error"));
-  
+
       await AuthController.register(req as Request, res as Response);
-  
+
       expect(res.status).toHaveBeenCalledWith(400);
+    });
+  });
+
+  describe("whoAmI", () => {
+    it("should return 401 if there is no access token", async () => {
+
+      req.cookies = {};
+
+      await AuthController.whoAmI(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith(
+        { message: "Expired access" }
+      );
+    });
+
+    it("should return 401 if access token is invalid", async () => {
+
+      req.cookies = { accessToken: "123" };
+
+      (jwt.verify as jest.Mock).mockImplementation((_token, _secret, callback) => {
+        callback(new Error("Invalid token"), null);
+      });
+
+      await AuthController.whoAmI(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith(
+        { message: "Expired access" }
+      );
+    });
+
+    it("should return 200 and user info if token is valid", async () => {
+      req.cookies = { accessToken: "valid-token" };
+      (jwt.verify as jest.Mock).mockImplementation((_token, _secret, callback) => {
+        callback(null, { id: "user123", role: "admin" });
+      });
+
+      await AuthController.whoAmI(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith({ id: "user123", role: "admin" });
     });
   });
 });

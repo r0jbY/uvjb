@@ -5,10 +5,10 @@ export const refreshToken = (req: Request, res: Response, next: NextFunction): v
     
     console.log("Entered refresh");
     const refreshToken = req.cookies.refreshToken;
-
     if(!refreshToken) {
         console.log("Failed");
         res.sendStatus(401);
+        return;
     }
 
 
@@ -17,22 +17,25 @@ export const refreshToken = (req: Request, res: Response, next: NextFunction): v
         if(err || !_decoded) {
             console.log('Expired access');
             res.sendStatus(401);
+            return;
         }
         else {
             const payload = _decoded as { id: string, role: string };
 
             const accessToken = jwt.sign(
-                { payload },
+                {id: payload.id, role: payload.role },
                 process.env.ACCESS_SECRET as string,
                 { expiresIn: "15m" }
             );
+
+            res.locals.accessToken = accessToken;
 
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",
             });
-        
+           
             next();
         }
     });
