@@ -1,6 +1,4 @@
-import { execSync } from 'child_process'
 import { fork, ChildProcess } from "child_process";
-
 
 let backendProcess: ChildProcess
 let gatewayProcess: ChildProcess
@@ -29,7 +27,8 @@ export default async function globalSetup() {
 
   // Clean up backend on exit
   process.on('exit', () => {
-    console.log('🧼 Shutting down backend...')
-    backendProcess.kill()
+    console.log('🧼 Shutting down backend...');
+    backendProcess.kill();
+    gatewayProcess.kill();
   })
 }
