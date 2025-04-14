@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node src/index.ts",
-    "test": "jest --verbose"
+    "test": "jest --verbose",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
