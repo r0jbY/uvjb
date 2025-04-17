@@ -3,7 +3,7 @@ import { AuthService } from "../services/auth.service";
 import jwt, { VerifyErrors } from "jsonwebtoken";
 import bcrypt from "bcryptjs"
 import {v4 as uuidv4} from "uuid";
-
+import { publishUserCreatedEvent } from "../utils/publisher";
 
 export default class AuthController {
     
@@ -102,12 +102,31 @@ export default class AuthController {
     static async register(req: Request, res: Response): Promise<Response> {
 
       const id = uuidv4();
-      const {email, password, role} = req.body;
+      const {
+        email,
+        password,
+        role,
+        firstName,
+        lastName,
+        phoneNumber,
+        address,
+      } = req.body;
+  
+
 
       const hashedPassword = await bcrypt.hash(password, 12);
 
       try {
         await AuthService.createAccount(id, email, hashedPassword, role);
+
+        await publishUserCreatedEvent({
+          uuid: id,
+          firstName: firstName,
+          lastName : lastName,
+          address,
+          phoneNumber,
+        });
+
         return res.status(200).send("Account created") ;
       } catch (error) {
         console.log(error);

@@ -22,4 +22,5 @@ router.get("/whoAmI", verifyJwt, (req: Request, res: Response) => {
     AuthController.whoAmI(req, res);
 });
 
+
 export default router;

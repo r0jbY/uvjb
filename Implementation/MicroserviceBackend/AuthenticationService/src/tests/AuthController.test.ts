@@ -12,6 +12,8 @@ jest.mock("uuid", () => ({
   v4: jest.fn(),
 }));
 
+jest.mock("../utils/publisher");
+
 describe("AuthController", () => {
   let req: Partial<Request>;
   let res: Partial<Response>;

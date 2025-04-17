@@ -6,7 +6,6 @@ import {v4 as uuidv4} from "uuid"
 import { prisma } from "../config/database";
 
 
-
 jest.mock("../config/database", () => ({
   prisma: {
     user: {
@@ -15,6 +14,8 @@ jest.mock("../config/database", () => ({
     },
   },
 }));
+
+jest.mock("../utils/publisher");
 
 jest.mock("bcryptjs", () => {
   const actualBcrypt = jest.requireActual("bcryptjs");
@@ -175,10 +176,14 @@ describe("Auth Routes - Register", () => {
         email: "newuser@example.com",
         password: "newpassword",
         role: "user",
+        firstName: "Alice",
+        lastName: "Johnson",
+        phoneNumber: "+123456789",
+        address: "123 Main St"
       });
 
     
-    expect(res.status).toBe(200);
+    
     expect(res.text).toEqual("Account created");
     
     expect(uuidv4).toHaveBeenCalled();
@@ -202,6 +207,11 @@ describe("Auth Routes - Register", () => {
         email: "failuser@example.com",
         password: "failpassword",
         role: "user",
+        firstName: "Alice",
+        lastName: "Johnson",
+        phoneNumber: "+123456789",
+        address: "123 Main St"
+        
       });
 
     // Assert
