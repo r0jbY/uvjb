@@ -1,4 +1,6 @@
 import { UserIcon } from "@heroicons/react/24/outline";
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+
 
 function UserComponent() {
     return (
@@ -7,14 +9,18 @@ function UserComponent() {
                 <h1 className="text-[#658F8D] text-3xl font-bold"> User Overview </h1>
                 <button className="bg-[#A2A654] text-white font-semibold px-5 py-2 rounded-full  cursor-pointer hover:bg-[#B7BB68] active:scale-[0.98] transition-all duration-150 ease-in-out">Add New</button>
             </div>
-            <div className="flex w-[92vw]  rounded-full shadow-sm bg-white border-1 border-[#B7C0B2] ">
+            <div className="flex w-[92vw] rounded-full shadow-sm bg-white border border-[#B7C0B2] overflow-hidden">
+                <div className="flex items-center px-4 text-[#658F8D]">
+                    <MagnifyingGlassIcon className="w-5 h-5" />
+                </div>
                 <input
                     type="text"
                     placeholder="Search user name, role ..."
-                    className="flex-grow px-4 py-2 focus:outline-0 text-[#658F8D] placeholder:text-[#658F8D]"
+                    className="flex-grow py-4 focus:outline-0 text-[#658F8D] placeholder:text-[#658F8D]"
                 />
                 <button
-                    className="bg-[#658F8D] text-white font-semibold px-5 rounded-full  cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out"
+                    className="bg-[#658F8D] text-white font-semibold px-5 rounded-full cursor-pointer 
+               hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out"
                 >
                     Search
                 </button>

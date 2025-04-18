@@ -48,7 +48,7 @@ function NavBarComponent() {
                         <ArrowRightStartOnRectangleIcon className="w-6 h-6" />
                         Log out
                     </button>
-                    <button onClick={changeMenuOpen} className="lg:hidden">
+                    <button onClick={changeMenuOpen} className="lg:hidden cursor-pointer active:scale-95">
                         <Bars3Icon className="w-8 h-8" />
                     </button>
                 </div>
@@ -89,7 +89,7 @@ function NavBarComponent() {
                     </button>
 
                     <button className="flex items-center justify-center gap-3 w-fit  mt-auto mb-10 p-3 px-6  rounded-4xl bg-[#658F8D] text-white text-2xl font-bold border-[#739B99] cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
-                        <UserIcon className="w-6 h-6" />
+                        <ArrowRightStartOnRectangleIcon className="w-6 h-6" />
                         Log out
                     </button>
 
