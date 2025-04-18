@@ -1,5 +1,5 @@
 import { publishUserCreatedEvent } from "../utils/publisher";
-import * as rabbit from "../config/rabbitmq"; // Adjust to actual path
+import * as rabbit from "../config/rabbitmq"; 
 import { Channel } from "amqplib";
 
 describe("publishUserCreatedEvent", () => {
@@ -11,7 +11,7 @@ describe("publishUserCreatedEvent", () => {
     jest.spyOn(rabbit, "getChannel").mockReturnValue({
       assertQueue: mockAssertQueue,
       sendToQueue: mockSendToQueue,
-    } as Partial<Channel> as Channel); // TypeScript override
+    } as Partial<Channel> as Channel); // 
   });
 
   afterEach(() => {
@@ -31,7 +31,7 @@ describe("publishUserCreatedEvent", () => {
   
     expect(mockAssertQueue).toHaveBeenCalledWith("user.created", { durable: true });
   
-    // Get the actual call buffer
+    
     const bufferArg = mockSendToQueue.mock.calls[0][1];
     const message = JSON.parse(bufferArg.toString());
   
