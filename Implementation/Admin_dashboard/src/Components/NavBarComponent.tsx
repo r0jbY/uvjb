@@ -55,10 +55,10 @@ function NavBarComponent() {
             </div>
 
             <div
-                className={`${menuOpen ? 'hidden' : 'block'}fixed inset-0 z-40`} // Clicking backdrop will close menu
+                className={`${!menuOpen ? 'block' : 'hidden'}fixed inset-0 z-40`} // Clicking backdrop will close menu
             >
                 {/* Background overlay */}
-                {!menuBackdropVisible && (
+                {menuBackdropVisible && (
                     <div
                         className="absolute inset-0 bg-black opacity-30 backdrop-blur-sm transition-opacity"
                         onClick={changeMenuOpen}
@@ -67,7 +67,7 @@ function NavBarComponent() {
 
                 {/* Slide-in menu panel */}
                 <div
-                    className={`flex flex-col align-middle items-center gap-0 fixed top-0 right-0 ${menuOpen ? 'translate-x-full' : 'translate-x-0'} w-[75%] pt-[2vh] h-full z-50 space-y-6 text-xl transition-all duration-300 ease-in-out shadow-lg bg-[#F7EFDA]`}
+                    className={`flex flex-col align-middle items-center gap-0 fixed top-0 right-0 ${!menuOpen ? 'translate-x-full' : 'translate-x-0'} w-[75%] pt-[2vh] h-full z-50 space-y-6 text-xl transition-all duration-300 ease-in-out shadow-lg bg-[#F7EFDA]`}
                 >
                     <div className="w-full flex justify-end pr-4">
                         <button className="text-4xl text-[#658F8D] font-bold cursor-pointer hover:text-[#6C9492] active:scale-95 transition-all duration-200 ease-in-out px-3 py-1 rounded" onClick={changeMenuOpen}>✕</button>
@@ -88,7 +88,7 @@ function NavBarComponent() {
                         Client Network
                     </button>
 
-                    <button className="flex items-center justify-center gap-3 w-fit  mt-auto mb-10 p-5 px-5  rounded-4xl bg-[#658F8D] text-white text-2xl font-bold border-[#739B99] cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
+                    <button className="flex items-center justify-center gap-3 w-fit  mt-auto mb-10 p-3 px-6  rounded-4xl bg-[#658F8D] text-white text-2xl font-bold border-[#739B99] cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
                         <UserIcon className="w-6 h-6" />
                         Log out
                     </button>
