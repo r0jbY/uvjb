@@ -21,8 +21,8 @@ function NavBarComponent() {
     }
 
     return (
-        <div className="w-full shadow-[0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#F7EFDA]">
-            <div className="flex flex-row justify-between items-center w-full h-22 px-8 ">
+        <div className="w-full z-50 shadow-[0_2px_4px_0_rgba(0,0,0,0.2)] bg-[#F7EFDA]">
+            <div className="flex flex-row justify-between items-center w-full h-19 px-8 ">
                 <img src={logo} alt="Logo" className="h-15  mr-auto ml-0" />
                 {/* Left section: logo + nav buttons */}
                 <div className="flex items-center gap-[5vw]">
