@@ -13,4 +13,7 @@ router.get("/users", (req: Request, res: Response) => {
     UserController.getUsers(req, res);
 })
 
+router.get('/users/search', (req: Request, res: Response) => {
+    UserController.searchUsers(req, res);
+})
 export default router;

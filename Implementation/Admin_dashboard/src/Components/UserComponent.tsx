@@ -2,6 +2,8 @@ import { UserIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from "react";
 import { getUsers } from "../Services/UserService";
+import { searchUsers } from "../Services/UserService";
+import { toast, ToastContainer } from "react-toastify";
 
 interface User {
     id: string;
@@ -10,14 +12,18 @@ interface User {
     phone_number: string;
     address: string;
     active?: boolean;
-    role: 'ADMIN' | 'BUDDY' | 'SUPERBUDDY';
-  }
+    role: 'admin' | 'buddy' | 'superbuddy';
+}
 
 function UserComponent() {
 
     const [isLargeScreen, setIsLargeScreen] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
+    const [searchTerms, setSearchTerms] = useState("");
 
+    const changeSearchTerms = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerms(e.target.value);
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -35,7 +41,7 @@ function UserComponent() {
             try {
                 const res = await getUsers();
                 console.log(res);
-                setUsers(res);
+                setUsers(res ?? []);
             } catch (err) {
                 console.error(err);
             }
@@ -43,25 +49,40 @@ function UserComponent() {
         fetchUsers();
     }, [])
 
+    const doSearch = async () => {
+        if (searchTerms === '') {
+            toast.dismiss();
+            toast.error("You need to fill in seach terms.");
+        } else {
+            const results = await searchUsers(searchTerms);
+            setUsers(results ?? []);
+        }
+
+    };
+
     return (
         <div className="flex flex-col gap-6 items-center h-full bg-[#F7EFDA] overflow-y-hidden lg:gap-[5vh]">
+            
             <div className="flex flex-row justify-between w-[92vw] items-center mt-[3vh] lg:justify-center lg:mt-[5vh]">
                 <h1 className="text-[#658F8D] text-3xl font-bold lg:text-4xl"> User Overview </h1>
                 <button className="bg-[#A2A654] text-white font-semibold px-5 py-2 rounded-full  cursor-pointer hover:bg-[#B7BB68] active:scale-[0.98] transition-all duration-150 ease-in-out lg:hidden">Add New</button>
             </div>
             <div className="flex flex-row w-[92vw] h-12 rounded-full bg-white border border-[#B7C0B2]  lg:w-[50vw] lg:gap-4 lg:border-0  lg:justify-center lg:bg-transparent">
-
+                
                 <div className="relative w-full flex items-center">
                     <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#658F8D]" />
 
                     <input
                         type="text"
                         placeholder="Search user name, role ..."
+                        value={searchTerms}
+                        onChange={changeSearchTerms}
                         className="w-full py-4 pl-12 pr-3 focus:outline-0 text-[#658F8D] placeholder:text-[#658F8D] 
                lg:bg-white lg:border lg:border-[#B7C0B2] lg:py-3 lg:rounded-xl"
                     />
                 </div>
                 <button
+                    onClick={doSearch}
                     className="bg-[#658F8D] text-white font-semibold px-5 rounded-full cursor-pointer  hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out lg:h-full lg:py-2 lg:w-30 lg:text-xl"
                 >
                     Search

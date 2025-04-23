@@ -17,3 +17,17 @@ export const getUsers = async () => {
     
 };
 
+export const searchUsers = async (searchTerm: string) => {
+    try {
+      const res = await axios.get('/users/search', {
+        params: {
+          query: searchTerm,
+        },
+      });
+      return res.data;
+    } catch (err) {
+      console.error('Search failed:', err);
+      return [];
+    }
+  };
+

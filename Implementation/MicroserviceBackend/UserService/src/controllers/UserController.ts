@@ -25,4 +25,15 @@ export default class UserController {
             return res.status(500).json({ message: "Internval server error" });
         }
     }
+
+    static async searchUsers(req: Request, res: Response) {
+        const query = req.query.query as string;
+        try {
+          const users = await UserService.searchUsers(query);
+          res.status(200).send(users);
+        } catch (err) {
+          console.error(err);
+          res.status(500).json({ message: "Internal server error" });
+        }
+      }
 };

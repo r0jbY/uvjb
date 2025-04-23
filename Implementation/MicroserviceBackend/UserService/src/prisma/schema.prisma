@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -8,9 +9,9 @@ datasource db {
 }
 
 enum Role {
-  admin
-  buddy
-  superbuddy
+  ADMIN
+  BUDDY
+  SUPERBUDDY
 }
 
 model User {
@@ -20,7 +21,7 @@ model User {
   phone_number String
   address String
   active Boolean? @default(true) 
-  role Role @default(buddy)
+  role Role @default(BUDDY)
 }
 
 
