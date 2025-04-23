@@ -125,6 +125,7 @@ export default class AuthController {
           lastName : lastName,
           address,
           phoneNumber,
+          role
         });
 
         return res.status(200).send("Account created") ;

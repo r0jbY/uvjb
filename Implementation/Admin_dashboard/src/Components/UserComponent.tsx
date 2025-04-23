@@ -1,11 +1,23 @@
 import { UserIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from "react";
+import { getUsers } from "../Services/UserService";
 
+interface User {
+    id: string;
+    first_name: string;
+    last_name: string;
+    phone_number: string;
+    address: string;
+    active?: boolean;
+    role: 'ADMIN' | 'BUDDY' | 'SUPERBUDDY';
+  }
 
 function UserComponent() {
 
     const [isLargeScreen, setIsLargeScreen] = useState(false);
+    const [users, setUsers] = useState<User[]>([]);
+
 
     useEffect(() => {
         const handleResize = () => {
@@ -18,6 +30,18 @@ function UserComponent() {
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const res = await getUsers();
+                console.log(res);
+                setUsers(res);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchUsers();
+    }, [])
 
     return (
         <div className="flex flex-col gap-6 items-center h-full bg-[#F7EFDA] overflow-y-hidden lg:gap-[5vh]">
@@ -62,33 +86,29 @@ function UserComponent() {
                         </div>
 
                         <div className="w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            {[...Array(1)].map((_, index, array) => (
+                            {users.map((user, index) => (
                                 <div
-                                    key={index}
-                                    className={`flex items-center w-full h-[12%] min-h-[12%] font-semibold text-[#658F8D] text-[16px]  border-[#E4DFCC] px-2 xl:text-[18px] ${index === array.length - 1 ? `border-b-0` : `border-b-1`}`}
+                                    key={user.id}
+                                    className={`flex items-center w-full h-[12%] min-h-[12%] font-semibold text-[#658F8D] text-[16px] border-[#E4DFCC] px-2 xl:text-[18px] ${index === users.length - 1 ? 'border-b-0' : 'border-b-1'
+                                        }`}
                                 >
                                     <div className="basis-1/7 flex items-center truncate mr-5">
-                                        <span className="truncate ">
-                                            b292c7c6-5a37-481b-aba7-14229b3a77d4
-                                        </span>
+                                        <span className="truncate">{user.id}</span>
                                     </div>
                                     <div className="basis-1/8 flex items-center truncate mr-5">
-                                        <span className="truncate ">
-                                            Robert Balint
-                                        </span></div>
+                                        <span className="truncate">{user.first_name} {user.last_name}</span>
+                                    </div>
                                     <div className="basis-1/6 flex items-center truncate mr-5">
-                                        <span className="truncate ">
-                                            +40 760686187
-                                        </span>
+                                        <span className="truncate">{user.phone_number}</span>
                                     </div>
                                     <div className="basis-1/5 flex items-center truncate mr-5">
-                                        <span className="truncate ">
-                                            Spoorstart 25, 5911KH, Venlo
-                                        </span>
+                                        <span className="truncate">{user.address}</span>
                                     </div>
-                                    <div className="basis-1/11 flex items-center mr-2">SuperBuddy</div>
-                                    <div className="basis-1/11 flex items-center mr-2">Inactive</div>
-                                    <button className="ml-auto rounded-4xl bg-[#658F8D] px-6 py-0 text-white  font-bold border-[#739B99] text-[16px] h-10 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
+                                    <div className="basis-1/11 flex items-center mr-2">{user.role}</div>
+                                    <div className="basis-1/11 flex items-center mr-2">
+                                        {user.active ? 'Active' : 'Inactive'}
+                                    </div>
+                                    <button className="ml-auto rounded-4xl bg-[#658F8D] px-6 py-0 text-white font-bold border-[#739B99] text-[16px] h-10 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
                                         Edit
                                     </button>
                                 </div>

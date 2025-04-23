@@ -17,8 +17,8 @@ app.use('/auth/login', createProxyMiddleware({
     changeOrigin: true,
 }));
 
-app.use('/auth/logout', createProxyMiddleware({
-    target: 'http://localhost:3001/auth/logout', 
+app.use('/users/getAll', createProxyMiddleware({
+    target: 'http://localhost:3002/users', 
     changeOrigin: true,
 }));
 

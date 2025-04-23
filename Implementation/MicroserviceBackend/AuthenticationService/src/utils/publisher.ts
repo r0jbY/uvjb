@@ -7,6 +7,7 @@ export async function publishUserCreatedEvent(data: {
   lastName: string;
   phoneNumber: string;
   address: string;
+  role: string
 }) {
   const channel = getChannel();
   const queue = "user.created";
@@ -18,6 +19,8 @@ export async function publishUserCreatedEvent(data: {
     timestamp: new Date().toISOString(),
     data,
   };
+
+  console.log("Data being sent:", data);
 
   channel.sendToQueue(queue, Buffer.from(JSON.stringify(event)), {
     persistent: true,

@@ -1,9 +1,10 @@
 import { prisma } from "../config/database";
+import { Role } from "@prisma/client";
 
 export class UserService {
   
   // ✅ Retrieve user from database
-  static async createUser(id: string, first_name: string, last_name: string, phone_number: string, address: string) {
+  static async createUser(id: string, first_name: string, last_name: string, phone_number: string, address: string, role: string) {
     try {
         await prisma.user.create({
             data: {
@@ -11,7 +12,8 @@ export class UserService {
               first_name,
               last_name,
               phone_number,
-              address
+              address,
+              role: role.toUpperCase() as Role
             }
           });
     } catch (error) {

@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  admin
+  buddy
+  superbuddy
+}
+
 model User {
   id  String   @id 
   first_name String 
@@ -14,6 +20,7 @@ model User {
   phone_number String
   address String
   active Boolean? @default(true) 
+  role Role @default(buddy)
 }
 
 
