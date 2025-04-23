@@ -5,6 +5,9 @@ import { AuthProvider } from './contexts/AuthContext';
 import PrivateRoute from './routes/PrivateRoute';
 import PublicRoute from './routes/PublicRoute';
 import UserPage from './Pages/UserPage';
+import Modal from 'react-modal';
+
+Modal.setAppElement('#root');
 
 function App() {
   

@@ -32,3 +32,15 @@ export const checkAuth = async () => {
     }
     return {userId, role, isAuthenticated};
 };
+
+export const logout = async () => {
+    try{
+        const res = await axios.post("/auth/logout", {withCredentials: true});
+
+        console.log(res);
+        return ("Logout worked!");
+    } catch(err) {
+        console.log(err);
+        throw new Error("Intern server error");
+    }
+}

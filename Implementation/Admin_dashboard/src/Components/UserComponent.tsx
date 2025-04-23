@@ -62,7 +62,7 @@ function UserComponent() {
                         </div>
 
                         <div className="w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            {[...Array(10)].map((_, index, array) => (
+                            {[...Array(1)].map((_, index, array) => (
                                 <div
                                     key={index}
                                     className={`flex items-center w-full h-[12%] min-h-[12%] font-semibold text-[#658F8D] text-[16px]  border-[#E4DFCC] px-2 xl:text-[18px] ${index === array.length - 1 ? `border-b-0` : `border-b-1`}`}
