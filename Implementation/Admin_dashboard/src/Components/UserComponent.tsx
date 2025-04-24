@@ -19,26 +19,27 @@ function UserComponent() {
     const [isLargeScreen, setIsLargeScreen] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
     const [searchTerms, setSearchTerms] = useState("");
-    const [page, setPage] = useState(0); 
+    const [page, setPage] = useState(0);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const observer = useRef<IntersectionObserver | null>(null);
+    const [searchPressed, setSearchPressed] = useState(false);
 
     const triggerRef = useCallback(
         (node: HTMLElement | null) => {
-          if (loading) return;
-          if (observer.current) observer.current.disconnect();
-      
-          observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && hasMore) {
-              setPage(prev => prev + 1);
-            }
-          });
-      
-          if (node) observer.current.observe(node);
+            if (loading) return;
+            if (observer.current) observer.current.disconnect();
+
+            observer.current = new IntersectionObserver(entries => {
+                if (entries[0].isIntersecting && hasMore) {
+                    setPage(prev => prev + 1);
+                }
+            });
+
+            if (node) observer.current.observe(node);
         },
         [loading, hasMore]
-      );
+    );
 
     const changeSearchTerms = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerms(e.target.value);
@@ -70,51 +71,81 @@ function UserComponent() {
         };
         if (hasMore) {
             fetchUsers();
-          }
-    }, [page])
+        }
+    }, [page, hasMore])
 
     useEffect(() => {
         console.log("Users updated:", users.length);
-      }, [users]);
+    }, [users]);
 
     const doSearch = async () => {
         if (searchTerms === '') {
             toast.dismiss();
             toast.error("You need to fill in seach terms.");
-        } else {
-            const results = await searchUsers(searchTerms);
-            setUsers(results ?? []);
+            return;
         }
 
+        setSearchPressed(true);
+        try {
+            const results = await searchUsers(searchTerms);
+
+            // Reset scroll-related state
+            setPage(0);
+            setHasMore(false);
+            setUsers(results ?? []);
+        } catch (err) {
+            console.error("Search failed:", err);
+            toast.error("Search failed. Please try again.");
+        }
+    };
+
+    const clearSearch = async () => {
+        setSearchTerms("");
+        setSearchPressed(false);
+        setUsers([]);
+        setPage(0);
+        setHasMore(true); // enable lazy loading again
     };
 
     return (
         <div className="flex flex-col gap-6 items-center h-full bg-[#F7EFDA] overflow-y-hidden lg:gap-[5vh]">
-            
+
             <div className="flex flex-row justify-between w-[92vw] items-center mt-[3vh] lg:justify-center lg:mt-[5vh]">
                 <h1 className="text-[#658F8D] text-3xl font-bold lg:text-4xl"> User Overview </h1>
                 <button className="bg-[#A2A654] text-white font-semibold px-5 py-2 rounded-full  cursor-pointer hover:bg-[#B7BB68] active:scale-[0.98] transition-all duration-150 ease-in-out lg:hidden">Add New</button>
             </div>
-            <div className="flex flex-row w-[92vw] h-12 rounded-full bg-white border border-[#B7C0B2]  lg:w-[50vw] lg:gap-4 lg:border-0  lg:justify-center lg:bg-transparent">
-                
-                <div className="relative w-full flex items-center">
-                    <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#658F8D]" />
+            <div className={`flex flex-col gap-2 ${searchPressed ? "mb-8" : 'mb-0'} 
+            items-center lg:mb-0 lg:flex-row w-[92vw] h-12 rounded-full bg-white border border-[#B7C0B2]  lg:w-[50vw] lg:gap-4 lg:border-0  lg:justify-center lg:bg-transparent`}>
 
-                    <input
-                        type="text"
-                        placeholder="Search user name, role ..."
-                        value={searchTerms}
-                        onChange={changeSearchTerms}
-                        className="w-full py-4 pl-12 pr-3 focus:outline-0 text-[#658F8D] placeholder:text-[#658F8D] 
+                <div className="flex flex-row w-[92vw] h-12 rounded-full bg-white border border-[#B7C0B2]  lg:w-[50vw] lg:gap-4 lg:border-0  lg:justify-center lg:bg-transparent">
+                    <div className="relative w-full flex items-center">
+                        <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#658F8D]" />
+
+                        <input
+                            type="text"
+                            placeholder="Search user name, role ..."
+                            value={searchTerms}
+                            onChange={changeSearchTerms}
+                            className="w-full py-4 pl-12 pr-3 focus:outline-0 text-[#658F8D] placeholder:text-[#658F8D] 
                lg:bg-white lg:border lg:border-[#B7C0B2] lg:py-3 lg:rounded-xl"
-                    />
+                        />
+                    </div>
+                    <button
+                        onClick={doSearch}
+                        className="bg-[#658F8D] text-white font-semibold px-5 rounded-full cursor-pointer  hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out lg:h-full lg:py-2 lg:w-30 lg:text-xl"
+                    >
+                        Search
+                    </button>
                 </div>
-                <button
-                    onClick={doSearch}
-                    className="bg-[#658F8D] text-white font-semibold px-5 rounded-full cursor-pointer  hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out lg:h-full lg:py-2 lg:w-30 lg:text-xl"
-                >
-                    Search
-                </button>
+
+                {(searchPressed) && (
+                    <button
+                        onClick={clearSearch}
+                        className=" py-2  justify-self-center ml-1 lg:ml-0 bg-[#658F8D] text-white font-semibold px-7 rounded-full cursor-pointer  hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out lg:h-full lg:py-2 lg:px-5 lg:w-30 lg:text-xl"
+                    >
+                        Clear
+                    </button>
+                )}
             </div>
 
 
@@ -135,8 +166,12 @@ function UserComponent() {
                         </div>
 
                         <div className="w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            {users.map((user, index) => (
-                                
+                            {!loading && users.length === 0 ? (
+                                <div className="h-full w-full  flex items-center justify-center  text-[#658F8D] text-3xl font-semibold">
+                                    No users matching the search terms were found.
+                                </div>
+                            ) : users.map((user, index) => (
+
                                 <div
                                     key={user.id}
                                     ref={index === users.length - 10 ? triggerRef : null}
@@ -144,10 +179,10 @@ function UserComponent() {
                                         }`}
                                 >
                                     <div className="basis-1/7 flex items-center truncate mr-5">
-                                        <span className="truncate">{user.id}</span>
+                                        <span className="truncate">#{index + 1} {user.id}</span>
                                     </div>
                                     <div className="basis-1/8 flex items-center truncate mr-5">
-                                        <span className="truncate">{index}{user.first_name} {user.last_name}</span>
+                                        <span className="truncate">{user.first_name} {user.last_name}</span>
                                     </div>
                                     <div className="basis-1/6 flex items-center truncate mr-5">
                                         <span className="truncate">{user.phone_number}</span>
@@ -168,11 +203,15 @@ function UserComponent() {
                     </>
                 ) : (
                     <>
-                        {users.map((user, index) => (
+                        {!loading && users.length === 0 ? (
+                            <div className="h-full w-full  flex items-center justify-center  text-[#658F8D] text-3xl font-semibold text-center">
+                                No users matching the search terms were found.
+                            </div>
+                        ) : users.map((user, index) => (
                             <div ref={index === users.length - 10 ? triggerRef : null} className={`flex flex-row items-center justify-between w-[100%] ${index === users.length - 1 ? `border-b-0` : `border-b-1`} border-[#E4DFCC] min-h-1/5 max-h-1/5  `} key={index}>
                                 <UserIcon className="w-8 h-8 lg:hidden"></UserIcon>
                                 <div className="flex flex-col justify-center w-5/8 h-[100%] text-[#658F8D]">
-                                    <h2 className="font-bold text-1xl "> {index} {user.first_name} {user.last_name}</h2>
+                                    <h2 className="font-bold text-1xl "> #{index + 1} {user.first_name} {user.last_name}</h2>
                                     <h2 className=" text-justify">{user.phone_number} - {user.address} - {user.role}</h2>
                                 </div>
                                 <button className="rounded-4xl bg-[#658F8D] px-5 py-3 text-white text-lg font-bold border-[#739B99] cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
