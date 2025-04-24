@@ -59,6 +59,10 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
             active,
           });
           toast.success("User created successfully!");
+
+          setTimeout(() => {
+            onClose();
+          }, 2000);
         } catch (err: any) {
             console.log(err);
             toast.error(err || "Something went wrong");
