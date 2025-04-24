@@ -8,6 +8,7 @@ export async function publishUserCreatedEvent(data: {
   phoneNumber: string;
   address: string;
   role: string
+  active: boolean
 }) {
   const channel = getChannel();
   const queue = "user.created";

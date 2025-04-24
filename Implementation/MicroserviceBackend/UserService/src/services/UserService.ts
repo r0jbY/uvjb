@@ -4,7 +4,7 @@ import { Role } from "@prisma/client";
 export class UserService {
 
   // ✅ Retrieve user from database
-  static async createUser(id: string, first_name: string, last_name: string, phone_number: string, address: string, role: string) {
+  static async createUser(id: string, first_name: string, last_name: string, phone_number: string, address: string, role: string, active: boolean) {
     try {
       await prisma.user.create({
         data: {
@@ -13,7 +13,8 @@ export class UserService {
           last_name,
           phone_number,
           address,
-          role: role.toUpperCase() as Role
+          role: role.toUpperCase() as Role,
+          active
         }
       });
     } catch (error) {

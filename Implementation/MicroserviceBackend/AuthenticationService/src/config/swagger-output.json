@@ -75,6 +75,18 @@
                 },
                 "role": {
                   "example": "any"
+                },
+                "firstName": {
+                  "example": "any"
+                },
+                "lastName": {
+                  "example": "any"
+                },
+                "phoneNumber": {
+                  "example": "any"
+                },
+                "address": {
+                  "example": "any"
                 }
               }
             }

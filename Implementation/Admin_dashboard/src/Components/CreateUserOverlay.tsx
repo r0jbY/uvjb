@@ -1,6 +1,7 @@
+import { toast } from "react-toastify";
 import InputField from "./InputField";
 import { useState } from "react";
-
+import { createUser } from "../Services/UserService";
 function CreateUserOverlay({ onClose }: { onClose: () => void }) {
 
     const [lastName, setLastName] = useState("");
@@ -10,8 +11,60 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
     const [address, setAddress] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [role, setRole] = useState("Buddy");
+    const [role, setRole] = useState<"admin" | "buddy" | "superbuddy">("buddy");
     const [active, setActive] = useState(true);
+
+    const handleSubmit =async (e: React.FormEvent) => {
+        e.preventDefault();
+        toast.dismiss(); 
+      
+        const isEmailValid = (email: string) =>
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      
+        const isPasswordStrong = (pwd: string) =>
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(pwd);
+      
+        const isPhoneValid = (phone: string) =>
+          /^\+?[0-9\s\-()]{6,20}$/.test(phone);
+      
+        const isNameValid = (name: string) =>
+          /^[a-zA-Zà-ÿÀ-ß'’ -]{2,60}$/.test(name.trim());
+      
+        const isAddressValid = (address: string) =>
+          address.trim().length > 5;
+      
+        if (!isNameValid(firstName)) return toast.error("Please enter a valid first name.");
+        if (!isNameValid(lastName)) return toast.error("Please enter a valid last name.");
+        if (!isEmailValid(email)) return toast.error("Please enter a valid email address.");
+        if (!isPhoneValid(phoneNumber)) return toast.error("Please enter a valid phone number.");
+        if (!isAddressValid(address)) return toast.error("Please enter a valid address.");
+        if (!isPasswordStrong(password)) {
+          return toast.error(
+            "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol."
+          );
+        }
+        if (password !== confirmPassword) return toast.error("Passwords do not match.");
+      
+        if (!window.confirm(`Create new user "${firstName} ${lastName}" with role ${role}?`)) return;
+
+        try {
+        await createUser({
+            firstName: firstName,
+            lastName: lastName,
+            email,
+            phoneNumber: phoneNumber,
+            address,
+            password,
+            role,
+            active,
+          });
+          toast.success("User created successfully!");
+        } catch (err: any) {
+            console.log(err);
+            toast.error(err || "Something went wrong");
+        }
+        
+      };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] bg-opacity-30 px-4">
@@ -95,7 +148,7 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                                 name="role"
                                 className="w-full h-[48px] p-3 border border-[#C3B295] rounded-lg text-[#658F8D] text-base bg-[#F7F7F7] focus:outline-[#C3B295]"
                                 value={role}
-                                onChange={(e) => { setRole(e.target.value) }}
+                                onChange={(e) => { setRole(e.target.value as any) }}
                             >
                                 <option value="admin">Admin</option>
                                 <option value="buddy">Buddy</option>
@@ -127,6 +180,7 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                         <button
 
                             className="px-4 py-2 rounded-md text-white bg-[#658F8D] hover:bg-[#739B99] active:scale-[0.95] cursor-pointer lg:rounded-xl lg:font-bold lg:text-xl lg:px-5"
+                            onClick={handleSubmit}
                         >
 
                             Create

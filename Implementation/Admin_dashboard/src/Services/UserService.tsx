@@ -31,3 +31,25 @@ export const searchUsers = async (searchTerm: string) => {
     }
   };
 
+  interface NewUser {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    address: string;
+    password: string;
+    role: "admin" | "buddy" | "superbuddy";
+    active: boolean;
+  }
+
+export const createUser = async (userData : NewUser) => {
+  try {
+
+    const response = await axios.post("/auth/register", userData); // <- update this URL
+    return response.data;
+  } catch (error: any) {
+    console.error("Error creating user:", error.response.data);
+    throw error.response?.data || error.message || "Unknown error";
+  }
+}
+

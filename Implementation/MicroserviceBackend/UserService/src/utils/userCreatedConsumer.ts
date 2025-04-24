@@ -23,7 +23,8 @@ export async function consumeUserCreatedEvents() {
                 data.lastName,
                 data.phoneNumber,
                 data.address,
-                data.role
+                data.role,
+                data.active
             );
 
             channel.ack(msg);

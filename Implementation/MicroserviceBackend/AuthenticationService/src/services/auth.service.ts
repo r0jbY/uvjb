@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../config/database";
 
 export class AuthService {
@@ -15,11 +16,21 @@ export class AuthService {
 
   static async createAccount(id: string, email: string, password: string, role: string) {
     try {
-      await prisma.user.create({data : {id, email, password, role}});
+      await prisma.user.create({
+        data: { id, email, password, role },
+      });
       return true;
-    } catch (err) {
-      console.log(err);
-      throw new Error("User could not be created");
+    } catch (err: unknown) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002' &&
+        (err.meta?.target as string[])?.includes('email')
+      ) {
+        throw new Error("Email is already in use.");
+      }
+  
+      console.error("Unexpected error:", err);
+      throw new Error("User could not be created.");
     }
-  } 
+  }
 }
