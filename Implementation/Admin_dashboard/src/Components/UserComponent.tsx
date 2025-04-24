@@ -185,7 +185,7 @@ function UserComponent() {
                                 <div
                                     key={user.id}
                                     ref={index === users.length - 10 ? triggerRef : null}
-                                    className={`flex items-center w-full h-[12%] min-h-[12%] font-semibold text-[#658F8D] text-[16px] border-[#E4DFCC] px-2 xl:text-[18px] ${index === users.length - 1 ? 'border-b-0' : 'border-b-1'
+                                    className={`flex items-center w-full h-[12%] min-h-[50px] font-semibold text-[#658F8D] text-[16px] border-[#E4DFCC] px-2 xl:text-[18px] ${index === users.length - 1 ? 'border-b-0' : 'border-b-1'
                                         }`}
                                 >
                                     <div className="basis-1/7 flex items-center truncate mr-5">
@@ -212,13 +212,16 @@ function UserComponent() {
                         </div>
                     </>
                 ) : (
-                    <>
+                    <div className="w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    
                         {!loading && users.length === 0 ? (
                             <div className="h-full w-full  flex items-center justify-center  text-[#658F8D] text-3xl font-semibold text-center">
                                 No users matching the search terms were found.
                             </div>
-                        ) : users.map((user, index) => (
-                            <div ref={index === users.length - 10 ? triggerRef : null} className={`flex flex-row items-center justify-between w-[100%] ${index === users.length - 1 ? `border-b-0` : `border-b-1`} border-[#E4DFCC] min-h-1/5 max-h-1/5  `} key={index}>
+                        ) :
+                        
+                         users.map((user, index) => (
+                            <div ref={index === users.length - 10 ? triggerRef : null} className={`flex flex-row items-center justify-between w-[100%] ${index === users.length - 1 ? `border-b-0` : `border-b-1`} border-[#E4DFCC] h-[20%] min-h-[80px]  `} key={index}>
                                 <UserIcon className="w-8 h-8 lg:hidden"></UserIcon>
                                 <div className="flex flex-col justify-center w-5/8 h-[100%] text-[#658F8D]">
                                     <h2 className="font-bold text-1xl "> #{index + 1} {user.first_name} {user.last_name}</h2>
@@ -229,7 +232,7 @@ function UserComponent() {
                                 </button>
                             </div>
                         ))}
-                    </>
+                    </div>
                 )}
 
 
