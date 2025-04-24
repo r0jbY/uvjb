@@ -1,10 +1,9 @@
 import { UserIcon } from "@heroicons/react/24/outline";
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { getUsers } from "../Services/UserService";
 import { searchUsers } from "../Services/UserService";
-import { toast, ToastContainer } from "react-toastify";
-
+import { toast } from "react-toastify";
 interface User {
     id: string;
     first_name: string;
@@ -20,6 +19,26 @@ function UserComponent() {
     const [isLargeScreen, setIsLargeScreen] = useState(false);
     const [users, setUsers] = useState<User[]>([]);
     const [searchTerms, setSearchTerms] = useState("");
+    const [page, setPage] = useState(0); 
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    const observer = useRef<IntersectionObserver | null>(null);
+
+    const triggerRef = useCallback(
+        (node: HTMLElement | null) => {
+          if (loading) return;
+          if (observer.current) observer.current.disconnect();
+      
+          observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+              setPage(prev => prev + 1);
+            }
+          });
+      
+          if (node) observer.current.observe(node);
+        },
+        [loading, hasMore]
+      );
 
     const changeSearchTerms = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerms(e.target.value);
@@ -38,16 +57,25 @@ function UserComponent() {
 
     useEffect(() => {
         const fetchUsers = async () => {
+            setLoading(true);
             try {
-                const res = await getUsers();
+                const res = await getUsers(page);
                 console.log(res);
-                setUsers(res ?? []);
+                setUsers(prev => [...prev, ...res]);
+                setHasMore(res.length === 20);
+                setLoading(false);
             } catch (err) {
                 console.error(err);
             }
         };
-        fetchUsers();
-    }, [])
+        if (hasMore) {
+            fetchUsers();
+          }
+    }, [page])
+
+    useEffect(() => {
+        console.log("Users updated:", users.length);
+      }, [users]);
 
     const doSearch = async () => {
         if (searchTerms === '') {
@@ -108,8 +136,10 @@ function UserComponent() {
 
                         <div className="w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {users.map((user, index) => (
+                                
                                 <div
                                     key={user.id}
+                                    ref={index === users.length - 10 ? triggerRef : null}
                                     className={`flex items-center w-full h-[12%] min-h-[12%] font-semibold text-[#658F8D] text-[16px] border-[#E4DFCC] px-2 xl:text-[18px] ${index === users.length - 1 ? 'border-b-0' : 'border-b-1'
                                         }`}
                                 >
@@ -117,7 +147,7 @@ function UserComponent() {
                                         <span className="truncate">{user.id}</span>
                                     </div>
                                     <div className="basis-1/8 flex items-center truncate mr-5">
-                                        <span className="truncate">{user.first_name} {user.last_name}</span>
+                                        <span className="truncate">{index}{user.first_name} {user.last_name}</span>
                                     </div>
                                     <div className="basis-1/6 flex items-center truncate mr-5">
                                         <span className="truncate">{user.phone_number}</span>
@@ -138,13 +168,12 @@ function UserComponent() {
                     </>
                 ) : (
                     <>
-                        {[...Array(6)].map((_, index, array) => (
-                            <div className={`flex flex-row items-center justify-between w-[100%] ${index === array.length - 1 ? `border-b-0` : `border-b-1`} border-[#E4DFCC] min-h-1/5 max-h-1/5  `} key={index}>
+                        {users.map((user, index) => (
+                            <div ref={index === users.length - 10 ? triggerRef : null} className={`flex flex-row items-center justify-between w-[100%] ${index === users.length - 1 ? `border-b-0` : `border-b-1`} border-[#E4DFCC] min-h-1/5 max-h-1/5  `} key={index}>
                                 <UserIcon className="w-8 h-8 lg:hidden"></UserIcon>
                                 <div className="flex flex-col justify-center w-5/8 h-[100%] text-[#658F8D]">
-                                    <h2 className="font-bold text-1xl ">Robert Balint</h2>
-                                    <h2 className=" text-justify">+31 6 12345678 - Utrecht, Some Street 12A - Admin</h2>
-
+                                    <h2 className="font-bold text-1xl "> {index} {user.first_name} {user.last_name}</h2>
+                                    <h2 className=" text-justify">{user.phone_number} - {user.address} - {user.role}</h2>
                                 </div>
                                 <button className="rounded-4xl bg-[#658F8D] px-5 py-3 text-white text-lg font-bold border-[#739B99] cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
                                     Edit

@@ -22,7 +22,7 @@ const PublicRoute = ({ children }: { children: ReactNode }) => {
         );
     }
 
-    return isAuthenticated ? <Navigate to="/aaa" replace /> : children;
+    return isAuthenticated ? <Navigate to="/UserOverview" replace /> : children;
 };
 
 export default PublicRoute;

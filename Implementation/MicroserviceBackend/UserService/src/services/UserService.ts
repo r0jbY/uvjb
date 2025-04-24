@@ -22,9 +22,13 @@ export class UserService {
     }
   }
 
-  static async getUsers() {
+  static async getUsers(limit: number, offset: number) {
     try {
-      const users = await prisma.user.findMany();
+      const users = await prisma.user.findMany({
+        skip: offset,
+        take: limit,
+        orderBy: {first_name: 'asc'}
+      });
       return users;
     } catch (err) {
       console.log(err);

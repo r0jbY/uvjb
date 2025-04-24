@@ -64,7 +64,7 @@ function LoginComponent() {
                 setEmail("");
                 setPassword("");
                 await refreshAuth();
-                navigate('/akkssk');
+                navigate('/UserOverview');
             } catch (error) {
                 toast.dismiss();
                 if (error instanceof Error) {

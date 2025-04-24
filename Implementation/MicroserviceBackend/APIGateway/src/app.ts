@@ -23,7 +23,7 @@ app.use('/auth/logout', createProxyMiddleware({
 }));
 
 
-app.use('/users/getAll', createProxyMiddleware({
+app.use('/users', createProxyMiddleware({
     target: 'http://localhost:3002/users', 
     changeOrigin: true,
 }));

@@ -6,6 +6,7 @@ import PrivateRoute from './routes/PrivateRoute';
 import PublicRoute from './routes/PublicRoute';
 import UserPage from './Pages/UserPage';
 import Modal from 'react-modal';
+import ClientPage from './Pages/ClientPage';
 
 Modal.setAppElement('#root');
 
@@ -16,7 +17,9 @@ function App() {
     <AuthProvider>
       <Routes>
         <Route index element={<PublicRoute><LoginComponent/></PublicRoute>}/>
+        <Route path='UserOverview' element={<PrivateRoute><UserPage/></PrivateRoute> }/>
         <Route path='*' element={<PrivateRoute><UserPage/></PrivateRoute> }/>
+        <Route path='ClientOverview' element={<PrivateRoute><ClientPage/></PrivateRoute> }/>
       </Routes>
     </AuthProvider>
   );

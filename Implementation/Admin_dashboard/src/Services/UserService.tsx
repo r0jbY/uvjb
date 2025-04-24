@@ -1,9 +1,9 @@
 import axios from "../axiosConfigs";
 import * as Axios from "axios";
 
-export const getUsers = async () => {
+export const getUsers = async (page: number) => {
     try{
-        const res = await axios.get("users/getAll");
+        const res = await axios.get(`users?offset=${page * 20}&limit=20`);
         return res.data;
     } catch (error) {
         if (Axios.isAxiosError(error)) {

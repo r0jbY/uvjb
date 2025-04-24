@@ -71,11 +71,13 @@ function NavBarComponent() {
                 <div className="flex items-center gap-[5vw]">
 
                     <button
-                        className="hidden lg:flex items-center gap-2 font-bold text-[#658F8D] text-2xl cursor-pointer hover:text-[#4C7472] hover:underline underline-offset-4 hover:decoration-[#4C7472] decoration-2 hover:scale-115 active:scale-95 transition-all duration-200 ease-in-out">
+                        className="hidden lg:flex items-center gap-2 font-bold text-[#658F8D] text-2xl cursor-pointer hover:text-[#4C7472] hover:underline underline-offset-4 hover:decoration-[#4C7472] decoration-2 hover:scale-115 active:scale-95 transition-all duration-200 ease-in-out"
+                        onClick={() => navigate("/UserOverview")}>
                         <UserIcon className="w-6 h-6" />
                         User Overview
                     </button>
-                    <button className="hidden lg:flex items-center gap-2 font-bold text-[#658F8D] text-2xl cursor-pointer hover:text-[#4C7472] hover:underline underline-offset-4 hover:decoration-[#4C7472] decoration-2 hover:scale-115 active:scale-95 transition-all duration-200 ease-in-out">
+                    <button className="hidden lg:flex items-center gap-2 font-bold text-[#658F8D] text-2xl cursor-pointer hover:text-[#4C7472] hover:underline underline-offset-4 hover:decoration-[#4C7472] decoration-2 hover:scale-115 active:scale-95 transition-all duration-200 ease-in-out"
+                    onClick={() => navigate("/ClientOverview")}>
                         <UsersIcon className="w-6 h-6" />
                         Client Overview
                     </button>

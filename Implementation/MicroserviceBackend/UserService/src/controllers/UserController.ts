@@ -17,8 +17,12 @@ export default class UserController {
     }
 
     static async getUsers(req: Request, res: Response): Promise<Response>{
+
+        const limit = parseInt(req.query.limit as string) || 20;
+        const offset = parseInt(req.query.offset as string) || 0;
+
         try {
-            const users = await UserService.getUsers();
+            const users = await UserService.getUsers(limit, offset);
             return res.status(200).send(users);
         } catch (err) {
             console.log(err);
