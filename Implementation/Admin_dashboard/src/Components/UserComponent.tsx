@@ -4,6 +4,8 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { getUsers } from "../Services/UserService";
 import { searchUsers } from "../Services/UserService";
 import { toast } from "react-toastify";
+import CreateUserOverlay from "./CreateUserOverlay";
+
 interface User {
     id: string;
     first_name: string;
@@ -24,6 +26,7 @@ function UserComponent() {
     const [hasMore, setHasMore] = useState(true);
     const observer = useRef<IntersectionObserver | null>(null);
     const [searchPressed, setSearchPressed] = useState(false);
+    const [showCreateUser, setShowCreateUser] = useState(false);
 
     const triggerRef = useCallback(
         (node: HTMLElement | null) => {
@@ -110,9 +113,13 @@ function UserComponent() {
     return (
         <div className="flex flex-col gap-6 items-center h-full bg-[#F7EFDA] overflow-y-hidden lg:gap-[5vh]">
 
+            {showCreateUser && (
+                <CreateUserOverlay onClose={() => setShowCreateUser(false)} />
+            )}
+
             <div className="flex flex-row justify-between w-[92vw] items-center mt-[3vh] lg:justify-center lg:mt-[5vh]">
                 <h1 className="text-[#658F8D] text-3xl font-bold lg:text-4xl"> User Overview </h1>
-                <button className="bg-[#A2A654] text-white font-semibold px-5 py-2 rounded-full  cursor-pointer hover:bg-[#B7BB68] active:scale-[0.98] transition-all duration-150 ease-in-out lg:hidden">Add New</button>
+                <button className="bg-[#A2A654] text-white font-semibold px-5 py-2 rounded-full  cursor-pointer hover:bg-[#B7BB68] active:scale-[0.98] transition-all duration-150 ease-in-out lg:hidden" onClick={() => setShowCreateUser(true)}>Add New</button>
             </div>
             <div className={`flex flex-col gap-2 ${searchPressed ? "mb-8" : 'mb-0'} 
             items-center lg:mb-0 lg:flex-row w-[92vw] h-12 rounded-full bg-white border border-[#B7C0B2]  lg:w-[50vw] lg:gap-4 lg:border-0  lg:justify-center lg:bg-transparent`}>
@@ -160,9 +167,12 @@ function UserComponent() {
                             <div className="basis-1/5 mr-5">Address</div>
                             <div className="basis-1/11 mr-2">Role</div>
                             <div className="basis-1/11 mr-2">Status</div>
-                            <button className="ml-auto rounded-4xl bg-[#A2A654] hover:bg-[#B7BB68] w-24 text-white  font-extrabold border-[#739B99] text-[14px] xl:text-[16px] h-11 cursor-pointer  active:scale-[0.98] transition-all duration-150 ease-in-out">
+                            <button className="ml-auto rounded-4xl bg-[#A2A654] hover:bg-[#B7BB68] w-24 text-white  font-extrabold border-[#739B99] text-[14px] xl:text-[16px] h-11 cursor-pointer  active:scale-[0.98] transition-all duration-150 ease-in-out"
+                                onClick={() => setShowCreateUser(true)}>
                                 New User
                             </button>
+
+                           
                         </div>
 
                         <div className="w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">

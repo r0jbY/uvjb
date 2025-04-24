@@ -118,12 +118,14 @@ function NavBarComponent() {
                         <button className="text-4xl text-[#658F8D] font-bold cursor-pointer hover:text-[#6C9492] active:scale-95 transition-all duration-200 ease-in-out px-3 py-1 rounded" onClick={changeMenuOpen}>✕</button>
                     </div>
 
-                    <button className="w-full mb-0 py-6 text-[#658F8D] text-2xl font-bold border-b border-[#E4DFCC] cursor-pointer hover:bg-[#E4DFCC]/30 active:scale-[0.98] transition-all duration-150 ease-in-out flex items-center justify-center gap-3">
+                    <button className="w-full mb-0 py-6 text-[#658F8D] text-2xl font-bold border-b border-[#E4DFCC] cursor-pointer hover:bg-[#E4DFCC]/30 active:scale-[0.98] transition-all duration-150 ease-in-out flex items-center justify-center gap-3"
+                     onClick={() => navigate("/UserOverview")}>
                         <UserIcon className="w-6 h-6" />
                         User Overview
                     </button>
 
-                    <button className="w-full mb-0 py-6 text-[#658F8D] text-2xl font-bold border-b border-[#E4DFCC] cursor-pointer hover:bg-[#E4DFCC]/30 active:scale-[0.98] transition-all duration-150 ease-in-out flex items-center justify-center gap-3">
+                    <button className="w-full mb-0 py-6 text-[#658F8D] text-2xl font-bold border-b border-[#E4DFCC] cursor-pointer hover:bg-[#E4DFCC]/30 active:scale-[0.98] transition-all duration-150 ease-in-out flex items-center justify-center gap-3"
+                    onClick={() => navigate("/ClientOverview")}>
                         <UsersIcon className="w-6 h-6" />
                         Client Overview
                     </button>
