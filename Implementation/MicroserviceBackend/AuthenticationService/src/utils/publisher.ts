@@ -7,7 +7,6 @@ export async function publishUserCreatedEvent(data: {
   lastName: string;
   phoneNumber: string;
   address: string;
-  role: string
   active: boolean
 }) {
   const channel = getChannel();

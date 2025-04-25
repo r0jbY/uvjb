@@ -27,7 +27,7 @@ export const searchUsers = async (searchTerm: string) => {
       return res.data;
     } catch (err) {
       console.error('Search failed:', err);
-      return [];
+      throw new Error ("Search failed");
     }
   };
 
@@ -38,12 +38,14 @@ export const searchUsers = async (searchTerm: string) => {
     phoneNumber: string;
     address: string;
     password: string;
-    role: "admin" | "buddy" | "superbuddy";
+    role: "admin" | "buddy" | "superbuddy" | "";
     active: boolean;
   }
 
 export const createUser = async (userData : NewUser) => {
   try {
+
+    console.log(userData.active);
 
     const response = await axios.post("/auth/register", userData); // <- update this URL
     return response.data;

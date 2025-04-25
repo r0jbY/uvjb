@@ -7,8 +7,7 @@ interface InputFieldProps {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
-  required?: boolean;
-  disabled?: boolean;
+  error?: boolean
 }
 
 function InputField({
@@ -18,14 +17,13 @@ function InputField({
   value,
   onChange,
   placeholder,
-  required = false,
-  disabled = false,
+  error = true
 }: InputFieldProps) {
   return (
     <div className="flex flex-col gap-1 w-full">
       {label && (
-        <label htmlFor={name} className="text-[#658F8D] text-sm font-medium">
-          {label}
+        <label htmlFor={name} className="text-[#658F8D] text-lg font-medium">
+          {error && "!"} {label}
         </label>
       )}
       <input
@@ -35,9 +33,7 @@ function InputField({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        required={required}
-        disabled={disabled}
-        className="w-full h-[48px] p-3 border border-[#C3B295] rounded-lg text-[#658F8D] text-base bg-[#F7F7F7] placeholder-[#658F8D] focus:outline-[#C3B295] disabled:opacity-60 disabled:cursor-not-allowed"
+        className={`w-full h-[48px] p-3 border border-[#C3B295] rounded-lg text-[#658F8D] text-base ${error ? "border-2 border-red-600" : "border border-[#C3B295]"} bg-[#F7F7F7] placeholder-[#658F8D] focus:outline-[#C3B295] disabled:opacity-60 disabled:cursor-not-allowed`}
       />
     </div>
   );

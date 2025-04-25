@@ -27,6 +27,7 @@ function UserComponent() {
     const observer = useRef<IntersectionObserver | null>(null);
     const [searchPressed, setSearchPressed] = useState(false);
     const [showCreateUser, setShowCreateUser] = useState(false);
+    const [serverError, setServerError] = useState(false);
 
     const triggerRef = useCallback(
         (node: HTMLElement | null) => {
@@ -50,7 +51,7 @@ function UserComponent() {
 
     useEffect(() => {
         const handleResize = () => {
-            setIsLargeScreen(window.innerWidth >= 1024); // Tailwind's `lg` is 1024px
+            setIsLargeScreen(window.innerWidth >= 1024); 
         };
 
         handleResize();
@@ -64,12 +65,22 @@ function UserComponent() {
             setLoading(true);
             try {
                 const res = await getUsers(page);
-                console.log(res);
+        
+                if (!Array.isArray(res)) {
+                    throw new Error("Invalid response: expected an array of users");
+                }
+        
+                setServerError(false);
                 setUsers(prev => [...prev, ...res]);
-                setHasMore(res.length === 20);
+                setHasMore(res.length === 20); // adjust this if your page size changes
+            } catch (err: any) {
+                console.error("Failed to fetch users:", err);
+                setServerError(true);
+                toast.dismiss();
+                toast.error("Failed to load users. Please try again later.");
+                setHasMore(false); // prevent infinite retries
+            } finally {
                 setLoading(false);
-            } catch (err) {
-                console.error(err);
             }
         };
         if (hasMore) {
@@ -91,16 +102,18 @@ function UserComponent() {
         setSearchPressed(true);
         try {
             const results = await searchUsers(searchTerms);
-
+            setServerError(false);
             // Reset scroll-related state
             setPage(0);
             setHasMore(false);
             setUsers(results ?? []);
         } catch (err) {
+            setServerError(true);
             console.error("Search failed:", err);
+            toast.dismiss();
             toast.error("Search failed. Please try again.");
         }
-    };
+    }; 
 
     const clearSearch = async () => {
         setSearchTerms("");
@@ -156,17 +169,15 @@ function UserComponent() {
             </div>
 
 
-            <div className="flex flex-col items-center h-full w-[92vw] mb-5 px-2 py-2 rounded-4xl border-1 border-[#E9E2CD] shadow-[0_1px_8px_0_rgba(0,0,0,0.1)] bg-white overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:mb-10">
+            <div className="flex flex-col items-center h-full w-[92vw] mb-5 px-3 py-2 rounded-4xl border-1 border-[#E9E2CD] shadow-[0_1px_8px_0_rgba(0,0,0,0.1)] bg-white overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:mb-10 lg:px-7">
                 {isLargeScreen ? (
                     <>
                         {/* Header */}
                         <div className="w-full font-extrabold text-[#658F8D] text-[18px] xl:text-[20px] border-b-2 border-[#E4DFCC] py-3 px-2 flex items-center">
-                            <div className="basis-1/7 mr-5">Id</div>
-                            <div className="basis-1/8 mr-5">Name</div>
-                            <div className="basis-1/6 mr-5">Phone Number</div>
-                            <div className="basis-1/5 mr-5">Address</div>
-                            <div className="basis-1/11 mr-2">Role</div>
-                            <div className="basis-1/11 mr-2">Status</div>
+                            <div className="basis-1/4">Name</div>
+                            <div className="basis-1/4">Phone Number</div>
+                            <div className="basis-1/4">Address</div>
+                            <div className="basis-1/11">Status</div>
                             <button className="ml-auto rounded-4xl bg-[#A2A654] hover:bg-[#B7BB68] w-24 text-white  font-extrabold border-[#739B99] text-[14px] xl:text-[16px] h-11 cursor-pointer  active:scale-[0.98] transition-all duration-150 ease-in-out"
                                 onClick={() => setShowCreateUser(true)}>
                                 New User
@@ -178,7 +189,7 @@ function UserComponent() {
                         <div className="w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                             {!loading && users.length === 0 ? (
                                 <div className="h-full w-full  flex items-center justify-center  text-[#658F8D] text-3xl font-semibold">
-                                    No users matching the search terms were found.
+                                    {!serverError ? `No users matching the search terms were found.` : "Internal server error."}
                                 </div>
                             ) : users.map((user, index) => (
 
@@ -188,20 +199,16 @@ function UserComponent() {
                                     className={`flex items-center w-full h-[12%] min-h-[50px] font-semibold text-[#658F8D] text-[16px] border-[#E4DFCC] px-2 xl:text-[18px] ${index === users.length - 1 ? 'border-b-0' : 'border-b-1'
                                         }`}
                                 >
-                                    <div className="basis-1/7 flex items-center truncate mr-5">
-                                        <span className="truncate">#{index + 1} {user.id}</span>
-                                    </div>
-                                    <div className="basis-1/8 flex items-center truncate mr-5">
+                                    <div className="basis-1/4 flex items-center truncate">
                                         <span className="truncate">{user.first_name} {user.last_name}</span>
                                     </div>
-                                    <div className="basis-1/6 flex items-center truncate mr-5">
+                                    <div className="basis-1/4 flex items-center truncate">
                                         <span className="truncate">{user.phone_number}</span>
                                     </div>
-                                    <div className="basis-1/5 flex items-center truncate mr-5">
+                                    <div className="basis-1/4 flex items-center truncate">
                                         <span className="truncate">{user.address}</span>
                                     </div>
-                                    <div className="basis-1/11 flex items-center mr-2">{user.role}</div>
-                                    <div className="basis-1/11 flex items-center mr-2">
+                                    <div className="basis-1/11 flex items-center">
                                         {user.active ? 'Active' : 'Inactive'}
                                     </div>
                                     <button className="ml-auto rounded-4xl bg-[#658F8D] px-6 py-0 text-white font-bold border-[#739B99] text-[16px] h-10 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
@@ -212,7 +219,7 @@ function UserComponent() {
                         </div>
                     </>
                 ) : (
-                    <div className="w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                    <div className={`${searchPressed ? "pt-1" : "pt-0"} w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}>
                     
                         {!loading && users.length === 0 ? (
                             <div className="h-full w-full  flex items-center justify-center  text-[#658F8D] text-3xl font-semibold text-center">
@@ -224,8 +231,8 @@ function UserComponent() {
                             <div ref={index === users.length - 10 ? triggerRef : null} className={`flex flex-row items-center justify-between w-[100%] ${index === users.length - 1 ? `border-b-0` : `border-b-1`} border-[#E4DFCC] h-[20%] min-h-[80px]  `} key={index}>
                                 <UserIcon className="w-8 h-8 lg:hidden"></UserIcon>
                                 <div className="flex flex-col justify-center w-5/8 h-[100%] text-[#658F8D]">
-                                    <h2 className="font-bold text-1xl "> #{index + 1} {user.first_name} {user.last_name}</h2>
-                                    <h2 className=" text-justify">{user.phone_number} - {user.address} - {user.role}</h2>
+                                    <h2 className="font-bold text-1xl ">{user.first_name} {user.last_name}</h2>
+                                    <h2 className=" text-justify">{user.phone_number} - {user.address} - {user.active ? "Active" : "Inactive"}</h2>
                                 </div>
                                 <button className="rounded-4xl bg-[#658F8D] px-5 py-3 text-white text-lg font-bold border-[#739B99] cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
                                     Edit

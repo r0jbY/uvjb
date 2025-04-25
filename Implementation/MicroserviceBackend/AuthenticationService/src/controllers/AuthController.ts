@@ -124,7 +124,6 @@ export default class AuthController {
         lastName: lastName,
         address,
         phoneNumber,
-        role,
         active
       });
 

@@ -5,9 +5,9 @@ export default class UserController {
 
     static async register (req: Request, res: Response) : Promise<Response> {
         try {
-            const { id, first_name, last_name, phone_number, address, role, active} = req.body;
+            const { id, first_name, last_name, phone_number, address, active} = req.body;
 
-            await UserService.createUser(id, first_name, last_name, phone_number, address, role, active || true);
+            await UserService.createUser(id, first_name, last_name, phone_number, address, active || true);
             return res.status(200).send("Account created") ;
             
         } catch (err) {
