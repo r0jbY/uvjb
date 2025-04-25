@@ -14,6 +14,15 @@ export class AuthService {
     
   }
 
+  static async getUserById(id: string) {
+    try {
+        return await prisma.user.findUnique({ where: { id } });
+    } catch (error) {
+      console.log(error);
+      throw new Error("Internal Server Eroor");
+    }
+  }
+
   static async createAccount(id: string, email: string, password: string, role: string) {
     try {
       await prisma.user.create({

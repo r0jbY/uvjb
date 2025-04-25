@@ -27,7 +27,10 @@ function UserComponent() {
     const observer = useRef<IntersectionObserver | null>(null);
     const [searchPressed, setSearchPressed] = useState(false);
     const [showCreateUser, setShowCreateUser] = useState(false);
+    const [showEditUser, setShowEditUser] = useState(false);
+    const [editedUser, setEditedUser] = useState("");
     const [serverError, setServerError] = useState(false);
+
 
     const triggerRef = useCallback(
         (node: HTMLElement | null) => {
@@ -45,13 +48,18 @@ function UserComponent() {
         [loading, hasMore]
     );
 
+    const changeEdit = (id: string) => {
+        setEditedUser(id);
+        setShowEditUser(true);
+    }
+
     const changeSearchTerms = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerms(e.target.value);
     };
 
     useEffect(() => {
         const handleResize = () => {
-            setIsLargeScreen(window.innerWidth >= 1024); 
+            setIsLargeScreen(window.innerWidth >= 1024);
         };
 
         handleResize();
@@ -65,11 +73,11 @@ function UserComponent() {
             setLoading(true);
             try {
                 const res = await getUsers(page);
-        
+
                 if (!Array.isArray(res)) {
                     throw new Error("Invalid response: expected an array of users");
                 }
-        
+
                 setServerError(false);
                 setUsers(prev => [...prev, ...res]);
                 setHasMore(res.length === 20); // adjust this if your page size changes
@@ -113,7 +121,7 @@ function UserComponent() {
             toast.dismiss();
             toast.error("Search failed. Please try again.");
         }
-    }; 
+    };
 
     const clearSearch = async () => {
         setSearchTerms("");
@@ -127,7 +135,11 @@ function UserComponent() {
         <div className="flex flex-col gap-6 items-center h-full bg-[#F7EFDA] overflow-y-hidden lg:gap-[5vh]">
 
             {showCreateUser && (
-                <CreateUserOverlay onClose={() => setShowCreateUser(false)} />
+                <CreateUserOverlay onClose={() => setShowCreateUser(false)} edit={false} />
+            )}
+
+            {showEditUser && (
+                <CreateUserOverlay onClose={() => setShowEditUser(false)} edit={true} id={editedUser} />
             )}
 
             <div className="flex flex-row justify-between w-[92vw] items-center mt-[3vh] lg:justify-center lg:mt-[5vh]">
@@ -183,7 +195,7 @@ function UserComponent() {
                                 New User
                             </button>
 
-                           
+
                         </div>
 
                         <div className="w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -211,7 +223,7 @@ function UserComponent() {
                                     <div className="basis-1/11 flex items-center">
                                         {user.active ? 'Active' : 'Inactive'}
                                     </div>
-                                    <button className="ml-auto rounded-4xl bg-[#658F8D] px-6 py-0 text-white font-bold border-[#739B99] text-[16px] h-10 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
+                                    <button className="ml-auto rounded-4xl bg-[#658F8D] px-6 py-0 text-white font-bold border-[#739B99] text-[16px] h-10 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out" onClick={() => changeEdit(user.id)}>
                                         Edit
                                     </button>
                                 </div>
@@ -220,25 +232,25 @@ function UserComponent() {
                     </>
                 ) : (
                     <div className={`${searchPressed ? "pt-1" : "pt-0"} w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}>
-                    
+
                         {!loading && users.length === 0 ? (
                             <div className="h-full w-full  flex items-center justify-center  text-[#658F8D] text-3xl font-semibold text-center">
                                 No users matching the search terms were found.
                             </div>
                         ) :
-                        
-                         users.map((user, index) => (
-                            <div ref={index === users.length - 10 ? triggerRef : null} className={`flex flex-row items-center justify-between w-[100%] ${index === users.length - 1 ? `border-b-0` : `border-b-1`} border-[#E4DFCC] h-[20%] min-h-[80px]  `} key={index}>
-                                <UserIcon className="w-8 h-8 lg:hidden"></UserIcon>
-                                <div className="flex flex-col justify-center w-5/8 h-[100%] text-[#658F8D]">
-                                    <h2 className="font-bold text-1xl ">{user.first_name} {user.last_name}</h2>
-                                    <h2 className=" text-justify">{user.phone_number} - {user.address} - {user.active ? "Active" : "Inactive"}</h2>
+
+                            users.map((user, index) => (
+                                <div ref={index === users.length - 10 ? triggerRef : null} className={`flex flex-row items-center justify-between w-[100%] ${index === users.length - 1 ? `border-b-0` : `border-b-1`} border-[#E4DFCC] h-[20%] min-h-[80px]  `} key={index}>
+                                    <UserIcon className="w-8 h-8 lg:hidden"></UserIcon>
+                                    <div className="flex flex-col justify-center w-5/8 h-[100%] text-[#658F8D]">
+                                        <h2 className="font-bold text-1xl ">{user.first_name} {user.last_name}</h2>
+                                        <h2 className=" text-justify">{user.phone_number} - {user.address} - {user.active ? "Active" : "Inactive"}</h2>
+                                    </div>
+                                    <button className="rounded-4xl bg-[#658F8D] px-5 py-3 text-white text-lg font-bold border-[#739B99] cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out" onClick={() => changeEdit(user.id)}>
+                                        Edit
+                                    </button>
                                 </div>
-                                <button className="rounded-4xl bg-[#658F8D] px-5 py-3 text-white text-lg font-bold border-[#739B99] cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
-                                    Edit
-                                </button>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 )}
 

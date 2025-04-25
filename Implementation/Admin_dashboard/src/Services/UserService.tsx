@@ -3,7 +3,7 @@ import * as Axios from "axios";
 
 export const getUsers = async (page: number) => {
     try{
-        const res = await axios.get(`users?offset=${page * 20}&limit=20`);
+        const res = await axios.get(`users/getAll?offset=${page * 20}&limit=20`);
         return res.data;
     } catch (error) {
         if (Axios.isAxiosError(error)) {
@@ -15,6 +15,23 @@ export const getUsers = async (page: number) => {
         }
     }
     
+};
+
+export const getUser = async (id: string) => {
+  try{
+      const res = await axios.get(`users/full/${id}`, {withCredentials: true});
+      console.log(res.data);
+      return res.data;
+  } catch (error) {
+      if (Axios.isAxiosError(error)) {
+          if (!error.response) {
+              throw new Error("Unable to reach server. Please check your connection.");
+          }
+      } else {
+          throw new Error("An unexpected error occurred");
+      }
+  }
+  
 };
 
 export const searchUsers = async (searchTerm: string) => {

@@ -27,9 +27,18 @@ export class UserService {
       const users = await prisma.user.findMany({
         skip: offset,
         take: limit,
-        orderBy: {first_name: 'asc'}
+        orderBy: { first_name: 'asc' }
       });
       return users;
+    } catch (err) {
+      console.log(err);
+      throw new Error("Internal Server Eroor");
+    }
+  }
+
+  static async getUser(id: string) {
+    try {
+      return await prisma.user.findUnique({ where: { id } });
     } catch (err) {
       console.log(err);
       throw new Error("Internal Server Eroor");

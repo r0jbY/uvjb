@@ -3,6 +3,7 @@ import * as Axios from "axios";
 
 export const login = async (email: string, password: string) => {
     try{
+        console.log("Hello")
         const res = await axios.post("auth/login", {email, password});
         return res.data;
     } catch (error) {

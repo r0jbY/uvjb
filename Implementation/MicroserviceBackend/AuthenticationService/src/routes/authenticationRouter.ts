@@ -18,9 +18,12 @@ router.post("/register", verifyJwt, validate(registerSchema), (req: Request, res
     AuthController.register(req, res);
 });
 
-router.get("/whoAmI", verifyJwt, (req: Request, res: Response) => {
+router.get("/whoAmI", (req: Request, res: Response) => {
     AuthController.whoAmI(req, res);
 });
 
+router.get("/:id" ,  (req: Request, res: Response) => {
+    AuthController.getUserById(req, res);
+});
 
 export default router;

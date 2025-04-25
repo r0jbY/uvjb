@@ -2,7 +2,16 @@ import { toast } from "react-toastify";
 import InputField from "./InputField";
 import { useState } from "react";
 import { createUser } from "../Services/UserService";
-function CreateUserOverlay({ onClose }: { onClose: () => void }) {
+import { getUser } from "../Services/UserService";
+import { useEffect } from "react";
+
+type CreateUserOverlayProps = {
+    onClose: () => void;
+    edit: boolean;
+    id?: string;
+};
+
+function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
 
     const [lastName, setLastName] = useState("");
     const [firstName, setFirstName] = useState("");
@@ -22,12 +31,38 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
         password: false,
         confirmPassword: false,
         role: false
-      });
+    });
 
-    const handleSubmit =async (e: React.FormEvent) => {
+    const loadUserData = async () => {
+        if (!id) return;
+
+        try {
+            const user = await getUser(id);
+            if (user) {
+                setFirstName(user.firstName);
+                setLastName(user.lastName);
+                setEmail(user.email);
+                setPhonenumber(user.phoneNumber);
+                setAddress(user.address);
+                setRole(user.role);
+                setActive(user.active);
+            }
+        } catch (error) {
+            toast.error("Failed to load user data.");
+            console.error("Error loading user data:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (edit && id) {
+            loadUserData();
+        }
+    }, [edit, id]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        toast.dismiss(); 
-      
+        toast.dismiss();
+
         const newErrors = {
             firstName: firstName.trim() === "",
             lastName: lastName.trim() === "",
@@ -37,67 +72,66 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
             password: password.trim() === "",
             confirmPassword: confirmPassword.trim() === "",
             role: role === ""
-          };
-        
-          setErrors(newErrors);
-        
-          // If any field is missing, prevent submit
-          if (Object.values(newErrors).some((val) => val)) {
+        };
+
+        setErrors(newErrors);
+
+        // If any field is missing, prevent submit
+        if (Object.values(newErrors).some((val) => val)) {
             toast.error("Please fill in all required fields.");
             return;
-          }
+        }
 
         const isEmailValid = (email: string) =>
-          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-      
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
         const isPasswordStrong = (pwd: string) =>
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(pwd);
-      
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(pwd);
+
         const isPhoneValid = (phone: string) =>
-          /^\+?[0-9\s\-()]{6,20}$/.test(phone);
-      
+            /^\+?[0-9\s\-()]{6,20}$/.test(phone);
+
         const isNameValid = (name: string) =>
-          /^[a-zA-Zà-ÿÀ-ß'’ -]{2,60}$/.test(name.trim());
-      
+            /^[a-zA-Zà-ÿÀ-ß'’ -]{2,60}$/.test(name.trim());
+
         const isAddressValid = (address: string) =>
-          address.trim().length > 5;
-      
+            address.trim().length > 5;
+
         if (!isNameValid(firstName)) return toast.error("Please enter a valid first name.");
         if (!isNameValid(lastName)) return toast.error("Please enter a valid last name.");
         if (!isEmailValid(email)) return toast.error("Please enter a valid email address.");
         if (!isPhoneValid(phoneNumber)) return toast.error("Please enter a valid phone number.");
         if (!isAddressValid(address)) return toast.error("Please enter a valid address.");
         if (!isPasswordStrong(password)) {
-          return toast.error(
-            "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol."
-          );
+            return toast.error(
+                "Password must be at least 8 characters and include uppercase, lowercase, number, and symbol."
+            );
         }
         if (password !== confirmPassword) return toast.error("Passwords do not match.");
-      
-        if (!window.confirm(`Create new user "${firstName} ${lastName}" with role ${role}?`)) return;
+
 
         try {
-        await createUser({
-            firstName: firstName,
-            lastName: lastName,
-            email,
-            phoneNumber: phoneNumber,
-            address,
-            password,
-            role,
-            active,
-          });
-          toast.success("User created successfully!");
+            await createUser({
+                firstName: firstName,
+                lastName: lastName,
+                email,
+                phoneNumber: phoneNumber,
+                address,
+                password,
+                role,
+                active,
+            });
+            toast.success("User created successfully!");
 
-          setTimeout(() => {
-            onClose();
-          }, 2000);
+            setTimeout(() => {
+                onClose();
+            }, 2000);
         } catch (err: any) {
             console.log(err);
             toast.error(err || "Something went wrong");
         }
-        
-      };
+
+    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.5)] bg-opacity-30 px-4">
@@ -106,7 +140,7 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                     ✕
                 </div>
                 <div className="flex justify-between items-center mb-8 lg:justify-center">
-                    <h2 className="text-xl font-bold text-[#658F8D] lg:text-4xl">Create New User</h2>
+                    <h2 className="text-xl font-bold text-[#658F8D] lg:text-4xl">{!edit ? "Create New User" : `Edit User`}</h2>
                     <button onClick={onClose} className="text-xl text-gray-500 hover:text-gray-700 cursor-pointer active:scale-[0.9] lg:hidden">✕</button>
                 </div>
 
@@ -118,7 +152,7 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                             placeholder="First Name"
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
-                            error = {errors.firstName}
+                            error={errors.firstName}
                         />
 
                         <InputField
@@ -127,7 +161,7 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                             placeholder="Last Name"
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
-                            error = {errors.lastName}
+                            error={errors.lastName}
                         />
                     </div>
 
@@ -138,7 +172,7 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        error = {errors.email}
+                        error={errors.email}
                     />
 
                     <InputField
@@ -147,7 +181,7 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                         placeholder="Phone number"
                         value={phoneNumber}
                         onChange={(e) => setPhonenumber(e.target.value)}
-                        error = {errors.phoneNumber}
+                        error={errors.phoneNumber}
                     />
 
                     <InputField
@@ -156,10 +190,10 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                         placeholder="Address"
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
-                        error = {errors.address}
+                        error={errors.address}
                     />
 
-                    <div className="flex flex-col lg:flex-row w-full gap-5">
+                    <div className={` flex-col lg:flex-row w-full gap-5 ${edit ? 'hidden' : 'flex'}`}>
                         <InputField
                             label="Password"
                             name="password"
@@ -167,7 +201,7 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                             placeholder="Password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            error = {errors.password}
+                            error={errors.password}
                         />
 
                         <InputField
@@ -177,7 +211,7 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                             placeholder="Confirm Password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            error = {errors.confirmPassword}
+                            error={errors.confirmPassword}
                         />
                     </div>
 
@@ -189,7 +223,7 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                                 className={`w-full h-[48px] p-3  rounded-lg text-[#658F8D] text-base ${errors.role ? "border-2 border-red-600" : "border border-[#C3B295]"} bg-[#F7F7F7] placeholder-[#658F8D] focus:outline-[#C3B295] disabled:opacity-60 disabled:cursor-not-allowed`}
                                 value={role}
                                 onChange={(e) => { setRole(e.target.value as any) }}
-                                
+
                             >
                                 <option value="">Choose Role</option>
                                 <option value="admin">Admin</option>
@@ -205,31 +239,44 @@ function CreateUserOverlay({ onClose }: { onClose: () => void }) {
                                 className={`w-full h-[48px] p-3 border border-[#C3B295] rounded-lg text-[#658F8D] text-base  bg-[#F7F7F7] placeholder-[#658F8D] focus:outline-[#C3B295] disabled:opacity-60 disabled:cursor-not-allowed`}
                                 value={String(active)}
                                 onChange={(e) => setActive(e.target.value === "true")}
-                                
+
                             >
                                 <option value="true">Active</option>
                                 <option value="false">Inactive</option>
-                                
-                                
+
+
                             </select>
                         </div>
                     </div>
-                    <div className="flex w-full justify-between mt-3">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 rounded-md border text-[#658F8D] bg-[#F7EFDA] hover:bg-[#ece9dc]  border-[#B7C0B2] cursor-pointer active:scale-[0.95] lg:rounded-xl lg:font-bold lg:text-xl lg:px-5"
-                        >
-                            Cancel
-                        </button>
-                        <button
+                    <div className={`${edit ? 'mt-7' : 'mt-0'} flex w-full justify-between mt-3`}>
 
-                            className="px-4 py-2 rounded-md text-white bg-[#658F8D] hover:bg-[#739B99] active:scale-[0.95] cursor-pointer lg:rounded-xl lg:font-bold lg:text-xl lg:px-5"
-                            onClick={handleSubmit}
-                        >
+                        <div className={`${!edit ? 'hidden' : 'block'} flex flex-row w-full justify-between`}>
+                            <button
+                                type="button"
 
-                            Create
-                        </button>
+                                className={` bg-[#D96C6C] hover:bg-[#C0504D] text-white font-semibold px-4 py-2 rounded-md cursor-pointer active:scale-[0.98] transition-all duration-150 ease-in-out lg:rounded-xl lg:font-bold lg:text-xl lg:px-5`}
+                            >
+                                Delete User
+                            </button>
+                        </div>
+                        <div className="flex flex-row w-full justify-between ml-5">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="px-4 py-2 rounded-md border text-[#658F8D] bg-[#F7EFDA] hover:bg-[#ece9dc]  border-[#B7C0B2] cursor-pointer active:scale-[0.98] transition-all duration-150 ease-in-out lg:rounded-xl lg:font-bold lg:text-xl lg:px-5"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+
+                                className="px-4 py-2 rounded-md text-white bg-[#658F8D] hover:bg-[#739B99] active:scale-[0.98]  transition-all duration-150 ease-in-out cursor-pointer lg:rounded-xl lg:font-bold lg:text-xl lg:px-5"
+                                onClick={!edit ? handleSubmit : () => { }}
+                            >
+
+                                {edit ? 'Edit' : 'Create'}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>

@@ -5,15 +5,17 @@ import { userSchema } from "../utils/user.schema";
 
 const router = Router();
 
-router.post("/register", validate(userSchema),  (req: Request, res: Response) => {
-    UserController.register(req, res);
-});
 
-router.get("/users", (req: Request, res: Response) => {
+
+router.get("/getAll", (req: Request, res: Response) => {
     UserController.getUsers(req, res);
 })
 
-router.get('/users/search', (req: Request, res: Response) => {
+router.get('/search', (req: Request, res: Response) => {
     UserController.searchUsers(req, res);
+})
+
+router.get('/:id', (req: Request, res: Response) => {
+    UserController.getUser(req, res);
 })
 export default router;

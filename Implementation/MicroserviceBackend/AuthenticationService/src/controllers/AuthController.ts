@@ -74,7 +74,17 @@ export default class AuthController {
     return res.status(200).send("Logout successful");
   }
 
+  static async getUserById(req: Request, res: Response): Promise<Response> {
+    const id = req.params.id;
+    const user =await AuthService.getUserById(id);
+    if (!user) {
+      return res.status(404).json({ message: "Invalid id", result: false });
+    }
+    return res.status(200).send({email: user.email, role: user.role});
+  }
+
   static async whoAmI(req: Request, res: Response): Promise<Response> {
+
 
     const accessToken = res.locals.accessToken || req.cookies.accessToken;
 
