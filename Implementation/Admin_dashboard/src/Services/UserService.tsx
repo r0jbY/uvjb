@@ -48,7 +48,7 @@ export const searchUsers = async (searchTerm: string) => {
     }
   };
 
-  interface NewUser {
+  interface User {
     firstName: string;
     lastName: string;
     email: string;
@@ -59,12 +59,22 @@ export const searchUsers = async (searchTerm: string) => {
     active: boolean;
   }
 
-export const createUser = async (userData : NewUser) => {
+export const createUser = async (userData : User) => {
   try {
 
-    console.log(userData.active);
-
     const response = await axios.post("/auth/register", userData); // <- update this URL
+    return response.data;
+  } catch (error: any) {
+    console.error("Error creating user:", error.response.data);
+    throw error.response?.data || error.message || "Unknown error";
+  }
+}
+
+export const editUser = async (userData : User, id: string) => {
+  try {
+
+    console.log(id);
+    const response = await axios.put(`/users/update/${id}`, userData); // <- update this URL
     return response.data;
   } catch (error: any) {
     console.error("Error creating user:", error.response.data);

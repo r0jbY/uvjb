@@ -3,7 +3,7 @@ import { AuthService } from "../services/auth.service";
 import jwt, { VerifyErrors } from "jsonwebtoken";
 import bcrypt from "bcryptjs"
 import { v4 as uuidv4 } from "uuid";
-import { publishUserCreatedEvent } from "../utils/publisher";
+import { publishUserCreatedEvent, publishUserUpdatedEvent } from "../utils/publisher";
 
 export default class AuthController {
 
@@ -76,11 +76,40 @@ export default class AuthController {
 
   static async getUserById(req: Request, res: Response): Promise<Response> {
     const id = req.params.id;
-    const user =await AuthService.getUserById(id);
+    const user = await AuthService.getUserById(id);
     if (!user) {
       return res.status(404).json({ message: "Invalid id", result: false });
     }
-    return res.status(200).send({email: user.email, role: user.role});
+    return res.status(200).send({ email: user.email, role: user.role });
+  }
+
+  static async updateUser(req: Request, res: Response): Promise<Response> {
+    const { id } = req.params;
+    const { email, role, firstName, lastName, address, phoneNumber, active } = req.body;
+
+    try {
+      const updatedUser = await AuthService.updateUser(id, email, role);
+
+      await publishUserUpdatedEvent({
+        id,
+        firstName: firstName,
+        lastName: lastName,
+        address,
+        phoneNumber,
+        active
+      });
+
+      return res.status(200).json({ message: "User updated successfully" });
+
+    } catch (error) {
+      
+      console.log(error);
+
+      const message =
+        error instanceof Error ? error.message : "An unknown error occurred";
+
+      return res.status(400).json(message);
+    }
   }
 
   static async whoAmI(req: Request, res: Response): Promise<Response> {

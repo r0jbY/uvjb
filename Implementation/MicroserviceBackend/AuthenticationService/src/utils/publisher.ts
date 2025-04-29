@@ -28,3 +28,31 @@ export async function publishUserCreatedEvent(data: {
 
   console.log("📤 Sent user.created event:", event);
 }
+
+export async function publishUserUpdatedEvent(data: {
+  id: string,
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  address: string;
+  active: boolean
+}) {
+  const channel = getChannel();
+  const queue = "user.updated";
+
+  await channel.assertQueue(queue, { durable: true });
+
+  const event = {
+    type: "UserUpdated",
+    timestamp: new Date().toISOString(),
+    data,
+  };
+
+  console.log("Data being sent:", data);
+
+  channel.sendToQueue(queue, Buffer.from(JSON.stringify(event)), {
+    persistent: true,
+  });
+
+  console.log("📤 Sent user.updated event:", event);
+}

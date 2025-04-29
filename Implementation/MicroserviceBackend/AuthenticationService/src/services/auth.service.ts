@@ -23,6 +23,27 @@ export class AuthService {
     }
   }
 
+  static async updateUser(id: string, email: string, role: string) {
+    
+    try {
+      return await prisma.user.update({
+        where: { id },
+        data: { email, role },
+      });
+    } catch (err: unknown) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002' &&
+        (err.meta?.target as string[])?.includes('email')
+      ) {
+        throw new Error("Email is already in use.");
+      }
+  
+      console.error("Unexpected error:", err);
+      throw new Error("User could not be created.");
+    }
+  }
+
   static async createAccount(id: string, email: string, password: string, role: string) {
     try {
       await prisma.user.create({

@@ -22,8 +22,15 @@ router.get("/whoAmI", (req: Request, res: Response) => {
     AuthController.whoAmI(req, res);
 });
 
+router.put("/update/:id" ,  (req: Request, res: Response) => {
+    AuthController.updateUser(req, res);
+});
+
 router.get("/:id" ,  (req: Request, res: Response) => {
     AuthController.getUserById(req, res);
 });
+
+
+
 
 export default router;

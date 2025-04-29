@@ -22,6 +22,18 @@ export class UserService {
     }
   }
 
+  static async updateUser(id: string, first_name: string, last_name: string, address: string, phone_number: string, active: boolean) {
+    try {
+      return await prisma.user.update({
+        where: { id },
+        data: { first_name, last_name, address, phone_number, active },
+      });
+    } catch (err) {
+      console.log(err);
+      throw new Error("Internal Server Eroor");
+    }
+  }
+
   static async getUsers(limit: number, offset: number) {
     try {
       const users = await prisma.user.findMany({
