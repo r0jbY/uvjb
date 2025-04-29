@@ -2,7 +2,6 @@ import { Router, Request, Response } from "express";
 import AuthController from "../controllers/AuthController";
 import { validate } from "../middleware/validate";
 import { loginSchema, registerSchema } from '../utils/auth.schema';
-import { verifyJwt } from "../middleware/jwtMiddleware";
 
 const router = Router();
 
@@ -14,7 +13,7 @@ router.post("/logout" ,  (req: Request, res: Response) => {
     AuthController.logout(req, res);
 });
 
-router.post("/register", verifyJwt, validate(registerSchema), (req: Request, res: Response) => {
+router.post("/register", validate(registerSchema), (req: Request, res: Response) => {
     AuthController.register(req, res);
 });
 

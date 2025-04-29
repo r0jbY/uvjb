@@ -1,8 +1,11 @@
 import { Router } from "express";
 import axios from "axios";
 import forwardRequest from "../utils/forwardRequest";
+import { verifyJwt } from '../middleware/jwtMiddleware';
 
 const router = Router();
+
+router.use(verifyJwt);
 
 router.get("/users/full/:id", async (req, res) => {
   const userId = req.params.id;
