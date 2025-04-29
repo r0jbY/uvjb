@@ -6,7 +6,7 @@ import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import axios from 'axios';
 import cookieParser from 'cookie-parser';
-
+import errorHandler from './middleware/errorHandler';
 dotenv.config();
 
 const app = express();
@@ -19,6 +19,9 @@ app.use(cors({
 app.use(express.json());
 
 app.use(authRoutes);
+
+app.use(errorHandler);
+
 app.use(userRoutes);
   
   // Basic welcome route
