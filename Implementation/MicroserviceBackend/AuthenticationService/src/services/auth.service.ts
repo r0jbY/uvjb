@@ -1,6 +1,6 @@
-import { Prisma } from "@prisma/client";
 import { prisma } from "../config/database";
 import { createHttpError } from "../controllers/AuthController";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export class AuthService {
 
@@ -32,7 +32,7 @@ export class AuthService {
       });
     } catch (err: unknown) {
       if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err instanceof PrismaClientKnownRequestError &&
         err.code === 'P2002' &&
         (err.meta?.target as string[])?.includes('email')
       ) {
@@ -52,7 +52,7 @@ export class AuthService {
       return true;
     } catch (err: unknown) {
       if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err instanceof PrismaClientKnownRequestError &&
         err.code === 'P2002' &&
         (err.meta?.target as string[])?.includes('email')
       ) {
