@@ -245,10 +245,13 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
                 resetForm();
                 onClose(); // Close the modal
               }, 2000);
-        } catch (err: any) {
-            console.error(err);
-            console.log("HIHIHIHIHI");
-            toast.error(err || "Something went wrong during edit.");
+        } catch (error: any) {
+            if (error instanceof Error) {
+                console.log("Hello!", error.message);
+                toast.error(error.message);
+            } else {
+                toast.error("Unknown error");
+            }
         }
     };
 

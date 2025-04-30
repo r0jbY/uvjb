@@ -59,7 +59,6 @@ export const createUser = async (userData: User) => {
 export const editUser = async (userData: User, id: string) => {
   try {
 
-    console.log(id);
     const response = await axios.put(`/users/update/${id}`, userData); // <- update this URL
     return response.data;
   } catch (error) {

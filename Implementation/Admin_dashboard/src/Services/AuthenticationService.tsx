@@ -1,5 +1,4 @@
 import axios from "../axiosConfigs";
-import * as Axios from "axios";
 import { handleAxiosError } from "../utils/axiosErrorHandler";
 
 export const login = async (email: string, password: string) => {

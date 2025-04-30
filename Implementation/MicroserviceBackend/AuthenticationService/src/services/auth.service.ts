@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../config/database";
+import { createHttpError } from "../controllers/AuthController";
 
 export class AuthService {
 
@@ -8,18 +9,17 @@ export class AuthService {
     try {
       return await prisma.user.findUnique({ where: { email } });
     } catch (error) {
-      console.log(error);
-      throw new Error("Internal Server Eroor");
+      console.error("DB error (getUserByEmail):", error);
+      throw createHttpError("Internal server error.", 500);
     }
-
   }
 
   static async getUserById(id: string) {
     try {
       return await prisma.user.findUnique({ where: { id } });
     } catch (error) {
-      console.log(error);
-      throw new Error("Internal Server Eroor");
+      console.error("DB error (getUserById):", error);
+      throw createHttpError("Internal server error.", 500);
     }
   }
 
@@ -36,11 +36,11 @@ export class AuthService {
         err.code === 'P2002' &&
         (err.meta?.target as string[])?.includes('email')
       ) {
-        throw new Error("Email is already in use.");
+        throw createHttpError("Email is already in use.", 409);
       }
 
-      console.error("Unexpected error:", err);
-      throw new Error("User could not be created.");
+      console.error("Unexpected DB error (updateUser):", err);
+      throw createHttpError("Failed to update user. Internal server error.", 500);
     }
   }
 
@@ -56,15 +56,11 @@ export class AuthService {
         err.code === 'P2002' &&
         (err.meta?.target as string[])?.includes('email')
       ) {
-        const error = new Error("Email is already in use.");
-        (error as any).statusCode = 409;
-        throw error;
+        throw createHttpError("Email is already in use.", 409);
       }
 
-      console.error("Unexpected DB error:", err);
-      const error = new Error("Database error. Please try again later.");
-      (error as any).statusCode = 500;
-      throw error;
+      console.error("Unexpected DB error (createAccount):", err);
+      throw createHttpError("Failed to create user. Internal server error.", 500);
     }
   }
 }

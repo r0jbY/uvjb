@@ -2,32 +2,25 @@ import { Router, Request, Response } from "express";
 import AuthController from "../controllers/AuthController";
 import { validate } from "../middleware/validate";
 import { loginSchema, registerSchema } from '../utils/auth.schema';
+import catchAsync from "../utils/catchAsync";
 
 const router = Router();
 
-router.post("/login", validate(loginSchema), (req: Request, res: Response) => {
-    AuthController.login(req, res);
-});
+router.post("/login", validate(loginSchema), catchAsync(AuthController.login));
 
 router.post("/logout" ,  (req: Request, res: Response) => {
     AuthController.logout(req, res);
 });
 
-router.post("/register", validate(registerSchema), (req: Request, res: Response) => {
-    AuthController.register(req, res);
-});
+router.post("/logout", catchAsync(AuthController.logout));
 
-router.get("/whoAmI", (req: Request, res: Response) => {
-    AuthController.whoAmI(req, res);
-});
+router.post("/register", validate(registerSchema), catchAsync(AuthController.register));
 
-router.put("/update/:id" ,  (req: Request, res: Response) => {
-    AuthController.updateUser(req, res);
-});
+router.get("/whoAmI", catchAsync(AuthController.whoAmI));
 
-router.get("/:id" ,  (req: Request, res: Response) => {
-    AuthController.getUserById(req, res);
-});
+router.put("/update/:id", catchAsync(AuthController.updateUser));
+
+router.get("/:id", catchAsync(AuthController.getUserById));
 
 
 

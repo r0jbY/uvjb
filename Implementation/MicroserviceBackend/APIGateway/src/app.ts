@@ -7,6 +7,7 @@ import userRoutes from './routes/userRoutes';
 import axios from 'axios';
 import cookieParser from 'cookie-parser';
 import errorHandler from './middleware/errorHandler';
+
 dotenv.config();
 
 const app = express();
@@ -20,13 +21,13 @@ app.use(express.json());
 
 app.use(authRoutes);
 
-app.use(errorHandler);
-
 app.use(userRoutes);
   
   // Basic welcome route
   app.get('/', (req, res) => {
     res.send('Welcome to the API Gateway!');
   });
+
+app.use(errorHandler);
 
 export default app;

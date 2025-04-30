@@ -16,10 +16,11 @@ const errorHandler = (err: any, req: Request, res: Response, next: NextFunction)
     const statusCode = err.response?.status || err.statusCode || 500;
     const message = err.response?.data.message || 'Internal Server Error';
     console.log(message);
-    res.status(statusCode).json({
+    res.status(statusCode).type("application/json").json({
         success: false,
         message,
-    });
+      });
+      
 };
 
 export default errorHandler;
