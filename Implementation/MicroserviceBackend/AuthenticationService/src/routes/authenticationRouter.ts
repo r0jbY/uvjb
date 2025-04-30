@@ -18,6 +18,8 @@ router.post("/register", validate(registerSchema), catchAsync(AuthController.reg
 
 router.get("/whoAmI", catchAsync(AuthController.whoAmI));
 
+router.delete("/delete/:id", catchAsync(AuthController.deleteUser));
+
 router.put("/update/:id", catchAsync(AuthController.updateUser));
 
 router.get("/:id", catchAsync(AuthController.getUserById));

@@ -47,4 +47,9 @@ router.get('/users/search', catchAsync((req, res, next) => {
   return forwardRequest(req, res, next, 'http://localhost:3002/users/search');
 }));
 
+router.delete('/users/delete/:id', catchAsync((req, res, next) => {
+  const { id } = req.params;
+  return forwardRequest(req, res, next, `http://localhost:3001/auth/delete/${id}`);
+}));
+
 export default router;

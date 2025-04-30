@@ -80,4 +80,17 @@ export class UserService {
       throw createHttpError("Search failed due to db issue.", 500);
     }
   }
+
+  static async deleteUser(id: string) {
+    try {
+      await prisma.user.delete({
+        where : {
+          id
+        }
+      })
+    } catch (error) {
+      console.error("Unexpected DB error (deleteUser):", error);
+      throw createHttpError("Failed to delete user. Internal server error.", 500);
+    }
+  }
 }

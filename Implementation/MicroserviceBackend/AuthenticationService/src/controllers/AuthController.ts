@@ -3,7 +3,7 @@ import { AuthService } from "../services/auth.service";
 import jwt, { VerifyErrors } from "jsonwebtoken";
 import bcrypt from "bcryptjs"
 import { v4 as uuidv4 } from "uuid";
-import { publishUserCreatedEvent, publishUserUpdatedEvent } from "../utils/publisher";
+import { publishUserCreatedEvent, publishUserDeletedEvent, publishUserUpdatedEvent } from "../utils/publisher";
 
 type TypedError = Error & { statusCode?: number };
 
@@ -56,7 +56,7 @@ export default class AuthController {
         expires: new Date(0),
       })
       .status(200)
-      .send("Logout successful");
+      .json({ message: "Logout successful" });
   }
 
   static async getUserById(req: Request, res: Response): Promise<Response> {
@@ -78,7 +78,7 @@ export default class AuthController {
       console.error("Failed to publish update event:", pubErr);
       // Optional: don't crash, just log
     }
-    
+
 
     return res.status(200).json({ message: "User updated successfully" });
   }
@@ -115,6 +115,17 @@ export default class AuthController {
       active
     });
 
-    return res.status(200).send("Account created");
+    return res.status(200).json({ message: "Account created" });
+  }
+
+  static async deleteUser(req: Request, res: Response): Promise<Response> {
+
+    const { id } = req.params;
+
+    await AuthService.deleteAccount(id);
+    
+    await publishUserDeletedEvent({id});
+
+    return res.status(200).json({ message: "User deleted" });
   }
 }

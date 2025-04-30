@@ -56,3 +56,26 @@ export async function publishUserUpdatedEvent(data: {
 
   console.log("📤 Sent user.updated event:", event);
 }
+
+export async function publishUserDeletedEvent(data: {
+  id: string,
+}) {
+  const channel = getChannel();
+  const queue = "user.deleted";
+
+  await channel.assertQueue(queue, { durable: true });
+
+  const event = {
+    type: "UserDeleted",
+    timestamp: new Date().toISOString(),
+    data,
+  };
+
+  console.log("Data being sent:", data);
+
+  channel.sendToQueue(queue, Buffer.from(JSON.stringify(event)), {
+    persistent: true,
+  });
+
+  console.log("📤 Sent user.deleted event:", event);
+}

@@ -17,14 +17,15 @@ export default class UserController {
     const offset = parseInt(req.query.offset as string) || 0;
 
     const users = await UserService.getUsers(limit, offset);
-    return res.status(200).send(users);
+    return res.status(200).json(users);
   }
 
   static async searchUsers(req: Request, res: Response) {
     const query = req.query.query as string;
 
     const users = await UserService.searchUsers(query);
-    return res.status(200).send(users);
+    return res.status(200).json(users);
+
   }
 
   static async getUser(req: Request, res: Response): Promise<Response> {
@@ -35,7 +36,7 @@ export default class UserController {
       throw createHttpError("User not found", 404);
     }
 
-    return res.status(200).send({
+    return res.status(200).json({
       firstName: user.first_name,
       lastName: user.last_name,
       phoneNumber: user.phone_number,

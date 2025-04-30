@@ -63,4 +63,17 @@ export class AuthService {
       throw createHttpError("Failed to create user. Internal server error.", 500);
     }
   }
+
+  static async deleteAccount(id: string) {
+    try {
+      await prisma.user.delete({
+        where : {
+          id
+        }
+      })
+    } catch (error) {
+      console.error("Unexpected DB error (deleteUser):", error);
+      throw createHttpError("Failed to delete user. Internal server error.", 500);
+    }
+  }
 }

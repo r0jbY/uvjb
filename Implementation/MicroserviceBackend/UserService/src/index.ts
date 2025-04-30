@@ -1,6 +1,7 @@
 import app from "./app";
 import { connectRabbitMQ } from "./config/rabbitmq";
 import { consumeUserCreatedEvents } from "./utils/userCreatedConsumer";
+import { consumeUserDeletedEvents } from "./utils/userDeletedConsumer";
 import { consumeUserUpdatedEvents } from "./utils/userUpdatedConsumer";
 
 const PORT = process.env.PORT ?? 3002;
@@ -10,6 +11,7 @@ async function start() {
   await connectRabbitMQ();
   await consumeUserCreatedEvents();
   await consumeUserUpdatedEvents();
+  await consumeUserDeletedEvents();
 }
 
 start().catch((err) => {

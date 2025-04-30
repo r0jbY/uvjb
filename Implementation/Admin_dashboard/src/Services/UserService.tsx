@@ -66,3 +66,13 @@ export const editUser = async (userData: User, id: string) => {
   }
 }
 
+export const deleteUser = async (id: string) => {
+  try {
+
+    const response = await axios.delete(`/users/delete/${id}`); // <- update this URL
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+}
+
