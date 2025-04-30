@@ -48,9 +48,9 @@ function LoginComponent() {
             return false;
         }
 
-        if (!password) {
+        if (password.length < 6) {
             toast.dismiss();
-            toast.error("Password has to be filled in");
+            toast.error("Password is too short.");
             return false;
         }
         return true;

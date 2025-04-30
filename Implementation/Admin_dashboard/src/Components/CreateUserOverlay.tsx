@@ -177,6 +177,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
         }
     
         try {
+            
             await createUser({
                 firstName,
                 lastName,
@@ -193,9 +194,12 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
                 onClose(); // Close the modal
          // Refresh the page
               }, 2000);
-        } catch (err: any) {
-            console.error(err);
-            toast.error(err || "Something went wrong during creation.");
+        } catch (error: any) {
+            if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error("Unknown error");
+            }
         }
     };
 
@@ -243,6 +247,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
               }, 2000);
         } catch (err: any) {
             console.error(err);
+            console.log("HIHIHIHIHI");
             toast.error(err || "Something went wrong during edit.");
         }
     };

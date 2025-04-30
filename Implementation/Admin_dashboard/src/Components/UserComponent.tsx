@@ -235,7 +235,7 @@ function UserComponent() {
 
                         {!loading && users.length === 0 ? (
                             <div className="h-full w-full  flex items-center justify-center  text-[#658F8D] text-3xl font-semibold text-center">
-                                No users matching the search terms were found.
+                                {!serverError ? `No users matching the search terms were found.` : "Internal server error."}
                             </div>
                         ) :
 

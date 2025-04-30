@@ -5,12 +5,14 @@ import bcrypt from "bcryptjs"
 import { v4 as uuidv4 } from "uuid";
 import { publishUserCreatedEvent, publishUserUpdatedEvent } from "../utils/publisher";
 
+type TypedError = Error & { statusCode?: number };
+
 export default class AuthController {
+
+  
 
   static async login(req: Request, res: Response): Promise<Response> {
     try {
-
-      console.log("Entered this!")
 
       const { email, password } = req.body;
       // 1️⃣ Get user from database
@@ -102,7 +104,7 @@ export default class AuthController {
       return res.status(200).json({ message: "User updated successfully" });
 
     } catch (error) {
-      
+
       console.log(error);
 
       const message =
@@ -115,7 +117,7 @@ export default class AuthController {
   static async whoAmI(req: Request, res: Response): Promise<Response> {
 
 
-    const accessToken = res.locals.accessToken || req.cookies.accessToken;
+    const accessToken = req.cookies.accessToken;
 
     if (!accessToken) {
       return res.status(401).json({ message: "Expired access" });
@@ -167,13 +169,12 @@ export default class AuthController {
       });
 
       return res.status(200).send("Account created");
-    } catch (error) {
-      console.log(error);
-
-      const message =
-        error instanceof Error ? error.message : "An unknown error occurred";
-
-      return res.status(400).json(message);
+    } catch (error: unknown) {
+      const err = error as TypedError;
+      const status = err.statusCode || 400;
+      const message = err.message || "Unknown error occurred";
+    
+      return res.status(status).json({ success: false, message });
     }
   }
 }

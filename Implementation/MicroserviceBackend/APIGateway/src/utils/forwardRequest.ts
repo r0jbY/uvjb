@@ -36,12 +36,6 @@ const forwardRequest = async (req: Request, res: Response, next: NextFunction, t
 
     res.status(response.status).send(response.data);
   } catch (error: any) {
-    console.error('Forwarding error:', {
-      message: error.message,
-      code: error.code,
-      url: error.config?.url,
-      status: error.response?.status,
-    });
     next(error); // Forward to global error handler
   }
 };
