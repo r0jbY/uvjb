@@ -1,21 +1,15 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import UserController from "../controllers/UserController";
-import {validate} from "../middleware/validate"
+import { validate } from "../middleware/validate";
 import { userSchema } from "../utils/user.schema";
+import catchAsync from "../utils/catchAsync"; // Make sure this path is correct
 
 const router = Router();
 
+router.get("/getAll", catchAsync(UserController.getUsers));
 
+router.get("/search", catchAsync(UserController.searchUsers));
 
-router.get("/getAll", (req: Request, res: Response) => {
-    UserController.getUsers(req, res);
-})
+router.get("/:id", catchAsync(UserController.getUser));
 
-router.get('/search', (req: Request, res: Response) => {
-    UserController.searchUsers(req, res);
-})
-
-router.get('/:id', (req: Request, res: Response) => {
-    UserController.getUser(req, res);
-})
 export default router;

@@ -1,5 +1,5 @@
 import { prisma } from "../config/database";
-
+import { createHttpError } from "../controllers/UserController";
 
 export class UserService {
 
@@ -17,8 +17,8 @@ export class UserService {
         }
       });
     } catch (error) {
-      console.log(error);
-      throw new Error("Internal Server Eroor");
+      console.error("DB error (createUser):", error);
+      throw createHttpError("Failed to create user.", 500);
     }
   }
 
@@ -28,9 +28,9 @@ export class UserService {
         where: { id },
         data: { first_name, last_name, address, phone_number, active },
       });
-    } catch (err) {
-      console.log(err);
-      throw new Error("Internal Server Eroor");
+    } catch (error) {
+      console.error("DB error (updateUser):", error);
+      throw createHttpError("Failed to update user.", 500);
     }
   }
 
@@ -42,18 +42,18 @@ export class UserService {
         orderBy: { first_name: 'asc' }
       });
       return users;
-    } catch (err) {
-      console.log(err);
-      throw new Error("Internal Server Eroor");
+    } catch (error) {
+      console.error("DB error (getUsers):", error);
+      throw createHttpError("Failed to get users.", 500);
     }
   }
 
   static async getUser(id: string) {
     try {
       return await prisma.user.findUnique({ where: { id } });
-    } catch (err) {
-      console.log(err);
-      throw new Error("Internal Server Eroor");
+    } catch (error) {
+      console.error("DB error (getUser):", error);
+      throw createHttpError("Failed to get user.", 500);
     }
   }
 
@@ -75,8 +75,9 @@ export class UserService {
         coalesce("phone_number", '') || ' ' 
     ) @@ to_tsquery('english', ${formattedQuery})`;
       return result;
-    } catch (err) {
-      throw new Error("DB Error");
+    } catch (error) {
+      console.error("DB error (searchUsers):", error);
+      throw createHttpError("Search failed due to db issue.", 500);
     }
   }
 }
