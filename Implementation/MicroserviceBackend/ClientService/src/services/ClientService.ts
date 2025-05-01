@@ -37,7 +37,7 @@ export class UserService {
     try {
       return await prisma.client.update({
         where: { id },
-        data: { first_name, last_name, address, phone_number, active },
+        data: { first_name, last_name, address, phone_number, active, device_code, superbuddy_id },
       });
     } catch (error) {
       if (

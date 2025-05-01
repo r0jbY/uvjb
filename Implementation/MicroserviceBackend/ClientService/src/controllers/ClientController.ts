@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/ClientService";
-
+import { v4 as uuidv4 } from "uuid";
 type TypedError = Error & { statusCode?: number };
 
 export const createHttpError = (message: string, statusCode: number): TypedError => {
@@ -37,13 +37,18 @@ export default class ClientController {
     }
 
     return res.status(200).json({
-      client
+      firstName: client.first_name,
+      lastName: client.last_name,
+      phoneNumber: client.phone_number,
+      address: client.address,
+      active: client.active,
+      deviceCode: client.device_code,
+      superbuddyId: client.superbuddy_id
     });
   }
 
   static async createClient(req: Request, res: Response): Promise<Response> {
     const {
-      id,
       deviceCode,
       superbuddyId,
       firstName,
@@ -52,7 +57,9 @@ export default class ClientController {
       address,
       active
     } = req.body;
-  
+    
+    const id = uuidv4();
+
     await UserService.createClient(
       id,
       deviceCode,
@@ -68,8 +75,10 @@ export default class ClientController {
   }
 
   static async updateClient(req: Request, res: Response): Promise<Response> {
+
+    const id = req.params.id;
+
     const {
-      id,
       deviceCode,
       superbuddyId,
       firstName,

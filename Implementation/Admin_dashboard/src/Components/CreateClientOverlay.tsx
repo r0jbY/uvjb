@@ -1,129 +1,149 @@
 import { toast } from "react-toastify";
 import InputField from "./InputField";
 import { useState } from "react";
-import { createUser, editUser, deleteUser } from "../Services/UserService";
-import { getUser } from "../Services/UserService";
+import { createClient, editClient, deleteClient } from "../Services/ClientService";
+import { searchSuperbuddies } from "../Services/UserService";
+import { getClient } from "../Services/ClientService";
 import { useEffect } from "react";
 import Modal from "react-modal";
-import ClipLoader from "react-spinners/ClipLoader";
+import { ClipLoader } from "react-spinners";
+import AsyncSelect from "react-select/async";
 
 
-type CreateUserOverlayProps = {
+type CreateClientOverlayProps = {
     onClose: () => void;
     edit: boolean;
     id?: string;
 };
 
+type OptionType = {
+    label: string;
+    value: string;
+};
+
+
 type FormErrors = {
     firstName: boolean;
     lastName: boolean;
-    email: boolean;
+    deviceCode: boolean;
     phoneNumber: boolean;
     address: boolean;
-    password: boolean;
-    confirmPassword: boolean;
-    role: boolean;
+    superbuddyId: boolean;
 };
 
-function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
+function CreateClientOverlay({ onClose, edit, id }: CreateClientOverlayProps) {
 
     const [lastName, setLastName] = useState("");
     const [firstName, setFirstName] = useState("");
-    const [email, setEmail] = useState("");
+    const [deviceCode, setDeviceCode] = useState("");
     const [phoneNumber, setPhonenumber] = useState("");
     const [address, setAddress] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [role, setRole] = useState<"admin" | "buddy" | "superbuddy" | "">("");
+    const [superbuddyId, setSuperbuddyId] = useState("");
     const [active, setActive] = useState(true);
     const [errors, setErrors] = useState<FormErrors>({
         firstName: false,
         lastName: false,
-        email: false,
+        deviceCode: false,
         phoneNumber: false,
         address: false,
-        password: false,
-        confirmPassword: false,
-        role: false
+        superbuddyId: false,
     });
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
     const openDeleteModal = () => setDeleteConfirmOpen(true);
     const closeDeleteModal = () => setDeleteConfirmOpen(false);
+    const [selectedSuperbuddy, setSelectedSuperbuddy] = useState<OptionType | null>(null);
 
     const resetForm = () => {
         setFirstName("");
         setLastName("");
-        setEmail("");
+        setDeviceCode("");
         setPhonenumber("");
         setAddress("");
-        setPassword("");
-        setConfirmPassword("");
-        setRole("");
+        setSuperbuddyId("");
         setActive(true);
         setErrors({
             firstName: false,
             lastName: false,
-            email: false,
+            deviceCode: false,
             phoneNumber: false,
             address: false,
-            password: false,
-            confirmPassword: false,
-            role: false
+            superbuddyId: false,
         });
     };
 
 
-    const loadUserData = async () => {
+    const loadClientData = async () => {
         if (!id) return;
-
+        console.log("We are here!");
         try {
-            const user = await getUser(id);
-            if (user) {
-                setFirstName(user.firstName);
-                setLastName(user.lastName);
-                setEmail(user.email);
-                setPhonenumber(user.phoneNumber);
-                setAddress(user.address);
-                setRole(user.role);
-                setActive(user.active);
+            const client = await getClient(id);
+            console.log("We are here!");
+            console.log("hello", client.firstName);
+            if (client) {
+                setFirstName(client.firstName);
+                setLastName(client.lastName);
+                setDeviceCode(client.deviceCode);
+                setPhonenumber(client.phoneNumber);
+                setAddress(client.address);
+                setActive(client.active);
+                setSuperbuddyId(client.superbuddyId);
+                setSelectedSuperbuddy({
+                    label: client.superbuddyEmail,
+                    value: client.superbuddyId
+                  });
             }
+
         } catch (error) {
-            toast.error("Failed to load user data.");
-            console.error("Error loading user data:", error);
+            toast.error("Failed to load client data.");
+            console.error("Error loading client data:", error);
+        }
+    };
+
+    
+    const loadSuperbuddyOptions = async (inputValue: string): Promise<OptionType[]> => {
+        try {
+            const res = await searchSuperbuddies(inputValue);
+            console.log(res);
+            if (!res) return [];
+
+            const mapped = res.superBuddies.map((user: any) => ({
+                label: user.email,
+                value: user.id,
+              }));
+              console.log("Options:", mapped);
+              return mapped;
+        } catch (error) {
+            console.error("Failed to load superbuddies:", error);
+            return [];
         }
     };
 
     useEffect(() => {
         if (edit && id) {
-            loadUserData();
+            loadClientData();
         }
     }, [edit, id]);
 
-    const validateUserForm = (data: {
+    const validateClientForm = (data: {
         firstName: string;
         lastName: string;
-        email: string;
+        deviceCode: string;
         phoneNumber: string;
         address: string;
-        password?: string;
-        confirmPassword?: string;
-        role: string;
+        superbuddyId?: string;
         isEdit?: boolean;
     }) => {
         const localErrors: FormErrors = {
             firstName: data.firstName.trim() === "",
             lastName: data.lastName.trim() === "",
-            email: data.email.trim() === "",
+            deviceCode: data.deviceCode.trim() === "",
             phoneNumber: data.phoneNumber.trim() === "",
             address: data.address.trim() === "",
-            password: !data.isEdit && (data.password?.trim() === ""),
-            confirmPassword: !data.isEdit && (data.confirmPassword?.trim() === ""),
-            role: data.role === "",
+            superbuddyId: data.superbuddyId?.trim() === "",
         };
 
-        const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
+        const isdeviceCodeValid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(data.deviceCode);
         const isPhoneValid = /^\+?[0-9\s\-()]{6,20}$/.test(data.phoneNumber);
         const isNameValid = (name: string) => /^[a-zA-Zà-ÿÀ-ß'’ -]{2,60}$/.test(name.trim());
         const isAddressValid = (address: string) => address.trim().length > 5;
@@ -134,30 +154,18 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
 
         if (!isNameValid(data.firstName)) return { valid: false, errors: localErrors, message: "Please enter a valid first name." };
         if (!isNameValid(data.lastName)) return { valid: false, errors: localErrors, message: "Please enter a valid last name." };
-        if (!isEmailValid) return { valid: false, errors: localErrors, message: "Please enter a valid email address." };
+        if (!isdeviceCodeValid) return { valid: false, errors: localErrors, message: "Please enter a valid deviceCode." };
         if (!isPhoneValid) return { valid: false, errors: localErrors, message: "Please enter a valid phone number." };
         if (!isAddressValid(data.address)) return { valid: false, errors: localErrors, message: "Please enter a valid address." };
-
-        if (!data.isEdit) {
-            const isPasswordStrong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(data.password || "");
-            if (!isPasswordStrong) {
-                return { valid: false, errors: localErrors, message: "Password must be at least 8 characters, include uppercase, lowercase, number, and symbol." };
-            }
-            if (data.password !== data.confirmPassword) {
-                return { valid: false, errors: localErrors, message: "Passwords do not match." };
-            }
-        }
 
         return {
             valid: true, errors: {
                 firstName: false,
                 lastName: false,
-                email: false,
+                deviceCode: false,
                 phoneNumber: false,
                 address: false,
-                password: false,
-                confirmPassword: false,
-                role: false,
+                superbuddyId: false,
             }, message: ""
         };
     };
@@ -166,16 +174,13 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
         e.preventDefault();
         toast.dismiss();
         setIsSubmitting(true);
-
-        const { valid, errors, message } = validateUserForm({
+        const { valid, errors, message } = validateClientForm({
             firstName,
             lastName,
-            email,
+            deviceCode,
             phoneNumber,
             address,
-            password,
-            confirmPassword,
-            role,
+            superbuddyId,
             isEdit: false,
         });
 
@@ -189,17 +194,16 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
 
         try {
 
-            await createUser({
+            await createClient({
                 firstName,
                 lastName,
-                email,
                 phoneNumber,
                 address,
-                password,
-                role,
+                deviceCode,
+                superbuddyId,
                 active,
             });
-            toast.success("User created successfully!");
+            toast.success("Client created successfully!");
             setTimeout(() => {
                 resetForm();
                 onClose(); // Close the modal
@@ -217,19 +221,18 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
     };
 
     const handleEdit = async (e: React.FormEvent) => {
+
         e.preventDefault();
         toast.dismiss();
         setIsSubmitting(true);
 
-        const { valid, errors, message } = validateUserForm({
+        const { valid, errors, message } = validateClientForm({
             firstName,
             lastName,
-            email,
+            deviceCode,
             phoneNumber,
             address,
-            password,
-            confirmPassword,
-            role,
+            superbuddyId,
             isEdit: true,
         });
 
@@ -237,7 +240,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
 
         if (!valid) {
             toast.error(message);
-            setIsSubmitting(true);
+            setIsSubmitting(false);
             return;
         }
 
@@ -245,17 +248,17 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
 
         console.log(id);
         try {
-            await editUser({
+            await editClient({
                 firstName,
                 lastName,
-                email,
+
                 phoneNumber,
                 address,
-                password,
-                role,
+                deviceCode,
+                superbuddyId,
                 active,
             }, id);
-            toast.success("User data edited successfully!");
+            toast.success("Client data edited successfully!");
             setTimeout(() => {
                 resetForm();
                 onClose(); // Close the modal
@@ -266,7 +269,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
                 toast.error(error.message);
             } else {
                 toast.error("Unknown error");
-            } 
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -279,8 +282,8 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
         if (!id) return;
 
         try {
-            await deleteUser(id);
-            toast.success("User deletedsuccessfully!");
+            await deleteClient(id);
+            toast.success("Client deleted successfully!");
             setTimeout(() => {
                 resetForm();
                 onClose(); // Close the modal
@@ -301,7 +304,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
                     ✕
                 </div>
                 <div className="flex justify-between items-center mb-8 lg:justify-center">
-                    <h2 className="text-xl font-bold text-[#658F8D] lg:text-4xl">{!edit ? "Create New User" : `Edit User`}</h2>
+                    <h2 className="text-xl font-bold text-[#658F8D] lg:text-4xl">{!edit ? "Create New Client" : `Edit Client`}</h2>
                     <button onClick={() => { onClose(); resetForm() }} className="text-xl text-gray-500 hover:text-gray-700 cursor-pointer active:scale-[0.9] lg:hidden">✕</button>
                 </div>
 
@@ -328,12 +331,12 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
 
 
                     <InputField
-                        label="Email"
-                        name="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        error={errors.email}
+                        label="Device code"
+                        name="deviceCode"
+                        placeholder="Device code"
+                        value={deviceCode}
+                        onChange={(e) => setDeviceCode(e.target.value)}
+                        error={errors.deviceCode}
                     />
 
                     <InputField
@@ -354,43 +357,38 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
                         error={errors.address}
                     />
 
-                    <div className={` flex-col lg:flex-row w-full gap-5 ${edit ? 'hidden' : 'flex'}`}>
-                        <InputField
-                            label="Password"
-                            name="password"
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            error={errors.password}
-                        />
-
-                        <InputField
-                            label="Confirm Password"
-                            name="confirmPassword"
-                            type="password"
-                            placeholder="Confirm Password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            error={errors.confirmPassword}
-                        />
-                    </div>
-
                     <div className="flex flex-col lg:flex-row w-full gap-5 ">
                         <div className="flex flex-col gap-1 w-full ">
-                            <label className="text-[#658F8D] text-lg font-medium">{errors.role && "!"} Role</label>
-                            <select
-                                name="role"
-                                className={`w-full h-[48px] p-3  rounded-lg text-[#658F8D] text-base ${errors.role ? "border-2 border-red-600" : "border border-[#C3B295]"} bg-[#F7F7F7] placeholder-[#658F8D] focus:outline-[#C3B295] disabled:opacity-60 disabled:cursor-not-allowed`}
-                                value={role}
-                                onChange={(e) => { setRole(e.target.value as any) }}
-
-                            >
-                                <option value="">Choose Role</option>
-                                <option value="admin">Admin</option>
-                                <option value="buddy">Buddy</option>
-                                <option value="superbuddy">Superbuddy</option>
-                            </select>
+                            <label className="text-[#658F8D] text-lg font-medium">{errors.superbuddyId && "!"} Superbuddy </label>
+                            <AsyncSelect
+                                cacheOptions
+                                loadOptions={loadSuperbuddyOptions}
+                                defaultOptions={true}
+                                onChange={(selected) => {
+                                    setSuperbuddyId((selected as OptionType)?.value || "");
+                                    setSelectedSuperbuddy(selected as OptionType); // ← Update state
+                                  }}
+                                placeholder="Search Superbuddy Email..."
+                                value={selectedSuperbuddy}
+                                styles={{
+                                    control: (provided) => ({
+                                        ...provided,
+                                        backgroundColor: "#F7F7F7",
+                                        borderColor: errors.superbuddyId ? "red" : "#C3B295",
+                                        minHeight: "48px",
+                                        borderWidth: errors.superbuddyId ? 2 : 1,
+                                        boxShadow: "none",
+                                    }),
+                                    placeholder: (base) => ({
+                                        ...base,
+                                        color: "#658F8D",
+                                    }),
+                                    singleValue: (base) => ({
+                                        ...base,
+                                        color: "#658F8D",
+                                    }),
+                                }}
+                            />
                         </div>
 
                         <div className="flex flex-col gap-1 w-full ">
@@ -417,7 +415,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
                                 className="bg-[#D96C6C] hover:bg-[#C0504D] text-white font-semibold px-4 py-2 rounded-md cursor-pointer active:scale-[0.98] transition-all duration-150 ease-in-out lg:rounded-xl lg:font-bold lg:text-xl lg:px-5"
                                 onClick={openDeleteModal}
                             >
-                                Delete User
+                                Delete Client
                             </button>
 
                         </div>
@@ -457,7 +455,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
                 overlayClassName="fixed inset-0 bg-[rgba(0,0,0,0.3)] flex justify-center items-center z-50"
             >
                 <h2 className="text-xl lg:text-3xl font-bold text-[#658F8D] mb-6 text-center">
-                    Are you sure you want to delete this user?
+                    Are you sure you want to delete this client?
                 </h2>
                 <div className="flex justify-center gap-4">
                     <button
@@ -482,4 +480,4 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
     );
 }
 
-export default CreateUserOverlay;
+export default CreateClientOverlay;

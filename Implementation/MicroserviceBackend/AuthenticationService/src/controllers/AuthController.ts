@@ -118,14 +118,28 @@ export default class AuthController {
     return res.status(200).json({ message: "Account created" });
   }
 
+  static async getSuperbuddies(req: Request, res: Response): Promise<Response> {
+
+    const { query, limit } = req.query;
+
+    const parsedLimit = limit ? parseInt(limit as string, 10) : 5; // fallback default
+
+    console.log(query, " :query");
+
+    const superBuddies = await AuthService.getSuperbuddies(query as string, parsedLimit);
+
+    return res.status(200).json({ superBuddies });
+  }
+
   static async deleteUser(req: Request, res: Response): Promise<Response> {
 
     const { id } = req.params;
 
     await AuthService.deleteAccount(id);
-    
-    await publishUserDeletedEvent({id});
+
+    await publishUserDeletedEvent({ id });
 
     return res.status(200).json({ message: "User deleted" });
   }
 }
+

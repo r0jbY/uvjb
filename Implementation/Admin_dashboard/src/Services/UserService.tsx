@@ -35,6 +35,22 @@ export const searchUsers = async (searchTerm: string) => {
   }
 };
 
+export const searchSuperbuddies = async (searchTerm: string) => {
+  try {
+    const res = await axios.get('/users/searchSuperbuddies', {
+      params: {
+        query: searchTerm,
+        limit: 5
+      },
+    });
+    return res.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
+
+
+
 interface User {
   firstName: string;
   lastName: string;

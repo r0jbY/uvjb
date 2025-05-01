@@ -23,6 +23,32 @@ export class AuthService {
     }
   }
 
+  static async getSuperbuddies(query: string, limit: number) {
+    
+    try {
+      const superBuddies = await prisma.user.findMany({
+        where: {
+          role: "superbuddy",
+          email: {
+            contains: query,
+            mode: "insensitive", // case-insensitive search
+          },
+        },
+        take: limit,
+        select: {
+          id: true,
+          email: true,
+        },
+      });
+      
+      
+      return superBuddies;
+    } catch (error) {
+      console.error("DB error (getSuperbuddies):", error);
+      throw createHttpError("Failed to fetch superbuddies. Internal server error.", 500);
+    }
+  }
+
   static async updateUser(id: string, email: string, role: string) {
 
     try {

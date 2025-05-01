@@ -1,10 +1,9 @@
 import express from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware'
 import * as dotenv from "dotenv";
 import cors from 'cors';
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
-import axios from 'axios';
+import clientRoutes from './routes/clientRoutes'
 import cookieParser from 'cookie-parser';
 import errorHandler from './middleware/errorHandler';
 
@@ -22,6 +21,8 @@ app.use(express.json());
 app.use(authRoutes);
 
 app.use(userRoutes);
+
+app.use(clientRoutes);
   
   // Basic welcome route
   app.get('/', (req, res) => {

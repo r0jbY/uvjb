@@ -47,9 +47,15 @@ router.get('/users/search', catchAsync((req, res, next) => {
   return forwardRequest(req, res, next, 'http://localhost:3002/users/search');
 }));
 
+router.get('/users/searchSuperbuddies', catchAsync((req, res, next) => {
+  console.log("We are here for now!");
+  return forwardRequest(req, res, next, 'http://localhost:3001/auth/superbuddies');
+}));
+
 router.delete('/users/delete/:id', catchAsync((req, res, next) => {
   const { id } = req.params;
   return forwardRequest(req, res, next, `http://localhost:3001/auth/delete/${id}`);
 }));
+
 
 export default router;
