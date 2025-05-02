@@ -1,4 +1,4 @@
-# Use case - Register User
+# Use case - Edit User
 | Info | Description |
 | --- | --- |
 | Name: | Edit User  |
