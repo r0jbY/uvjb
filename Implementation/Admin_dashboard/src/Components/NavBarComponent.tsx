@@ -81,7 +81,8 @@ function NavBarComponent() {
                         <UsersIcon className="w-6 h-6" />
                         Client Overview
                     </button>
-                    <button className="hidden lg:flex items-center gap-2 font-bold text-[#658F8D] text-2xl cursor-pointer hover:text-[#4C7472] hover:underline underline-offset-4 hover:decoration-[#4C7472] decoration-2 hover:scale-115 active:scale-95 transition-all duration-200 ease-in-out">
+                    <button className="hidden lg:flex items-center gap-2 font-bold text-[#658F8D] text-2xl cursor-pointer hover:text-[#4C7472] hover:underline underline-offset-4 hover:decoration-[#4C7472] decoration-2 hover:scale-115 active:scale-95 transition-all duration-200 ease-in-out"
+                    onClick={() => navigate("/NetworkOverview")}>
                         <ShareIcon className="w-6 h-6" />
                         Client Network
                     </button>
@@ -130,7 +131,8 @@ function NavBarComponent() {
                         Client Overview
                     </button>
 
-                    <button className="w-full mb-0 py-6 text-[#658F8D] text-2xl font-bold border-b border-[#E4DFCC] cursor-pointer hover:bg-[#E4DFCC]/30 active:scale-[0.98] transition-all duration-150 ease-in-out flex items-center justify-center gap-3">
+                    <button className="w-full mb-0 py-6 text-[#658F8D] text-2xl font-bold border-b border-[#E4DFCC] cursor-pointer hover:bg-[#E4DFCC]/30 active:scale-[0.98] transition-all duration-150 ease-in-out flex items-center justify-center gap-3"
+                    onClick={() => navigate("/NetworkOverview")}>
                         <ShareIcon className="w-6 h-6"></ShareIcon>
                         Client Network
                     </button>

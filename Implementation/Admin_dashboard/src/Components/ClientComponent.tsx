@@ -239,7 +239,7 @@ function ClientComponent() {
                         ) :
 
                             clients.map((client, index) => (
-                                <div ref={index === clients.length - 10 ? triggerRef : null} className={`flex flex-row items-center justify-between w-[100%] ${index === clients.length - 1 ? `border-b-0` : `border-b-1`} border-[#E4DFCC] h-[20%] min-h-[80px]  `} key={index}>
+                                <div ref={index === clients.length - 10 ? triggerRef : null} className={`flex flex-row items-center justify-between w-[100%] ${index === clients.length - 1 ? `border-b-0` : `border-b-1`} border-[#E4DFCC] h-[25%] min-h-[80px]  `} key={index}>
                                     <UserIcon className="w-8 h-8 lg:hidden"></UserIcon>
                                     <div className="flex flex-col justify-center w-5/8 h-[100%] text-[#658F8D]">
                                         <h2 className="font-bold text-1xl ">{client.first_name} {client.last_name}</h2>

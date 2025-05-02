@@ -7,6 +7,7 @@ import PublicRoute from './routes/PublicRoute';
 import UserPage from './Pages/UserPage';
 import Modal from 'react-modal';
 import ClientPage from './Pages/ClientPage';
+import NetworkPage from './Pages/NetworkPage';
 
 Modal.setAppElement('#root');
 
@@ -18,8 +19,9 @@ function App() {
       <Routes>
         <Route index element={<PublicRoute><LoginComponent/></PublicRoute>}/>
         <Route path='UserOverview' element={<PrivateRoute><UserPage/></PrivateRoute> }/>
-        <Route path='*' element={<PrivateRoute><UserPage/></PrivateRoute> }/>
         <Route path='ClientOverview' element={<PrivateRoute><ClientPage/></PrivateRoute> }/>
+        <Route path='NetworkOverview' element={<PrivateRoute><NetworkPage/></PrivateRoute> }/>
+        <Route path='*' element={<PrivateRoute><UserPage/></PrivateRoute> }/>
       </Routes>
     </AuthProvider>
   );
