@@ -1,4 +1,4 @@
-# Use case - Log in
+# Use case - Search for a client
 | Info | Description |
 | --- | --- |
 | Name: | Search for a User |
