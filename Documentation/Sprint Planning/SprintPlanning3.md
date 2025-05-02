@@ -29,3 +29,16 @@
 - Development will span both backend (microservices) and frontend (Admin Dashboard).
 - Testing and validation will be done alongside implementation to ensure stable feature delivery.
 
+## Sprint 3 Review
+
+### Completed Items
+- **Admin Functionalities**: All core admin use cases (view, register, edit, delete clients and users) were fully implemented in both the backend microservices and the frontend Admin Dashboard.
+- **Documentation**: Key design and analysis artifacts were completed, including:
+  - Updated Software Architecture Diagram
+  - Database schemas for relevant microservices
+  - UI mockups to guide the admin dashboard features
+
+### Not Completed
+- **UML Use Case Diagram**: The use case diagram for the new admin functionalities was not completed.
+- **Testing**: Full testing coverage for new features (unit, integration, and E2E) has not yet been achieved and will continue in the next sprint.
+
