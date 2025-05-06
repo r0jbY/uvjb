@@ -4,11 +4,9 @@ import NetworkComponent from "../Components/NetworkComponent";
 
 function NetworkPage() {
     return (
-        <div className="h-screen flex flex-col">
+        <div className="h-[100vh] flex flex-col">
             <NavBarComponent />
-            <div className="flex-1 overflow-y-auto">
-                <NetworkComponent />
-            </div>
+            <NetworkComponent />
             <ToastContainer
                 position="top-right"
                 autoClose={3000}
