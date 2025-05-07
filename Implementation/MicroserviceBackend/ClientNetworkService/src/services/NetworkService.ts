@@ -31,5 +31,23 @@ export class NetworkService {
       throw createHttpError("Failed to update client network", 500);
     }
   }
+
+  static async getNetwork(client_id: string, layer: number) {
+    try {
+        const res = prisma.network.findMany({
+          where: {
+            client_id,
+            layer
+          },
+          select: {
+            buddy_id: true,
+          },
+        })
+        return res;
+      } catch (error) {
+      console.error("Error managing netowrk:", error);
+      throw createHttpError("Failed to update client network", 500);
+    }
+  }
   
 }

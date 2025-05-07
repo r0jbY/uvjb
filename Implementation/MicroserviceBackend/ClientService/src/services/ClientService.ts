@@ -75,27 +75,45 @@ export class UserService {
     }
   }
 
-  static async searchClients(query: string) {
-    if (!query || query.trim() === "") return [];
-
-    const formattedQuery = query
-      .trim()
+  static async searchClients(query: string, limit?: number) {
+    const trimmedQuery = query?.trim();
+  
+    if (!trimmedQuery) {
+      return await prisma.client.findMany({
+        ...(limit ? { take: limit } : {}),
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          address: true,
+          phone_number: true,
+        },
+      });
+    }
+  
+    const formattedQuery = trimmedQuery
       .split(/\s+/)
       .map((word) => `${word}:*`)
       .join(" & ");
-    try {
-      const result = await prisma.$queryRaw<any[]>`
-        SELECT * FROM "Client"
-        WHERE to_tsvector('english', 
+  
+    // Dynamically inject LIMIT only if provided
+    const sql = `
+      SELECT * FROM "Client"
+      WHERE to_tsvector('english',
         coalesce("first_name", '') || ' ' ||
         coalesce("last_name", '') || ' ' ||
         coalesce("address", '') || ' ' ||
-        coalesce("phone_number", '') || ' ' 
-    ) @@ to_tsquery('english', ${formattedQuery})`;
+        coalesce("phone_number", '')
+      ) @@ to_tsquery('english', $1)
+      ${typeof limit === 'number' ? `LIMIT ${Number(limit)}` : ''}
+    `;
+  
+    try {
+      const result = await prisma.$queryRawUnsafe<any[]>(sql, formattedQuery);
       return result;
     } catch (error) {
       console.error("DB error (searchClients):", error);
-      throw createHttpError("Search failed due to db issue.", 500);
+      throw createHttpError("Search failed due to DB issue.", 500);
     }
   }
 

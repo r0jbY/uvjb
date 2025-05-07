@@ -22,8 +22,8 @@ export default class ClientController {
 
   static async searchClients(req: Request, res: Response) {
     const query = req.query.query as string;
-
-    const users = await UserService.searchClients(query);
+    const limit = parseInt(req.query.limit as string) || undefined;
+    const users = await UserService.searchClients(query, limit);
     return res.status(200).json(users);
 
   }

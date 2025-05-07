@@ -22,11 +22,29 @@ export const getClient = async (id: string) => {
 
 };
 
-export const searchClients = async (searchTerm: string) => {
+export const searchClients = async (searchTerm: string, limit?: number) => {
   try {
+    console.log("We are here!")
     const res = await axios.get('/clients/search', {
       params: {
         query: searchTerm,
+        limit: limit || 0
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    handleAxiosError(error);
+
+  }
+};
+
+export const searchSuperbuddies = async (searchTerm: string) => {
+  try {
+    const res = await axios.get('/users/searchSuperbuddies', {
+      params: {
+        query: searchTerm,
+        limit: 5
       },
     });
     return res.data;
