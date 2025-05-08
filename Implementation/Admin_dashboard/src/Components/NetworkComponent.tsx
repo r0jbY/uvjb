@@ -8,6 +8,7 @@ import Select, { SingleValue } from "react-select";
 import AsyncSelect from 'react-select/async';
 import { searchUsers } from '../Services/UserService';
 import { User } from '../interfaces/UserInterface';
+import BuddyTooltip from './BuddyTooltip';
 
 type OptionType = {
     label: string;
@@ -221,13 +222,13 @@ function NetworkComponent() {
                     <h1 className="text-[#658F8D] text-center text-2xl font-bold  lg:text-2xl">
                         {`Current Network`}
                     </h1>
-                    <h1 className="text-[#658F8D] text-center text-xl font-semibold mb-3">
+                    <h1 className="text-[#658F8D] text-center text-xl font-semibold pb-3 border-b-1 border-[#E9E2CD]">
                         {`${selectedClient?.label} - Layer ${selectedLayer}`}
                     </h1>
                     <div className="flex flex-1 flex-col gap-3 min-h-0 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-7 pb-2">
                         {clientNetwork.length > 0 ? (clientNetwork.map((buddy, index) => (
                             <div className="flex flex-row items-center justify-between text-xl" key={index}>
-                                <h1>{`${buddy.first_name} ${buddy.last_name}`}</h1>
+                                <BuddyTooltip user={buddy} />
                                 <button className="bg-[#658F8D] text-white rounded-2xl text-lg border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out"
                                     onClick={() => handleRemoveBuddy(buddy.id)}>
                                     Remove
@@ -287,7 +288,7 @@ function NetworkComponent() {
                                     {toBeAdded.length > 0 ? (<div className="flex  flex-col min-h-0 gap-3 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3 mt-3">
                                         {toBeAdded.map((buddy, index) => (
                                             <div className="flex flex-row justify-between items-center border-3  border-[#90EE90]   bg-[#FEF5E4] rounded-xl px-2 py-1" key={index}>
-                                                <h1 className="font-medium">{buddy.first_name} {buddy.last_name}</h1>
+                                                <BuddyTooltip user={buddy} />
                                                 <button className="bg-[#658F8D] text-white rounded-2xl text-md border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-4 py-1 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out" onClick={() => handleUndoAdd(buddy.id)}>Undo</button>
                                             </div>
                                         ))}
@@ -304,7 +305,7 @@ function NetworkComponent() {
                                     {toBeRemoved.length > 0 ? (<div className="flex  flex-col min-h-0 gap-3 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3 mt-3">
                                         {toBeRemoved.map((buddy, index) => (
                                             <div className="flex flex-row justify-between items-center border-3 border-[#e64a1b] bg-[#FEF5E4] rounded-xl px-2 py-1" key={index}>
-                                                <h1 className="font-medium"> John Doe </h1>
+                                                <BuddyTooltip user={buddy} />
                                                 <button className="bg-[#658F8D] text-white rounded-2xl text-md border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-4 py-1 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out" onClick={() => handleUndoRemove(buddy.id)}>Undo</button>
                                             </div>
                                         ))}
