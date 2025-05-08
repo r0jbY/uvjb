@@ -2,10 +2,12 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { searchClients } from '../Services/ClientService';
 import { toast } from "react-toastify";
 import { reactSelectClassNames } from '../utils/reactSelectStyles';
-import { getClientNetwork } from '../Services/NetworkService';
+import { getClientNetwork, sendNetworkChanges } from '../Services/NetworkService';
 import { useEffect, useState } from 'react';
 import Select, { SingleValue } from "react-select";
 import AsyncSelect from 'react-select/async';
+import { searchUsers } from '../Services/UserService';
+import { User } from '../interfaces/UserInterface';
 
 type OptionType = {
     label: string;
@@ -22,8 +24,12 @@ function NetworkComponent() {
 
     const [selectedClient, setSelectedClient] = useState<OptionType | null>(null);
     const [selectedLayer, setSelectedLayer] = useState<string | null>(null);
-    const [clientNetwork, setClientNetwork] = useState<string[]>([]);
-
+    const [clientNetwork, setClientNetwork] = useState<User[]>([]);
+    const [searchTerms, setSearchterms] = useState("");
+    const [buddies, setBuddies] = useState<User[]>([]);
+    const [toBeAdded, setToBeAdded] = useState<User[]>([]);
+    const [toBeRemoved, setToBeRemoved] = useState<User[]>([]);
+    const [comit, setComit] = useState(1);
 
     const loadClientOptions = async (inputValue: string): Promise<OptionType[]> => {
         try {
@@ -57,6 +63,8 @@ function NetworkComponent() {
                 const res = await getClientNetwork(selectedClient.value, selectedLayer);
                 const buddyIds = res.map((r: any) => r.buddy_id);
                 setClientNetwork(buddyIds);
+                setToBeAdded([]);    
+                setToBeRemoved([]);
             } catch (error: any) {
                 if (error instanceof Error) {
                     toast.error(error.message);
@@ -67,14 +75,88 @@ function NetworkComponent() {
         };
 
         fetchClientNetwork();
+    }, [selectedClient, selectedLayer, comit])
+
+    useEffect(() => {
 
 
+        const getBuddies = async () => {
+            try {
 
+                const res = await searchUsers(searchTerms);
+                console.log(res);
+                setBuddies(res ?? []);
+            } catch (error: any) {
+                if (error instanceof Error) {
+                    toast.error(error.message);
+                } else {
+                    toast.error("Unknown error");
+                }
+            }
 
+        };
+        getBuddies();
 
-    }, [selectedClient, selectedLayer])
+    }, [searchTerms])
 
+    const handleRemoveBuddy = (buddyId: string) => {
+        setClientNetwork(prev => prev.filter(id => id !== buddyId));
+        setToBeRemoved(prev => [...prev, { id: buddyId, first_name: "", last_name: "", address: "", phone_number: "" }]);
+    };
 
+    const handleAddBuddy = (buddy: User) => {
+        const alreadyInNetwork = clientNetwork.includes(buddy.id);
+        const alreadyAdded = toBeAdded.some(b => b.id === buddy.id);
+
+        if (!alreadyInNetwork && !alreadyAdded) {
+            setToBeAdded(prev => [...prev, buddy]);
+        }
+    };
+
+    const handleUndoAdd = (buddyId: string) => {
+        setToBeAdded(prev => prev.filter(b => b.id !== buddyId));
+    }
+
+    const handleUndoRemove = (buddyId: string) => {
+        setToBeRemoved(prev => prev.filter(b => b.id !== buddyId));
+        setClientNetwork(prev => [...prev, buddyId]);
+    };
+
+    const commitNetworkChanges = async () => {
+        if (!selectedClient || !selectedLayer) return;
+    
+        const payload = {
+            clientId: selectedClient.value,
+            addBuddies: toBeAdded.map(b => b.id),
+            removeBuddies: toBeRemoved.map(b => b.id),
+            layer: parseInt(selectedLayer),
+        };
+    
+        try {
+            // Replace this with your actual service call
+            toast.loading("Sending netowrk changes");
+            await sendNetworkChanges(payload);
+
+            toast.dismiss();
+            toast.success("Network changes submitted!");
+            
+            // Clear pending changes
+            setToBeAdded([]);
+            setToBeRemoved([]);
+            setComit(prev => prev+1);
+            // Optionally, refresh current network
+            
+            
+        } catch (error: any) {
+            if (error instanceof Error) {
+                toast.dismiss();
+                toast.error(error.message);
+            } else {
+                toast.dismiss();
+                toast.error("Unknown error");
+            }
+        }
+    };
 
     return (
         <div className="flex flex-col items-center gap-5 text-[#658F8D] w-full h-full bg-[#F7EFDA] px-4 pb-4 overflow-y-scroll lg:overflow-y-hidden lg:px-[4vw] xl:px-[8vw] 2xl:px-[12vw] lg:gap-[4vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -108,7 +190,7 @@ function NetworkComponent() {
 
             </div>
 
-            
+
             {selectedClient && selectedLayer && (<div className="flex flex-col gap-5 lg:flex-row items-center lg:h-full w-full  lg:overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] ">
                 <div className="flex flex-col p-6 rounded-2xl border border-[#E9E2CD] w-full shadow-[0_1px_8px_0_rgba(0,0,0,0.1)] bg-white gap-3 lg:w-1/3 h-full min-h-0">
                     <h1 className="text-[#658F8D] text-center text-2xl font-bold  lg:text-2xl">
@@ -121,7 +203,8 @@ function NetworkComponent() {
                         {clientNetwork.length > 0 ? (clientNetwork.map((buddy, index) => (
                             <div className="flex flex-row items-center justify-between text-xl" key={index}>
                                 <h1> {`${buddy}`} </h1>
-                                <button className="bg-[#658F8D] text-white rounded-2xl text-lg border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">
+                                <button className="bg-[#658F8D] text-white rounded-2xl text-lg border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out"
+                                    onClick={() => handleRemoveBuddy(buddy)}>
                                     Remove
                                 </button>
                             </div>
@@ -140,49 +223,67 @@ function NetworkComponent() {
                         <h1 className="text-[#658F8D] text-2xl text-center font-bold lg:text-3xl lg:mb-3"> Available Buddies </h1>
                         <div className='relative w-full'>
                             <MagnifyingGlassIcon className='w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[#658F8D]' />
-                            <input placeholder="Search buddies" className="w-full p-2 pl-10 border rounded-xl border-[#B7C0B2] bg-[#FEF5E4] placeholder:text-[#658F8D] placeholder:font-semibold font-semibold focus:outline-[#B7C0B2] " />
+                            <input placeholder="Search buddies" className="w-full p-2 pl-10 border rounded-xl border-[#B7C0B2] bg-[#FEF5E4] placeholder:text-[#658F8D] placeholder:font-semibold font-semibold focus:outline-[#B7C0B2] " value={searchTerms} onChange={(e) => { setSearchterms(e.target.value) }} />
                         </div>
-                        <div className="flex flex-col min-h-0 gap-2 lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            {Array.from({ length: 3 }).map((_, index) => (
-                                <div className="flex flex-col border border-[#B7C0B2] rounded-xl py-2 px-3 bg-[#FEF5E4] gap-1" key={index}>
-                                    <div className="flex flex-row justify-between items-center">
-                                        <h1 className="font-semibold text-2xl"> John Doe </h1>
-                                        <button className="bg-[#658F8D] text-white rounded-2xl text-md border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">Add</button>
+                        {buddies.length > 0 ? (<div className="flex flex-col min-h-0 gap-1 lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                            {buddies
+                                .filter(
+                                    (buddy) =>
+                                        !clientNetwork.includes(buddy.id) &&
+                                        !toBeAdded.some((b) => b.id === buddy.id) &&
+                                        !toBeRemoved.some((b) => b.id === buddy.id)
+                                ).map((buddy, index) => (
+                                    <div className="flex flex-col border border-[#B7C0B2] rounded-xl py-2 px-3 bg-[#FEF5E4] gap-1" key={index}>
+                                        <div className="flex flex-row justify-between items-center">
+                                            <h1 className="font-semibold text-2xl"> {`${buddy.first_name} ${buddy.last_name}`} </h1>
+                                            <button className="bg-[#658F8D] text-white rounded-2xl text-md border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out" onClick={() => handleAddBuddy(buddy)}>Add</button>
+                                        </div>
+                                        <p className="font-normal text-lg">📞 {buddy.phone_number} </p>
+                                        <p className="font-normal text-lg">📍 {buddy.address} </p>
                                     </div>
-                                    <p className="font-normal text-lg">📞 Number </p>
-                                    <p className="font-normal text-lg">📍 Address </p>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                        </div>) : (
+                            <div className='h-full mt-4'>
+                                <p className='w-full text-lg font-bold'>No buddies matching the search terms were found.</p>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="flex flex-col p-4 overflow-hidden  rounded-2xl border border-[#E9E2CD] w-full shadow-[0_1px_8px_0_rgba(0,0,0,0.1)] lg:shadow-none lg:border-0 bg-white">
+                    <div className="flex flex-col p-4 overflow-hidden  rounded-2xl border border-[#E9E2CD] w-full shadow-[0_1px_8px_0_rgba(0,0,0,0.1)] lg:shadow-none lg:border-0 lg:border-l-1 lg:rounded-none bg-white">
                         <h1 className="text-[#658F8D] text-2xl font-bold text-center mb-3 lg:text-3xl "> Pending Network Changes </h1>
 
                         <div className="flex flex-col overflow-hidden h-full mt-4 lg:gap-2">
                             <div className="flex flex-col gap-2 flex-1 min-h-0  ">
                                 <h2 className="text-[#658F8D] text-xl font-bold lg:text-xl"> To Be Added </h2>
 
-                                <div className="flex  flex-col min-h-0 gap-3 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3">
-                                    {Array.from({ length: 7 }).map((_, index) => (
-                                        <div className="flex flex-row justify-between items-center border-3 border-[#90EE90] bg-[#FEF5E4] rounded-xl px-2 py-1" key={index}>
-                                            <h1 className="font-medium"> John Doe </h1>
-                                            <button className="bg-[#658F8D] text-white rounded-2xl text-md border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-4 py-1 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">Undo</button>
-                                        </div>
-                                    ))}
+                                <div className="flex  flex-col gap-3 overflow-y-auto border-t-1 border-[#E4DFCC] pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3">
+                                    {toBeAdded.length > 0 ? (<div className="flex  flex-col min-h-0 gap-3 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3 mt-3">
+                                        {toBeAdded.map((buddy, index) => (
+                                            <div className="flex flex-row justify-between items-center border-3  border-[#90EE90]   bg-[#FEF5E4] rounded-xl px-2 py-1" key={index}>
+                                                <h1 className="font-medium">{buddy.first_name} {buddy.last_name}</h1>
+                                                <button className="bg-[#658F8D] text-white rounded-2xl text-md border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-4 py-1 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out" onClick={() => handleUndoAdd(buddy.id)}>Undo</button>
+                                            </div>
+                                        ))}
+                                    </div>) : (
+                                        <p className='font-semibold text-xl mt-3'>None.</p>
+                                    )}
                                 </div>
                             </div>
 
                             <div className="flex flex-col gap-2  flex-1 min-h-0">
                                 <h2 className="text-[#658F8D] text-xl font-bold lg:text-xl"> To Be Removed </h2>
 
-                                <div className="flex  flex-col gap-3 overflow-y-auto  [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3">
-                                    {Array.from({ length: 7 }).map((_, index) => (
-                                        <div className="flex flex-row justify-between items-center border-3 border-[#FF7F7F] bg-[#FEF5E4] rounded-xl px-2 py-1 border-t-2" key={index}>
-                                            <h1 className="font-medium"> John Doe </h1>
-                                            <button className="bg-[#658F8D] text-white rounded-2xl text-md border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-4 py-1 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out">Undo</button>
-                                        </div>
-                                    ))}
+                                <div className="flex  flex-col gap-3 overflow-y-auto border-t-1 border-[#E4DFCC] pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3">
+                                    {toBeRemoved.length > 0 ? (<div className="flex  flex-col min-h-0 gap-3 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3 mt-3">
+                                        {toBeRemoved.map((buddy, index) => (
+                                            <div className="flex flex-row justify-between items-center border-3 border-[#e64a1b] bg-[#FEF5E4] rounded-xl px-2 py-1" key={index}>
+                                                <h1 className="font-medium"> John Doe </h1>
+                                                <button className="bg-[#658F8D] text-white rounded-2xl text-md border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-4 py-1 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out" onClick={() => handleUndoRemove(buddy.id)}>Undo</button>
+                                            </div>
+                                        ))}
+                                    </div>) : (
+                                        <p className='font-semibold text-xl mt-3'>None.</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -197,9 +298,9 @@ function NetworkComponent() {
 
 
 
-            {selectedClient && selectedLayer && (<button className="bg-[#658F8D] text-white rounded-2xl text-lg border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out lg:mt-auto lg:mb-4"> Commit Network Changes</button>)}
+            {selectedClient && selectedLayer && (<button className="bg-[#658F8D] text-white rounded-2xl text-lg border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out lg:mt-auto lg:mb-4" onClick={commitNetworkChanges}> Commit Network Changes</button>)}
         </div>
-    
+
     );
 }
 

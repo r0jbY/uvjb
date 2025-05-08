@@ -13,4 +13,8 @@ router.get('/network/getAll/:clientId/:layer', catchAsync((req, res, next) => {
     return forwardRequest(req, res, next, `http://localhost:3004/network/getAll/${clientId}/${layer}`);
 }));
 
+router.put('/network/update', catchAsync((req, res, next) => {
+    return forwardRequest(req, res, next, `http://localhost:3004/network/manage`);
+}));
+
 export default router;

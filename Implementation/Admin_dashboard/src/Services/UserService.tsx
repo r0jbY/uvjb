@@ -1,9 +1,9 @@
 import axios from "../axiosConfigs";
 import { handleAxiosError } from "../utils/axiosErrorHandler";
 
-export const getUsers = async (page: number) => {
+export const getUsers = async (page: number, limit?: number) => {
   try {
-    const res = await axios.get(`users/getAll?offset=${page * 20}&limit=20`);
+    const res = await axios.get(`users/getAll?offset=${page * 20}&limit=${limit || 20}`);
     return res.data;
   } catch (error) {
     handleAxiosError(error);
@@ -23,15 +23,22 @@ export const getUser = async (id: string) => {
 };
 
 export const searchUsers = async (searchTerm: string) => {
-  try {
-    const res = await axios.get('/users/search', {
-      params: {
-        query: searchTerm,
-      },
-    });
-    return res.data;
-  } catch (error) {
-    handleAxiosError(error);
+  if (searchTerm === "") {
+    console.log("Here!")
+    const res = await getUsers(0, 10);
+    console.log(res);
+    return res;
+  } else {
+    try {
+      const res = await axios.get('/users/search', {
+        params: {
+          query: searchTerm,
+        },
+      });
+      return res.data;
+    } catch (error) {
+      handleAxiosError(error);
+    }
   }
 };
 

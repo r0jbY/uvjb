@@ -10,3 +10,17 @@ export const getClientNetwork = async (clientId: string, layer: string) => {
   }
 
 };
+
+export const sendNetworkChanges = async (payload: {
+  clientId: string;
+  addBuddies: string[];
+  removeBuddies: string[];
+  layer: number;
+}) => {
+  try {
+    const response = await axios.put('/network/update', payload);
+    return response.data;
+  } catch (error) {
+    handleAxiosError(error);
+  }
+};
