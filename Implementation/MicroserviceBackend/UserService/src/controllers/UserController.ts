@@ -20,6 +20,20 @@ export default class UserController {
     return res.status(200).json(users);
   }
 
+  static async getUsersByIds(req: Request, res: Response): Promise<Response> {
+
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({ message: "Invalid or missing 'ids' in request body." });
+    }
+
+    const users = await UserService.getUsersByIds(ids);
+    return res.status(200).json(users);
+
+  }
+
+
   static async searchUsers(req: Request, res: Response) {
     const query = req.query.query as string;
 

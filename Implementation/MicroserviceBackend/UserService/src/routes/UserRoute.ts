@@ -12,4 +12,6 @@ router.get("/search", catchAsync(UserController.searchUsers));
 
 router.get("/:id", catchAsync(UserController.getUser));
 
+router.post("/byIds", catchAsync(UserController.getUsersByIds))
+
 export default router;

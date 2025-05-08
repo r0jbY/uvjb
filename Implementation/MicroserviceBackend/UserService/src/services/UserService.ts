@@ -48,6 +48,21 @@ export class UserService {
     }
   }
 
+  static async getUsersByIds(ids: string[]) {
+    try {
+      return prisma.user.findMany({
+        where: {
+          id: {
+            in: ids
+          }
+        }
+      });
+    } catch (error) {
+      console.error("DB error (getUserByIds):", error);
+      throw createHttpError("Failed to get users.", 500);
+    }
+  }
+
   static async getUser(id: string) {
     try {
       return await prisma.user.findUnique({ where: { id } });
@@ -84,7 +99,7 @@ export class UserService {
   static async deleteUser(id: string) {
     try {
       await prisma.user.delete({
-        where : {
+        where: {
           id
         }
       })

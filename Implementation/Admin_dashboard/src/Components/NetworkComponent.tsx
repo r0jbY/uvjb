@@ -30,6 +30,12 @@ function NetworkComponent() {
     const [toBeAdded, setToBeAdded] = useState<User[]>([]);
     const [toBeRemoved, setToBeRemoved] = useState<User[]>([]);
     const [comit, setComit] = useState(1);
+    const [layer1Network, setLayer1Network] = useState<User[]>([]);
+    const [layer2Network, setLayer2Network] = useState<User[]>([]);
+    const oppositeLayerIds = selectedLayer === "1"
+        ? layer2Network.map(u => u.id)
+        : layer1Network.map(u => u.id);
+
 
     const loadClientOptions = async (inputValue: string): Promise<OptionType[]> => {
         try {
@@ -53,17 +59,28 @@ function NetworkComponent() {
     }
 
     useEffect(() => {
-        if (selectedClient === null || selectedLayer === null) {
-            return;
-        }
+        if (!selectedClient) return;
 
-        const fetchClientNetwork = async () => {
+        const fetchAllLayers = async () => {
             try {
+                const [res1, res2] = await Promise.all([
+                    getClientNetwork(selectedClient.value, "1"),
+                    getClientNetwork(selectedClient.value, "2"),
+                ]);
 
-                const res = await getClientNetwork(selectedClient.value, selectedLayer);
-                const buddyIds = res.map((r: any) => r.buddy_id);
-                setClientNetwork(buddyIds);
-                setToBeAdded([]);    
+                const layer1Users = res1; // now full User[]
+                const layer2Users = res2;
+
+                setLayer1Network(layer1Users);
+                setLayer2Network(layer2Users);
+
+                if (selectedLayer === "1") {
+                    setClientNetwork(layer1Users);
+                } else if (selectedLayer === "2") {
+                    setClientNetwork(layer2Users);
+                }
+
+                setToBeAdded([]);
                 setToBeRemoved([]);
             } catch (error: any) {
                 if (error instanceof Error) {
@@ -74,8 +91,9 @@ function NetworkComponent() {
             }
         };
 
-        fetchClientNetwork();
-    }, [selectedClient, selectedLayer, comit])
+        fetchAllLayers();
+    }, [selectedClient, selectedLayer, comit]);
+
 
     useEffect(() => {
 
@@ -100,14 +118,17 @@ function NetworkComponent() {
     }, [searchTerms])
 
     const handleRemoveBuddy = (buddyId: string) => {
-        setClientNetwork(prev => prev.filter(id => id !== buddyId));
-        setToBeRemoved(prev => [...prev, { id: buddyId, first_name: "", last_name: "", address: "", phone_number: "" }]);
-    };
+        const buddyToRemove = clientNetwork.find(b => b.id === buddyId);
+        if (!buddyToRemove) return;
+      
+        setClientNetwork(prev => prev.filter(b => b.id !== buddyId));
+        setToBeRemoved(prev => [...prev, buddyToRemove]);
+      };
 
     const handleAddBuddy = (buddy: User) => {
-        const alreadyInNetwork = clientNetwork.includes(buddy.id);
+        const alreadyInNetwork = clientNetwork.some(b => b.id === buddy.id);
         const alreadyAdded = toBeAdded.some(b => b.id === buddy.id);
-
+    
         if (!alreadyInNetwork && !alreadyAdded) {
             setToBeAdded(prev => [...prev, buddy]);
         }
@@ -118,20 +139,24 @@ function NetworkComponent() {
     }
 
     const handleUndoRemove = (buddyId: string) => {
+        const buddyToRestore = toBeRemoved.find(b => b.id === buddyId);
+        if (!buddyToRestore) return;
+      
         setToBeRemoved(prev => prev.filter(b => b.id !== buddyId));
-        setClientNetwork(prev => [...prev, buddyId]);
-    };
+        setClientNetwork(prev => [...prev, buddyToRestore]);
+      };
+      
 
     const commitNetworkChanges = async () => {
         if (!selectedClient || !selectedLayer) return;
-    
+
         const payload = {
             clientId: selectedClient.value,
             addBuddies: toBeAdded.map(b => b.id),
             removeBuddies: toBeRemoved.map(b => b.id),
             layer: parseInt(selectedLayer),
         };
-    
+
         try {
             // Replace this with your actual service call
             toast.loading("Sending netowrk changes");
@@ -139,14 +164,14 @@ function NetworkComponent() {
 
             toast.dismiss();
             toast.success("Network changes submitted!");
-            
+
             // Clear pending changes
             setToBeAdded([]);
             setToBeRemoved([]);
-            setComit(prev => prev+1);
+            setComit(prev => prev + 1);
             // Optionally, refresh current network
-            
-            
+
+
         } catch (error: any) {
             if (error instanceof Error) {
                 toast.dismiss();
@@ -202,9 +227,9 @@ function NetworkComponent() {
                     <div className="flex flex-1 flex-col gap-3 min-h-0 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-7 pb-2">
                         {clientNetwork.length > 0 ? (clientNetwork.map((buddy, index) => (
                             <div className="flex flex-row items-center justify-between text-xl" key={index}>
-                                <h1> {`${buddy}`} </h1>
+                                <h1>{`${buddy.first_name} ${buddy.last_name}`}</h1>
                                 <button className="bg-[#658F8D] text-white rounded-2xl text-lg border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out"
-                                    onClick={() => handleRemoveBuddy(buddy)}>
+                                    onClick={() => handleRemoveBuddy(buddy.id)}>
                                     Remove
                                 </button>
                             </div>
@@ -226,22 +251,24 @@ function NetworkComponent() {
                             <input placeholder="Search buddies" className="w-full p-2 pl-10 border rounded-xl border-[#B7C0B2] bg-[#FEF5E4] placeholder:text-[#658F8D] placeholder:font-semibold font-semibold focus:outline-[#B7C0B2] " value={searchTerms} onChange={(e) => { setSearchterms(e.target.value) }} />
                         </div>
                         {buddies.length > 0 ? (<div className="flex flex-col min-h-0 gap-1 lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                            {buddies
-                                .filter(
-                                    (buddy) =>
-                                        !clientNetwork.includes(buddy.id) &&
-                                        !toBeAdded.some((b) => b.id === buddy.id) &&
-                                        !toBeRemoved.some((b) => b.id === buddy.id)
-                                ).map((buddy, index) => (
-                                    <div className="flex flex-col border border-[#B7C0B2] rounded-xl py-2 px-3 bg-[#FEF5E4] gap-1" key={index}>
-                                        <div className="flex flex-row justify-between items-center">
-                                            <h1 className="font-semibold text-2xl"> {`${buddy.first_name} ${buddy.last_name}`} </h1>
-                                            <button className="bg-[#658F8D] text-white rounded-2xl text-md border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out" onClick={() => handleAddBuddy(buddy)}>Add</button>
+                            {
+                                buddies
+                                    .filter(
+                                        (buddy) =>
+                                            !clientNetwork.some(b => b.id === buddy.id) &&
+                                            !oppositeLayerIds.includes(buddy.id) &&
+                                            !toBeAdded.some((b) => b.id === buddy.id) &&
+                                            !toBeRemoved.some((b) => b.id === buddy.id)
+                                    ).map((buddy, index) => (
+                                        <div className="flex flex-col border border-[#B7C0B2] rounded-xl py-2 px-3 bg-[#FEF5E4] gap-1" key={index}>
+                                            <div className="flex flex-row justify-between items-center">
+                                                <h1 className="font-semibold text-2xl"> {`${buddy.first_name} ${buddy.last_name}`} </h1>
+                                                <button className="bg-[#658F8D] text-white rounded-2xl text-md border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out" onClick={() => handleAddBuddy(buddy)}>Add</button>
+                                            </div>
+                                            <p className="font-normal text-lg">📞 {buddy.phone_number} </p>
+                                            <p className="font-normal text-lg">📍 {buddy.address} </p>
                                         </div>
-                                        <p className="font-normal text-lg">📞 {buddy.phone_number} </p>
-                                        <p className="font-normal text-lg">📍 {buddy.address} </p>
-                                    </div>
-                                ))}
+                                    ))}
                         </div>) : (
                             <div className='h-full mt-4'>
                                 <p className='w-full text-lg font-bold'>No buddies matching the search terms were found.</p>
