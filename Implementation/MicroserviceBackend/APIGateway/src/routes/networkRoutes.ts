@@ -7,18 +7,14 @@ import { Router } from "express";
 const router = Router();
 
 router.use(verifyJwt);
-
 router.get('/network/getAll/:clientId/:layer', catchAsync(async (req, res, next) => {
     const { clientId, layer } = req.params;
-    const networkRes = await axios.get(`http://localhost:3004/network/getAll/${clientId}/${layer}`);
+    const networkRes = await axios.get(`${process.env.NETWORK_SERVICE_URL}/network/getAll/${clientId}/${layer}`);
 
     const buddyIds = networkRes.data.map((entry: any) => entry.buddy_id);
+    if (!buddyIds.length) return res.json([]);
 
-    if (!buddyIds.length) {
-        return res.json([]);
-    }
-
-    const usersRes = await axios.post('http://localhost:3002/users/byIds', {
+    const usersRes = await axios.post(`${process.env.USER_SERVICE_URL}/users/byIds`, {
         ids: buddyIds
     });
 
@@ -26,7 +22,6 @@ router.get('/network/getAll/:clientId/:layer', catchAsync(async (req, res, next)
 }));
 
 router.put('/network/update', catchAsync((req, res, next) => {
-    return forwardRequest(req, res, next, `http://localhost:3004/network/manage`);
+    return forwardRequest(req, res, next, `${process.env.NETWORK_SERVICE_URL}/network/manage`);
 }));
-
 export default router;

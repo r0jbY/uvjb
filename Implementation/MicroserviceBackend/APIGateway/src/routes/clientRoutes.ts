@@ -8,20 +8,18 @@ const router = Router();
 
 router.use(verifyJwt); // ✅ Protect all routes
 
-router.get("/clients/full/:id", catchAsync(async (req, res) => {
+router.get('/clients/full/:id', catchAsync(async (req, res) => {
   const clientId = req.params.id;
   const cookies = req.headers.cookie || "";
 
-  // Fetch client info from ClientService
-  const clientRes = await axios.get(`http://localhost:3003/clients/${clientId}`, {
+  const clientRes = await axios.get(`${process.env.CLIENT_SERVICE_URL}/clients/${clientId}`, {
     headers: { Cookie: cookies },
     withCredentials: true,
   });
 
   const clientData = clientRes.data;
 
-  // Fetch superbuddy email from AuthService
-  const buddyRes = await axios.get(`http://localhost:3001/auth/${clientData.superbuddyId}`, {
+  const buddyRes = await axios.get(`${process.env.AUTH_SERVICE_URL}/auth/${clientData.superbuddyId}`, {
     headers: { Cookie: cookies },
     withCredentials: true,
   });
@@ -36,29 +34,28 @@ router.get("/clients/full/:id", catchAsync(async (req, res) => {
 
 router.put('/clients/update/:id', catchAsync((req, res, next) => {
   const { id } = req.params;
-  return forwardRequest(req, res, next, `http://localhost:3003/clients/update/${id}`);
+  return forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/update/${id}`);
 }));
 
-router.post('/clients/register', verifyJwt, catchAsync((req, res, next) => forwardRequest(req, res, next, 'http://localhost:3003/clients/create')));
+router.post('/clients/register', catchAsync((req, res, next) =>
+  forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/create`)));
 
-router.get('/clients/getAll', catchAsync((req, res, next) => {
-    console.log("Route");
-  return forwardRequest(req, res, next, 'http://localhost:3003/clients/getAll');
-}));
+router.get('/clients/getAll', catchAsync((req, res, next) =>
+  forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/getAll`)));
 
-router.get('/clients/search', catchAsync((req, res, next) => {
-  return forwardRequest(req, res, next, 'http://localhost:3003/clients/search');
-}));
+router.get('/clients/search', catchAsync((req, res, next) =>
+  forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/search`)));
 
 router.delete('/clients/delete/:id', catchAsync((req, res, next) => {
   const { id } = req.params;
-  return forwardRequest(req, res, next, `http://localhost:3003/clients/delete/${id}`);
+  return forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/delete/${id}`);
 }));
 
-router.get("/clients/:id", catchAsync(async (req, res, next) => {
-    const { id } = req.params;
-    return forwardRequest(req, res, next, `http://localhost:3003/clients/${id}`);
+router.get('/clients/:id', catchAsync((req, res, next) => {
+  const { id } = req.params;
+  return forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/${id}`);
 }));
+
 
 
 

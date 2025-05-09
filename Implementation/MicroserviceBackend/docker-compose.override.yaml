@@ -27,6 +27,26 @@ services:
     volumes:
       - ./ClientService/src:/usr/src/app/src
       - ./ClientService/src/prisma:/usr/src/app/src/prisma
-      - /usr/src/app/node_modules        # keeps container’s Linux binaries
+      - /usr/src/app/node_modules   
+      
+  network-svc:
+    build:
+      context: ./ClientNetworkService
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./ClientNetworkService/src:/usr/src/app/src
+      - ./ClientNetworkService/src/prisma:/usr/src/app/src/prisma
+      - /usr/src/app/node_modules      # keeps container’s Linux binaries
+
+  gateway-svc:
+    build:
+      context: ./APIGateway
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./APIGateway/src:/usr/src/app/src
+      - ./APIGateway/src/prisma:/usr/src/app/src/prisma
+      - /usr/src/app/node_modules      # keeps container’s Linux binaries
 
   

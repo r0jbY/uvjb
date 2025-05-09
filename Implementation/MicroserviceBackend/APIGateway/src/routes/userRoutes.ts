@@ -9,16 +9,16 @@ const router = Router();
 router.use(verifyJwt); // ✅ Protect all routes
 
 // ✅ Full User (custom handling)
-router.get("/users/full/:id", catchAsync(async (req, res) => {
+router.get('/users/full/:id', catchAsync(async (req, res) => {
   const userId = req.params.id;
   const cookies = req.headers.cookie || '';
 
   const [userRes, authRes] = await Promise.all([
-    axios.get(`http://localhost:3002/users/${userId}`, {
+    axios.get(`${process.env.USER_SERVICE_URL}/users/${userId}`, {
       headers: { Cookie: cookies },
       withCredentials: true,
     }),
-    axios.get(`http://localhost:3001/auth/${userId}`, {
+    axios.get(`${process.env.AUTH_SERVICE_URL}/auth/${userId}`, {
       headers: { Cookie: cookies },
       withCredentials: true,
     }),
@@ -36,25 +36,21 @@ router.get("/users/full/:id", catchAsync(async (req, res) => {
 // ✅ Forwarded requests (using catchAsync to forward errors too)
 router.put('/users/update/:id', catchAsync((req, res, next) => {
   const { id } = req.params;
-  return forwardRequest(req, res, next, `http://localhost:3001/auth/update/${id}`);
+  return forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/update/${id}`);
 }));
 
-router.get('/users/getAll', catchAsync((req, res, next) => {
-  return forwardRequest(req, res, next, 'http://localhost:3002/users/getAll');
-}));
+router.get('/users/getAll', catchAsync((req, res, next) =>
+  forwardRequest(req, res, next, `${process.env.USER_SERVICE_URL}/users/getAll`)));
 
-router.get('/users/search', catchAsync((req, res, next) => {
-  return forwardRequest(req, res, next, 'http://localhost:3002/users/search');
-}));
+router.get('/users/search', catchAsync((req, res, next) =>
+  forwardRequest(req, res, next, `${process.env.USER_SERVICE_URL}/users/search`)));
 
-router.get('/users/searchSuperbuddies', catchAsync((req, res, next) => {
-  console.log("We are here for now!");
-  return forwardRequest(req, res, next, 'http://localhost:3001/auth/superbuddies');
-}));
+router.get('/users/searchSuperbuddies', catchAsync((req, res, next) =>
+  forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/superbuddies`)));
 
 router.delete('/users/delete/:id', catchAsync((req, res, next) => {
   const { id } = req.params;
-  return forwardRequest(req, res, next, `http://localhost:3001/auth/delete/${id}`);
+  return forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/delete/${id}`);
 }));
 
 

@@ -1,4 +1,5 @@
 import { prisma } from "../config/database";
+import { Prisma } from "@prisma/client";
 import { createHttpError } from "../controllers/NetworkController";
 
 export class NetworkService {
@@ -6,7 +7,7 @@ export class NetworkService {
   // ✅ Retrieve user from database
   static async updateNetwork(client_id: string, add: string[], remove: string[], layer: number) {
     try {
-        await prisma.$transaction(async (tx) => {
+        await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
           if(remove.length > 0) {
             await tx.network.deleteMany({
               where: {

@@ -38,14 +38,14 @@ RUN npx prisma generate --schema=./src/prisma/schema.prisma
 COPY --from=build /usr/src/app/dist ./dist
 
 ENV NODE_ENV=production \
-    PORT=3000
+    PORT=3003
 
 RUN addgroup -S app && adduser -S app -G app
 USER app
 
-EXPOSE 3000
+EXPOSE 3003
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-  CMD wget -qO- http://localhost:3000/health || exit 1
+  CMD wget -qO- http://localhost:3003/health || exit 1
 
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
 

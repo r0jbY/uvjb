@@ -5,12 +5,16 @@ import catchAsync from '../utils/catchAsync';
 const router = express.Router();
 
 // Auth routes
-router.post('/auth/login', catchAsync((req, res, next) => forwardRequest(req, res, next, 'http://localhost:3001/auth/login')));
+router.post('/auth/login', catchAsync((req, res, next) =>
+    forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/login`)));
 
-router.post('/auth/logout', catchAsync((req, res, next) => forwardRequest(req, res, next, 'http://localhost:3001/auth/logout')));
+router.post('/auth/logout', catchAsync((req, res, next) =>
+    forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/logout`)));
 
-router.post('/auth/register', verifyJwt, catchAsync((req, res, next) => forwardRequest(req, res, next, 'http://localhost:3001/auth/register')));
+router.post('/auth/register', verifyJwt, catchAsync((req, res, next) =>
+    forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/register`)));
 
-router.get('/auth/whoAmI', verifyJwt, catchAsync((req, res, next) => forwardRequest(req, res, next, 'http://localhost:3001/auth/whoAmI')));
+router.get('/auth/whoAmI', verifyJwt, catchAsync((req, res, next) =>
+    forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/whoAmI`)));
 
 export default router;
