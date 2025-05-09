@@ -4,7 +4,7 @@ import { consumeUserCreatedEvents } from "./utils/userCreatedConsumer";
 import { consumeUserDeletedEvents } from "./utils/userDeletedConsumer";
 import { consumeUserUpdatedEvents } from "./utils/userUpdatedConsumer";
 
-const PORT = process.env.PORT ?? 3002;
+const PORT = Number(process.env.PORT) ?? 3001;
 
 
 async function start() {
@@ -12,12 +12,13 @@ async function start() {
   await consumeUserCreatedEvents();
   await consumeUserUpdatedEvents();
   await consumeUserDeletedEvents();
+  app.listen(PORT, () => {
+  console.log(`Running on http://localhost:${PORT}`);
+});
 }
 
 start().catch((err) => {
   console.error("❌ Failed to start UserService:", err);
 });
 
-app.listen(PORT, () => {
-  console.log(`Running on http://localhost:${PORT}`);
-});
+

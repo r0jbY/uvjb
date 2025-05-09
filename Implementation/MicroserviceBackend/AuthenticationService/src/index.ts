@@ -1,6 +1,6 @@
 import app from "./app";
 import { connectRabbitMQ } from "./config/rabbitmq";
-const PORT = process.env.PORT ?? 3001;
+const PORT = Number(process.env.PORT) ?? 3000;
 
 async function start() {
   await connectRabbitMQ(); // 👈 Connect before starting Express
@@ -10,6 +10,6 @@ async function start() {
 }
 
 start().catch((err) => {
-  console.error("❌ Failed to start server:", err);
+  console.error("❌ Failed to start AuthenticationService:", err);
 });
 
