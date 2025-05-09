@@ -14,7 +14,7 @@ export async function connectRabbitMQ(): Promise<amqp.Channel> {
   const connection = await amqp.connect(RABBITMQ_URL);
   channel = await connection.createChannel();
 
-  console.log(`🟢 Connected to RabbitMQ at ${RABBITMQ_URL}`);
+  console.log(`🟢 Connected to RabbitMQ at ${RABBITMQ_URL}`); 
   return channel;
 }
 

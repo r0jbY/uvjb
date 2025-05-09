@@ -10,7 +10,6 @@
     "swagger": "ts-node src/config//swagger.ts",
     "test": "jest --verbose",
     "coverage": "jest --coverage",
-    
     "lint": "eslint ."
   },
   "keywords": [],

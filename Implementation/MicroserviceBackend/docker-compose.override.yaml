@@ -8,3 +8,15 @@ services:
       - ./AuthenticationService/src:/usr/src/app/src
       - ./AuthenticationService/src/prisma:/usr/src/app/src/prisma
       - /usr/src/app/node_modules        # keeps container’s Linux binaries
+
+  user-svc:
+    build:
+      context: ./UserService
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./UserService/src:/usr/src/app/src
+      - ./UserService/src/prisma:/usr/src/app/src/prisma
+      - /usr/src/app/node_modules        # keeps container’s Linux binaries
+
+  
