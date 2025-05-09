@@ -109,7 +109,7 @@ export class UserService {
     `;
   
     try {
-      const result = await prisma.$queryRawUnsafe<any[]>(sql, formattedQuery);
+      const result = await prisma.$queryRawUnsafe(sql, formattedQuery);
       return result;
     } catch (error) {
       console.error("DB error (searchClients):", error);

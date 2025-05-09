@@ -18,5 +18,15 @@ services:
       - ./UserService/src:/usr/src/app/src
       - ./UserService/src/prisma:/usr/src/app/src/prisma
       - /usr/src/app/node_modules        # keeps container’s Linux binaries
+  
+  client-svc:
+    build:
+      context: ./ClientService
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./ClientService/src:/usr/src/app/src
+      - ./ClientService/src/prisma:/usr/src/app/src/prisma
+      - /usr/src/app/node_modules        # keeps container’s Linux binaries
 
   
