@@ -1,0 +1,10 @@
+services:
+  auth-svc:
+    build:
+      context: ./AuthenticationService
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./AuthenticationService/src:/usr/src/app/src
+      - ./AuthenticationService/src/prisma:/usr/src/app/src/prisma
+      - /usr/src/app/node_modules        # keeps container’s Linux binaries

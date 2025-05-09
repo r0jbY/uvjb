@@ -5,7 +5,7 @@ COPY package*.json ./
 RUN --mount=type=cache,target=/root/.npm npm ci        # ← no --omit=dev
 
 ######## 2️⃣  Build (uses devdeps) ########
-FROM node:22-alpine AS build
+FROM node:23-alpine AS build
 WORKDIR /usr/src/app
 COPY --from=devdeps /usr/src/app/node_modules ./node_modules
 COPY --from=devdeps /usr/src/app/package*.json ./
@@ -17,17 +17,19 @@ COPY src ./src
 RUN npm run build   # -> dist/
 
 ######## 3️⃣  Runtime (prod‑only deps) ########
-FROM node:22-alpine
+FROM node:23-alpine AS runtime
 WORKDIR /usr/src/app
 
 # a. copy *all* deps first
 COPY --from=devdeps /usr/src/app/node_modules ./node_modules
 COPY --from=devdeps /usr/src/app/package*.json ./
-
 COPY src/prisma ./src/prisma
 
 # b. then prune away dev deps
 RUN npm prune --omit=dev --no-audit --no-fund
+
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x /usr/src/app/entrypoint.sh
 
 RUN npx prisma generate --schema=./src/prisma/schema.prisma --no-engine
 
@@ -45,4 +47,19 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
   CMD wget -qO- http://localhost:3000/health || exit 1
 
-CMD ["node", "dist/index.js"]
+ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+
+######## 4️⃣  Dev image (hot‑reload) ########
+FROM devdeps AS dev
+WORKDIR /usr/src/app
+
+# copy source & configs so TS runs directly
+COPY tsconfig*.json ./
+COPY src ./src
+COPY nodemon.json ./nodemon.json
+COPY src/prisma ./src/prisma
+
+RUN npx prisma generate --schema=./src/prisma/schema.prisma 
+
+CMD ["npm", "run", "dev"]     # nodemon / ts-node-dev
+# no ENTRYPOINT: we want CMD so compose override can still change it
