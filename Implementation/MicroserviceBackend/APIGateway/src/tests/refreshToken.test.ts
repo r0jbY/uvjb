@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt, { VerifyErrors } from "jsonwebtoken";
-import { refreshToken } from "../../../APIGateway/src/middleware/refreshToken";
+import { refreshToken } from "../middleware/refreshToken";
 
 jest.mock("jsonwebtoken", () => ({
   verify: jest.fn(),

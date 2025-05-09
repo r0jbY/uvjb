@@ -1,22 +1,48 @@
-# syntax=docker/dockerfile:1
+######## 1️⃣  Dev + Prod dependencies (needed for compilation) ########
+FROM node:22-alpine AS devdeps         
+WORKDIR /usr/src/app
+COPY package*.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci        # ← no --omit=dev
 
-ARG NODE_VERSION=22.14.0
-FROM node:${NODE_VERSION}-alpine
+######## 2️⃣  Build (uses devdeps) ########
+FROM node:22-alpine AS build
+WORKDIR /usr/src/app
+COPY --from=devdeps /usr/src/app/node_modules ./node_modules
+COPY --from=devdeps /usr/src/app/package*.json ./
 
+
+
+COPY tsconfig*.json ./
+COPY src ./src
+RUN npm run build   # -> dist/
+
+######## 3️⃣  Runtime (prod‑only deps) ########
+FROM node:22-alpine
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+# a. copy *all* deps first
+COPY --from=devdeps /usr/src/app/node_modules ./node_modules
+COPY --from=devdeps /usr/src/app/package*.json ./
 
-# Install devDependencies too
-ENV NODE_ENV=development
-RUN npm install
+COPY src/prisma ./src/prisma
 
-COPY . .
+# b. then prune away dev deps
+RUN npm prune --omit=dev --no-audit --no-fund
 
-# Generate Prisma client
-RUN npx prisma generate
+RUN npx prisma generate --schema=./src/prisma/schema.prisma --no-engine
 
-EXPOSE 3001
 
-# Run dev script using nodemon
-CMD ["npm", "run", "dev"]
+# c. copy compiled JS
+COPY --from=build /usr/src/app/dist ./dist
+
+ENV NODE_ENV=production \
+    PORT=3000
+
+RUN addgroup -S app && adduser -S app -G app
+USER app
+
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+  CMD wget -qO- http://localhost:3000/health || exit 1
+
+CMD ["node", "dist/index.js"]

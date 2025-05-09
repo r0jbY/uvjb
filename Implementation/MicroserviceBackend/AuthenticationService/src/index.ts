@@ -3,7 +3,9 @@ import { connectRabbitMQ } from "./config/rabbitmq";
 const PORT = Number(process.env.PORT) ?? 3000;
 
 async function start() {
-  await connectRabbitMQ(); // 👈 Connect before starting Express
+    if (process.env.SKIP_BROKER !== "true") {
+    await connectRabbitMQ();
+  }
   app.listen(PORT, () => {
     console.log(`🚀 Running on http://localhost:${PORT}`);
   });

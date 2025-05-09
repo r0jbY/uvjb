@@ -1,7 +1,9 @@
 node_modules
-.env
-.env.*
-coverage
 dist
-
-!.env.example
+Dockerfile
+.git
+.gitignore
+.vscode
+*.log
+.env*
+coverage
