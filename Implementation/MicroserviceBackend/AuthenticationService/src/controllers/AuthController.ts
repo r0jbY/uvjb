@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
-import jwt, { VerifyErrors } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs"
 import { v4 as uuidv4 } from "uuid";
 import { publishUserCreatedEvent, publishUserDeletedEvent, publishUserUpdatedEvent } from "../utils/publisher";

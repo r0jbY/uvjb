@@ -1,43 +1,43 @@
-import { loginSchema, registerSchema } from "../utils/auth.schema";
+import { loginSchema, registerSchema, updateSchema } from "../utils/auth.schema";
 
 describe("loginSchema", () => {
-    it("should pass with valid email and password", () => {
-        const result = loginSchema.safeParse( {
-            email: "user@gmail.com",
-            password: "good123"
-        })
+  it("should pass with valid email and password", () => {
+    const result = loginSchema.safeParse({
+      email: "user@gmail.com",
+      password: "good123"
+    })
 
-        expect(result.success).toBe(true);
+    expect(result.success).toBe(true);
+  });
+
+  it("should fail if email is invalid", () => {
+    const result = loginSchema.safeParse({
+      email: "not-an-email",
+      password: "secure123",
     });
 
-    it("should fail if email is invalid", () => {
-        const result = loginSchema.safeParse({
-          email: "not-an-email",
-          password: "secure123",
-        });
-    
-        expect(result.success).toBe(false);
-        expect(result.error?.issues[0].message).toMatch(/invalid email/i);
-      });
-    
-      it("should fail if password is too short", () => {
-        const result = loginSchema.safeParse({
-          email: "user@example.com",
-          password: "123",
-        });
-    
-        expect(result.success).toBe(false);
-      });
-    
-      it("should fail if fields are missing", () => {
-        const result = loginSchema.safeParse({});
-    
-        expect(result.success).toBe(false);
-      });
-    
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0].message).toMatch(/invalid email/i);
+  });
+
+  it("should fail if password is too short", () => {
+    const result = loginSchema.safeParse({
+      email: "user@example.com",
+      password: "123",
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("should fail if fields are missing", () => {
+    const result = loginSchema.safeParse({});
+
+    expect(result.success).toBe(false);
+  });
+
 });
 
-describe("registerSchema", () => {
+describe("registerSchema + updateSchema", () => {
   it("should pass with all valid fields", () => {
     const result = registerSchema.safeParse({
       email: "user@gmail.com",
@@ -46,7 +46,8 @@ describe("registerSchema", () => {
       firstName: "John",
       lastName: "Doe",
       phoneNumber: "+123456789",
-      address: "123 Main St"
+      address: "123 Main St",
+      active: true
     });
 
     expect(result.success).toBe(true);
@@ -55,12 +56,13 @@ describe("registerSchema", () => {
   it("should fail if email is invalid", () => {
     const result = registerSchema.safeParse({
       email: "not-an-email",
-      password: "secure123",
+      password: "good123",
       role: "admin",
       firstName: "John",
       lastName: "Doe",
       phoneNumber: "+123456789",
-      address: "123 Main St"
+      address: "123 Main St",
+      active: true
     });
 
     expect(result.success).toBe(false);
@@ -74,7 +76,8 @@ describe("registerSchema", () => {
       firstName: "John",
       lastName: "Doe",
       phoneNumber: "+123456789",
-      address: "123 Main St"
+      address: "123 Main St",
+      active: true
     });
 
     expect(result.success).toBe(false);
@@ -88,7 +91,8 @@ describe("registerSchema", () => {
       firstName: "John",
       lastName: "Doe",
       phoneNumber: "+123456789",
-      address: "123 Main St"
+      address: "123 Main St",
+      active: true
     });
 
     expect(result.success).toBe(false);
@@ -98,7 +102,8 @@ describe("registerSchema", () => {
     const result = registerSchema.safeParse({
       email: "user@example.com",
       password: "secure123",
-      role: "user"
+      role: "user",
+      active: true
       // Missing firstName, lastName, phoneNumber, address
     });
 
@@ -113,7 +118,8 @@ describe("registerSchema", () => {
       firstName: "Alice",
       lastName: "Smith",
       phoneNumber: "1234",
-      address: "123 Main St"
+      address: "123 Main St",
+      active: true
     });
 
     expect(result.success).toBe(false);
@@ -127,9 +133,24 @@ describe("registerSchema", () => {
       firstName: "Alice",
       lastName: "Smith",
       phoneNumber: "+123456789",
-      address: "123"
+      address: "123",
+      active: true
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it("updateSchema should pass when there is not password", () => {
+    const result = updateSchema.safeParse({
+      email: "user@example.com",
+      role: "admin",
+      firstName: "John",
+      lastName: "Doe",
+      phoneNumber: "+123456789",
+      address: "123 Main St",
+      active: true
+    });
+
+    expect(result.success).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import AuthController from "../controllers/AuthController";
 import { validate } from "../middleware/validate";
-import { loginSchema, registerSchema } from '../utils/auth.schema';
+import { loginSchema, registerSchema, updateSchema } from '../utils/auth.schema';
 import catchAsync from "../utils/catchAsync";
 
 const router = Router();
@@ -18,7 +18,7 @@ router.get("/whoAmI", catchAsync(AuthController.whoAmI));
 
 router.delete("/delete/:id", catchAsync(AuthController.deleteUser));
 
-router.put("/update/:id", catchAsync(AuthController.updateUser));
+router.put("/update/:id", validate(updateSchema) , catchAsync(AuthController.updateUser));
 
 router.get("/:id", catchAsync(AuthController.getUserById));
 

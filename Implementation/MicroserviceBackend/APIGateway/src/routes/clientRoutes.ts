@@ -40,6 +40,7 @@ router.put('/clients/update/:id', catchAsync((req, res, next) => {
 router.post('/clients/register', catchAsync((req, res, next) =>
   forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/create`)));
 
+
 router.get('/clients/getAll', catchAsync((req, res, next) =>
   forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/getAll`)));
 

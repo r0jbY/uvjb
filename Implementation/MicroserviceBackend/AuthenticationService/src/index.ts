@@ -1,6 +1,7 @@
 import app from "./app";
 import { connectRabbitMQ } from "./config/rabbitmq";
-const PORT = Number(process.env.PORT) ?? 3000;
+
+const PORT = Number(process.env.PORT) || 3000;
 
 async function start() {
     if (process.env.SKIP_BROKER !== "true") {
