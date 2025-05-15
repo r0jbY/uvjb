@@ -4,7 +4,7 @@ import { consumeUserCreatedEvents } from "./utils/userCreatedConsumer";
 import { consumeUserDeletedEvents } from "./utils/userDeletedConsumer";
 import { consumeUserUpdatedEvents } from "./utils/userUpdatedConsumer";
 
-const PORT = Number(process.env.PORT) ?? 3001;
+const PORT = Number(process.env.PORT) || 3001;
 
 
 async function start() {

@@ -28,9 +28,6 @@ COPY src/prisma ./src/prisma
 # b. then prune away dev deps
 RUN npm prune --omit=dev --no-audit --no-fund
 
-COPY entrypoint.sh ./entrypoint.sh
-RUN chmod +x /usr/src/app/entrypoint.sh
-
 RUN npx prisma generate --schema=./src/prisma/schema.prisma 
 
 
@@ -47,7 +44,7 @@ EXPOSE 3003
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
   CMD wget -qO- http://localhost:3003/health || exit 1
 
-ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
 
 ######## 4️⃣  Dev image (hot‑reload) ########
 FROM devdeps AS dev

@@ -20,23 +20,20 @@ RUN npm run build   # -> dist/
 FROM node:23-alpine AS runtime
 WORKDIR /usr/src/app
 
-# a. copy *all* deps first
+# Install prod dependencies
 COPY --from=devdeps /usr/src/app/node_modules ./node_modules
 COPY --from=devdeps /usr/src/app/package*.json ./
+
+# Copy Prisma schema
+
+
 COPY src/prisma ./src/prisma
+RUN npx prisma generate --schema=./src/prisma/schema.prisma
 
-# b. then prune away dev deps
-RUN npm prune --omit=dev --no-audit --no-fund
-
-COPY entrypoint.sh ./entrypoint.sh
-RUN chmod +x /usr/src/app/entrypoint.sh
-
-RUN npx prisma generate --schema=./src/prisma/schema.prisma 
-
-
-# c. copy compiled JS
+# Copy compiled JS
 COPY --from=build /usr/src/app/dist ./dist
 
+# Setup
 ENV NODE_ENV=production \
     PORT=3002
 
@@ -47,7 +44,8 @@ EXPOSE 3002
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
   CMD wget -qO- http://localhost:3002/health || exit 1
 
-ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+
 
 ######## 4️⃣  Dev image (hot‑reload) ########
 FROM devdeps AS dev
