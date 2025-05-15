@@ -92,7 +92,7 @@ services:
 ###############################################################################
   auth-svc:
     build:
-      context: ./AuthenticationService
+      context: ./MicroserviceBackend/AuthenticationService
       target: runtime
     environment:
       PORT: 3000
@@ -115,7 +115,7 @@ services:
 
   user-svc:
     build:
-      context: ./UserService
+      context: ./MicroserviceBackend/UserService
       target: runtime
     environment:
       PORT: 3001
@@ -135,7 +135,7 @@ services:
       retries: 3
   client-svc:
     build:
-      context: ./ClientService
+      context: ./MicroserviceBackend/ClientService
       target: runtime
     environment:
       PORT: 3002
@@ -155,7 +155,7 @@ services:
       retries: 3
   network-svc:
     build:
-      context: ./ClientNetworkService
+      context: ./MicroserviceBackend/ClientNetworkService
       target: runtime
     environment:
       PORT: 3003
@@ -176,7 +176,7 @@ services:
   
   gateway-svc:
     build:
-      context: ./APIGateway
+      context: ./MicroserviceBackend/APIGateway
       target: runtime
     environment:
       PORT: 8080

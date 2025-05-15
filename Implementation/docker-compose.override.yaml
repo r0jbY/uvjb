@@ -1,0 +1,50 @@
+services: 
+  auth-svc:
+    build:
+      context: ./MicroserviceBackend/AuthenticationService
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./MicroserviceBackend/AuthenticationService/src:/usr/src/app/src
+      - ./MicroserviceBackend/AuthenticationService/src/prisma:/usr/src/app/src/prisma
+      - /usr/src/app/node_modules
+
+  user-svc:
+    build:
+      context: ./MicroserviceBackend/UserService
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./MicroserviceBackend/UserService/src:/usr/src/app/src
+      - ./MicroserviceBackend/UserService/src/prisma:/usr/src/app/src/prisma
+      - /usr/src/app/node_modules
+
+  client-svc:
+    build:
+      context: ./MicroserviceBackend/ClientService
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./MicroserviceBackend/ClientService/src:/usr/src/app/src
+      - ./MicroserviceBackend/ClientService/src/prisma:/usr/src/app/src/prisma
+      - /usr/src/app/node_modules
+
+  network-svc:
+    build:
+      context: ./MicroserviceBackend/ClientNetworkService
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./MicroserviceBackend/ClientNetworkService/src:/usr/src/app/src
+      - ./MicroserviceBackend/ClientNetworkService/src/prisma:/usr/src/app/src/prisma
+      - /usr/src/app/node_modules
+
+  gateway-svc:
+    build:
+      context: ./MicroserviceBackend/APIGateway
+      target: dev
+    command: npm run dev
+    volumes:
+      - ./MicroserviceBackend/APIGateway/src:/usr/src/app/src
+      - ./MicroserviceBackend/APIGateway/src/prisma:/usr/src/app/src/prisma
+      - /usr/src/app/node_modules
