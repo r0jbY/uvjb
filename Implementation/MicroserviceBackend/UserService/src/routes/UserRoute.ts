@@ -1,7 +1,5 @@
 import { Router } from "express";
 import UserController from "../controllers/UserController";
-import { validate } from "../middleware/validate";
-import { userSchema } from "../utils/user.schema";
 import catchAsync from "../utils/catchAsync"; // Make sure this path is correct
 
 const router = Router();

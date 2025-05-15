@@ -2,8 +2,8 @@ import {
   publishUserCreatedEvent,
   publishUserUpdatedEvent,
   publishUserDeletedEvent,
-} from "../utils/publisher";
-import * as rabbit from "../config/rabbitmq";
+} from "../../utils/publisher";
+import * as rabbit from "../../config/rabbitmq";
 import { Channel } from "amqplib";
 
 describe("Event Publishers", () => {

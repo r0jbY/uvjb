@@ -10,6 +10,7 @@
     "test": "jest --verbose",
     "coverage": "jest --coverage",
     "lint": "eslint ."
+    
   },
   "keywords": [],
   "author": "",

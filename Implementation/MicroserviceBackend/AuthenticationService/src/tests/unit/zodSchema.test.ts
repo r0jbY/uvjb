@@ -1,4 +1,4 @@
-import { loginSchema, registerSchema, updateSchema } from "../utils/auth.schema";
+import { loginSchema, registerSchema, updateSchema } from "../../utils/auth.schema";
 
 describe("loginSchema", () => {
   it("should pass with valid email and password", () => {

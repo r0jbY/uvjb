@@ -25,7 +25,7 @@ export default class UserController {
     const { ids } = req.body;
 
     if (!Array.isArray(ids) || ids.length === 0) {
-      return res.status(400).json({ message: "Invalid or missing 'ids' in request body." });
+      throw createHttpError("Invalid or missing 'ids' in request body.", 400);
     }
 
     const users = await UserService.getUsersByIds(ids);

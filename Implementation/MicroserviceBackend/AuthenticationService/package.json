@@ -8,7 +8,12 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/index.js",
     "swagger": "ts-node src/config//swagger.ts",
-    "test": "jest --verbose",
+    "test:unit": "jest --verbose --testPathPattern=tests/unit",
+    "test": "docker compose -f docker-compose.test.yml up --build --abort-on-container-exit",
+    "prisma:migrate:test": "prisma migrate deploy --schema=./src/prisma/schema.prisma",
+    "prisma:seed:test": "ts-node src/prisma/seed.ts",
+    "test:init": "npm run prisma:migrate:test && npm run prisma:seed:test",
+    "test:run": "npm run test:init && jest --runInBand --verbose",
     "coverage": "jest --coverage",
     "lint": "eslint ."
   },

@@ -1,11 +1,12 @@
-import errorHandler from "../middleware/errorHandler";
-import { Request, Response } from "express";
+import errorHandler from "../../middleware/errorHandler";
+import { NextFunction, Request, Response } from "express";
 
 describe("Global error handler", () => {
   let res: Partial<Response>;
   const mockJson = jest.fn();
   const mockStatus = jest.fn();
   const mockType = jest.fn();
+  const next = jest.fn();
 
   beforeEach(() => {
     mockJson.mockReset();
@@ -24,15 +25,15 @@ describe("Global error handler", () => {
 
   it("should return 500 and message when statusCode is not defined", () => {
     
-    const error = new Error("Something failed");
+    const error = new Error("");
 
-    errorHandler(error, {} as Request, res as Response);
+    errorHandler(error, {} as Request, res as Response, next as NextFunction);
 
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockType).toHaveBeenCalledWith("application/json");
     expect(mockJson).toHaveBeenCalledWith({
       success: false,
-      message: "Something failed",
+      message: "Internal Server Error",
     });
   });
 
@@ -40,7 +41,7 @@ describe("Global error handler", () => {
     const error = new Error("Unauthorized") as Error & { statusCode?: number };
     error.statusCode = 401;
 
-    errorHandler(error, {} as Request, res as Response);
+    errorHandler(error, {} as Request, res as Response, next as NextFunction);
 
     expect(mockStatus).toHaveBeenCalledWith(401);
     expect(mockType).toHaveBeenCalledWith("application/json");

@@ -78,6 +78,8 @@ export default class ClientController {
 
     const id = req.params.id;
 
+   
+
     const {
       deviceCode,
       superbuddyId,

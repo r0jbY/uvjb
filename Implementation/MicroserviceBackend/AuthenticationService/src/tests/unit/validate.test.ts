@@ -1,4 +1,4 @@
-import { validate } from "../middleware/validate";
+import { validate } from "../../middleware/validate";
 import {z} from "zod";
 import { Request, Response } from "express";
 

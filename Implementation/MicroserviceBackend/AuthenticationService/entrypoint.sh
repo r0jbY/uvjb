@@ -6,5 +6,10 @@ echo "▶️  [entrypoint] Applying Prisma migrations…"
 # You only need --schema if the file isn't in the default ./prisma path.
 npx prisma migrate deploy --schema=./src/prisma/schema.prisma
 
-echo "▶️  [entrypoint] Starting AuthenticationService…"
-exec node dist/index.js      # exec → Node becomes PID 1
+if [ "$RUN_MODE" = "test" ]; then
+  echo "🧪 Running integration tests..."
+  exec npm run test:integration:run
+else
+  echo "▶️  Starting AuthenticationService…"
+  exec npm start
+fi

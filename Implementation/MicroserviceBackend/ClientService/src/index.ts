@@ -6,7 +6,9 @@ const PORT = Number(process.env.PORT) ?? 3002;
 
 
 async function start() {
-  await connectRabbitMQ();
+  if (process.env.SKIP_BROKER !== "true") {
+    await connectRabbitMQ();
+  }
   app.listen(PORT, () => {
     console.log(`Running on http://localhost:${PORT}`);
   });

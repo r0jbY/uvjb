@@ -72,13 +72,8 @@ export default class AuthController {
 
     await AuthService.updateUser(id, email, role);
 
-    try {
-      await publishUserUpdatedEvent({ id, firstName, lastName, address, phoneNumber, active });
-    } catch (pubErr) {
-      console.error("Failed to publish update event:", pubErr);
-      // Optional: don't crash, just log
-    }
 
+    await publishUserUpdatedEvent({ id, firstName, lastName, address, phoneNumber, active });
 
     return res.status(200).json({ message: "User updated successfully" });
   }

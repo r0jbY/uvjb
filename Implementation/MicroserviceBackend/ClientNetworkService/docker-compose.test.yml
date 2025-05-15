@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  network-test:
+    build:
+      context: .
+      target: test
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgres://app:secret@networkdb:5432/test_networkdb
+      RUN_MODE: "test"
+    depends_on:
+      networkdb:
+        condition: service_healthy
+    command: ["npm", "run", "test:run"]
+
+  networkdb:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: test_networkdb
+    ports:
+      - "5544:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d test_networkdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  
+  
+

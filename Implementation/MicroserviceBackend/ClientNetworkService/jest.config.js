@@ -10,5 +10,7 @@ export const collectCoverageFrom = [
   "!src/**/index.ts", // <-- optional: ignore index.ts entry points
   "!src/**/app.ts", // <-- optional: ignore index.ts entry points
   "!src/config/**", // <-- optional: ignore config files
+  "!src/prisma/**"
 ];
+export const setupFilesAfterEnv = ['./src/jest.setup.ts'];
 export const testPathIgnorePatterns = ['/dist'];
