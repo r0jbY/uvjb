@@ -59,7 +59,7 @@ COPY src/prisma ./src/prisma
 
 RUN npx prisma generate --schema=./src/prisma/schema.prisma 
 
-CMD ["npm", "run", "dev"]     # nodemon / ts-node-dev
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run dev"]
 # no ENTRYPOINT: we want CMD so compose override can still change it
 
 

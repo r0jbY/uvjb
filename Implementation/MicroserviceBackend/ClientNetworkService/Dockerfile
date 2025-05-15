@@ -41,7 +41,7 @@ RUN addgroup -S app && adduser -S app -G app
 USER app
 
 EXPOSE 3003
-HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \ 
   CMD wget -qO- http://localhost:3003/health || exit 1
 
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
@@ -58,7 +58,7 @@ COPY src/prisma ./src/prisma
 
 RUN npx prisma generate --schema=./src/prisma/schema.prisma 
 
-CMD ["npm", "run", "dev"]     # nodemon / ts-node-dev
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run dev"]
 # no ENTRYPOINT: we want CMD so compose override can still change it
 
 FROM devdeps AS test

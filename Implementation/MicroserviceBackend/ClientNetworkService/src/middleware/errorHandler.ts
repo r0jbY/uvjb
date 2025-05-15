@@ -15,4 +15,4 @@ const errorHandler = (err: TypedError, _req: Request, res: Response, _next: Next
   });
 };
 
-export default errorHandler;
+export default errorHandler; 

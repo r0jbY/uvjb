@@ -24,7 +24,7 @@ WORKDIR /usr/src/app
 COPY --from=devdeps /usr/src/app/node_modules ./node_modules
 COPY --from=devdeps /usr/src/app/package*.json ./
 COPY src/prisma ./src/prisma
-COPY entrypoint.sh ./entrypoint.sh
+
 
 # b. then prune away dev deps
 RUN npm prune --omit=dev --no-audit --no-fund
@@ -58,7 +58,7 @@ COPY src/prisma ./src/prisma
 
 RUN npx prisma generate --schema=./src/prisma/schema.prisma 
 
-CMD ["npm", "run", "dev"]     # nodemon / ts-node-dev
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run dev"]
 # no ENTRYPOINT: we want CMD so compose override can still change it
 
 FROM devdeps AS test
