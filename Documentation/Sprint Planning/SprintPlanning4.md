@@ -33,3 +33,21 @@
 ## Notes
 - This sprint builds on the completed admin functionalities and authentication system.
 - A successful outcome means the system is **feature-complete**, **well-tested**, and **ready for deployment**.
+
+- # Sprint 4 Review
+
+## Completed Items
+
+- **Admin Dashboard**: Full implementation of all admin dashboard features has been achieved.
+
+- **Client Network Management**: The complete functionality for managing client-buddy relationships (add/remove at multiple layers) was implemented.
+
+- **Backend Microservices**: All backend services have been containerized using Docker and are consistently running through `docker-compose`.
+
+## Not Completed
+
+- **Testing Coverage**: While significant progress has been made, complete unit, integration, and E2E test coverage has not yet been finalized. This will continue in Sprint 5.
+
+- **CI/CD Pipeline**: Initial version of the CI pipeline still has to be updated.
+
+- **Production Deployment Setup**: Secrets management, production database setup, and full deployment orchestration (e.g., with Kubernetes or Docker Swarm) remain in progress and will be addressed next.
