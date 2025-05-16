@@ -214,15 +214,38 @@ services:
       - "8080:8080"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
-      interval: 30s
+      interval: 10s
       timeout: 3s
-      retries: 3
+      retries: 9
+      
+  frontend:
+    build:
+      context: ./Admin_dashboard
+      dockerfile: Dockerfile
+      target: build
+      # args:
+      #   VITE_API_URL: http://gateway-svc:8080
+    depends_on:
+      gateway-svc:
+        condition: service_healthy
+    ports:
+      - "5173:5173"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5173"]
+      interval: 10s
+      timeout: 3s
+      retries: 9
+  
+  # e2e-tests:
+  #   build:
+  #     context: ./e2e-tests
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     frontend:
+  #       condition: service_healthy
+  #     gateway-svc:
+  #       condition: service_healthy
+  #   environment:
+  #     PLAYWRIGHT_BASE_URL: http://frontend:5173
 
-###############################################################################
-#  Persist database files between runs                                         #
-###############################################################################
-volumes:
-  authdb-data:
-  userdb-data:
-  clientdb-data:
-  networkdb-data:
+

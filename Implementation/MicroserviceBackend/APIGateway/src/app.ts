@@ -7,17 +7,32 @@ import clientRoutes from './routes/clientRoutes'
 import networkRoutes from './routes/networkRoutes'
 import cookieParser from 'cookie-parser';
 import errorHandler from './middleware/errorHandler';
+import healthRoute from './routes/health';
 
 dotenv.config();
 
 const app = express();
 app.use(cookieParser());
+const allowedOrigins = [
+  'http://localhost:5173',        // local dev
+  'http://127.0.0.1:5173',        // alt local dev
+  'http://frontend:5173'          // docker-internal Playwright container
+];
+
 app.use(cors({
-    origin: 'http://localhost:5173', // or use '*' to allow all (less secure)
-    credentials: true, // allow cookies if needed
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
 }));
 
 app.use(express.json());
+
+app.use(healthRoute);
 
 app.use(authRoutes);
 
