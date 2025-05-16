@@ -143,7 +143,7 @@ function CreateClientOverlay({ onClose, edit, id }: CreateClientOverlayProps) {
             superbuddyId: data.superbuddyId?.trim() === "",
         };
 
-        const isdeviceCodeValid = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(data.deviceCode);
+        const isdeviceCodeValid = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/.test(data.deviceCode);
         const isPhoneValid = /^\+?[0-9\s\-()]{6,20}$/.test(data.phoneNumber);
         const isNameValid = (name: string) => /^[a-zA-Zà-ÿÀ-ß'’ -]{2,60}$/.test(name.trim());
         const isAddressValid = (address: string) => address.trim().length > 5;

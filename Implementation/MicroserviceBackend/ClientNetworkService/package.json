@@ -63,6 +63,7 @@
     "typescript-eslint": "^8.28.0"
   },
   "prisma": {
-    "schema": "./src/prisma/schema.prisma"
+    "schema": "./src/prisma/schema.prisma",
+    "seed": "node dist/prisma/seedE2e.js"
   }
 }
