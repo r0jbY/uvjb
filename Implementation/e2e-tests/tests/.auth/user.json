@@ -1,0 +1,25 @@
+{
+  "cookies": [
+    {
+      "name": "accessToken",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA0MDQwNDA0LTA0MDQtMDQwNC0wNDA0LTA0MDQwNDA0MDQwNCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Nzc1NDc5NiwiZXhwIjoxNzQ3NzU1Njk2fQ.9GFq9L8u_2BGKORmPJ6kQpmSEJszIguXV3Ph__d5WmM",
+      "domain": "localhost",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "refreshToken",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjA0MDQwNDA0LTA0MDQtMDQwNC0wNDA0LTA0MDQwNDA0MDQwNCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0Nzc1NDc5NiwiZXhwIjoxNzQ3ODQxMTk2fQ.bC-zicHVvohSv79G7xJFhFuD9I2piYdU-XCr5xQNTaQ",
+      "domain": "localhost",
+      "path": "/",
+      "expires": 1747841196.066182,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    }
+  ],
+  "origins": []
+}

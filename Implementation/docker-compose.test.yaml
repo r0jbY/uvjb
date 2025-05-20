@@ -93,6 +93,7 @@ services:
       RABBITMQ_URL: amqp://rabbitmq:5672
       ACCESS_SECRET : 0df81c6de2bdd7cc25a1384be7df44b631beced77103e6f78c6aa4a1c76eb357a6f22b89ba29b401e19862e7f65744b4afe055af52329e9fdf6ef82255a7d33d
       REFRESH_SECRET : ab79db7f0862595f3b773cee86e9ef3f949e02a6ef1931d80efc2891d40923c568b169d23be0e2d9c1b2d5f4592cd2dbae819f96550f875c24848adf8c0e5b82
+      E2E: 'true'
     depends_on:
       authdb:
         condition: service_started
@@ -247,5 +248,14 @@ services:
   #       condition: service_healthy
   #   environment:
   #     PLAYWRIGHT_BASE_URL: http://frontend:5173
-
-
+  #     PLAYWRIGHT_LOGIN_URL: http://frontend:5173
+  #   volumes:
+  #   - ./e2e-tests:/e2e
+###############################################################################
+#  Persist database files between runs                                         #
+###############################################################################
+volumes:
+  authdb-data:
+  userdb-data:
+  clientdb-data:
+  networkdb-data:
