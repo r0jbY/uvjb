@@ -12,7 +12,7 @@ export const createHttpError = (message: string, statusCode: number): TypedError
   err.statusCode = statusCode;
   return err;
 };
-
+ 
 export default class AuthController {
 
 
