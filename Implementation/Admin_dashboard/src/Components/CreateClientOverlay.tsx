@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import InputField from "./InputField";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { createClient, editClient, deleteClient } from "../Services/ClientService";
 import { searchSuperbuddies } from "../Services/UserService";
 import { getClient } from "../Services/ClientService";
@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import Modal from "react-modal";
 import { ClipLoader } from "react-spinners";
 import AsyncSelect from "react-select/async";
+import { UserForClient } from "../interfaces/Interfaces";
 
 
 type CreateClientOverlayProps = {
@@ -73,32 +74,30 @@ function CreateClientOverlay({ onClose, edit, id }: CreateClientOverlayProps) {
     };
 
 
-    const loadClientData = async () => {
-        if (!id) return;
-        console.log("We are here!");
-        try {
-            const client = await getClient(id);
-            console.log("We are here!");
-            console.log("hello", client.firstName);
-            if (client) {
-                setFirstName(client.firstName);
-                setLastName(client.lastName);
-                setDeviceCode(client.deviceCode);
-                setPhonenumber(client.phoneNumber);
-                setAddress(client.address);
-                setActive(client.active);
-                setSuperbuddyId(client.superbuddyId);
-                setSelectedSuperbuddy({
-                    label: client.superbuddyEmail,
-                    value: client.superbuddyId
-                  });
-            }
-
-        } catch (error) {
-            toast.error("Failed to load client data.");
-            console.error("Error loading client data:", error);
+    const loadClientData = useCallback(async () => {
+    if (!id) return;
+    
+    try {
+        const client = await getClient(id);
+        if (client) {
+            setFirstName(client.firstName);
+            setLastName(client.lastName);
+            setDeviceCode(client.deviceCode);
+            setPhonenumber(client.phoneNumber);
+            setAddress(client.address);
+            setActive(client.active);
+            setSuperbuddyId(client.superbuddyId);
+            setSelectedSuperbuddy({
+                label: client.superbuddyEmail,
+                value: client.superbuddyId
+            });
         }
-    };
+
+    } catch (error) {
+        toast.error("Failed to load client data.");
+        console.error("Error loading client data:", error);
+    }
+}, [id]);
 
     
     const loadSuperbuddyOptions = async (inputValue: string): Promise<OptionType[]> => {
@@ -107,7 +106,7 @@ function CreateClientOverlay({ onClose, edit, id }: CreateClientOverlayProps) {
             console.log(res);
             if (!res) return [];
 
-            const mapped = res.superBuddies.map((user: any) => ({
+            const mapped = res.superBuddies.map((user: UserForClient) => ({
                 label: user.email,
                 value: user.id,
               }));
@@ -123,7 +122,7 @@ function CreateClientOverlay({ onClose, edit, id }: CreateClientOverlayProps) {
         if (edit && id) {
             loadClientData();
         }
-    }, [edit, id]);
+    }, [edit, id, loadClientData]);
 
     const validateClientForm = (data: {
         firstName: string;
@@ -209,7 +208,7 @@ function CreateClientOverlay({ onClose, edit, id }: CreateClientOverlayProps) {
                 onClose(); // Close the modal
                 // Refresh the page
             }, 2000);
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error.message);
             } else {
@@ -263,9 +262,8 @@ function CreateClientOverlay({ onClose, edit, id }: CreateClientOverlayProps) {
                 resetForm();
                 onClose(); // Close the modal
             }, 2000);
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error instanceof Error) {
-                console.log("Hello!", error.message);
                 toast.error(error.message);
             } else {
                 toast.error("Unknown error");
@@ -288,7 +286,7 @@ function CreateClientOverlay({ onClose, edit, id }: CreateClientOverlayProps) {
                 resetForm();
                 onClose(); // Close the modal
             }, 2000);
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error.message);
             } else {

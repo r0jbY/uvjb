@@ -80,7 +80,7 @@ function ClientComponent() {
                 setServerError(false);
                 setClients(prev => [...prev, ...res]);
                 setHasMore(res.length === 20); // adjust this if your page size changes
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Failed to fetch Clients:", err);
                 setServerError(true);
                 toast.dismiss();

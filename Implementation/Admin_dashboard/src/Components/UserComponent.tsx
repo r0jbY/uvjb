@@ -82,12 +82,17 @@ function UserComponent() {
                 setServerError(false);
                 setUsers(prev => [...prev, ...res]);
                 setHasMore(res.length === 20); // adjust this if your page size changes
-            } catch (err: any) {
-                console.error("Failed to fetch users:", err);
+            } catch (err: unknown) {
                 setServerError(true);
-                toast.dismiss();
-                toast.error("Failed to load users. Please try again later.");
-                setHasMore(false); // prevent infinite retries
+                setHasMore(false);
+                if (err instanceof Error) {
+                    toast.dismiss();
+                    toast.error("Failed to load users. Please try again later.");
+                } else {
+                    toast.dismiss();
+                    toast.error("Unknown error");
+                }
+
             } finally {
                 setLoading(false);
             }
@@ -116,9 +121,9 @@ function UserComponent() {
             setPage(0);
             setHasMore(false);
             setUsers(results ?? []);
-        } catch (err) {
+        } catch {
             setServerError(true);
-            const message =  "Search failed.";
+            const message = "Search failed.";
             toast.dismiss();
             toast.error(message);
         }

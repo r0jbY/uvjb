@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import InputField from "./InputField";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { createUser, editUser, deleteUser } from "../Services/UserService";
 import { getUser } from "../Services/UserService";
 import { useEffect } from "react";
@@ -13,6 +13,8 @@ type CreateUserOverlayProps = {
     edit: boolean;
     id?: string;
 };
+
+type Role = "admin" | "buddy" | "superbuddy";
 
 type FormErrors = {
     firstName: boolean;
@@ -34,7 +36,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
     const [address, setAddress] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [role, setRole] = useState<"admin" | "buddy" | "superbuddy" | "">("");
+    const [role, setRole] = useState<Role | "">("");
     const [active, setActive] = useState(true);
     const [errors, setErrors] = useState<FormErrors>({
         firstName: false,
@@ -75,31 +77,31 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
     };
 
 
-    const loadUserData = async () => {
-        if (!id) return;
+    const loadUserData = useCallback(async () => {
+    if (!id) return;
 
-        try {
-            const user = await getUser(id);
-            if (user) {
-                setFirstName(user.firstName);
-                setLastName(user.lastName);
-                setEmail(user.email);
-                setPhonenumber(user.phoneNumber);
-                setAddress(user.address);
-                setRole(user.role);
-                setActive(user.active);
-            }
-        } catch (error) {
-            toast.error("Failed to load user data.");
-            console.error("Error loading user data:", error);
+    try {
+        const user = await getUser(id);
+        if (user) {
+            setFirstName(user.firstName);
+            setLastName(user.lastName);
+            setEmail(user.email);
+            setPhonenumber(user.phoneNumber);
+            setAddress(user.address);
+            setRole(user.role);
+            setActive(user.active);
         }
-    };
+    } catch (error) {
+        toast.error("Failed to load user data.");
+        console.error("Error loading user data:", error);
+    }
+}, [id]);
 
-    useEffect(() => {
-        if (edit && id) {
-            loadUserData();
-        }
-    }, [edit, id]);
+useEffect(() => {
+    if (edit && id) {
+        loadUserData();
+    }
+}, [edit, id, loadUserData]);
 
     const validateUserForm = (data: {
         firstName: string;
@@ -205,7 +207,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
                 onClose(); // Close the modal
                 // Refresh the page
             }, 2000);
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error.message);
             } else {
@@ -260,7 +262,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
                 resetForm();
                 onClose(); // Close the modal
             }, 2000);
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error instanceof Error) {
                 console.log("Hello!", error.message);
                 toast.error(error.message);
@@ -285,7 +287,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
                 resetForm();
                 onClose(); // Close the modal
             }, 2000);
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error.message);
             } else {
@@ -383,7 +385,7 @@ function CreateUserOverlay({ onClose, edit, id }: CreateUserOverlayProps) {
                                 name="role"
                                 className={`w-full h-[48px] p-3  rounded-lg text-[#658F8D] text-base ${errors.role ? "border-2 border-red-600" : "border border-[#C3B295]"} bg-[#F7F7F7] placeholder-[#658F8D] focus:outline-[#C3B295] disabled:opacity-60 disabled:cursor-not-allowed`}
                                 value={role}
-                                onChange={(e) => { setRole(e.target.value as any) }}
+                                onChange={(e) => { setRole(e.target.value as Role | "") }}
 
                             >
                                 <option value="">Choose Role</option>

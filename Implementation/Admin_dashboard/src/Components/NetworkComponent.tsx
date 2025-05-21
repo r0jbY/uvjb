@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import Select, { SingleValue } from "react-select";
 import AsyncSelect from 'react-select/async';
 import { searchUsers } from '../Services/UserService';
-import { User } from '../interfaces/UserInterface';
+import { Client, User } from '../interfaces/Interfaces';
 import BuddyTooltip from './BuddyTooltip';
 
 type OptionType = {
@@ -44,12 +44,12 @@ function NetworkComponent() {
             console.log(res);
             if (!res) return [];
 
-            const mappped = res.map((client: any) => ({
+            const mappped = res.map((client: Client) => ({
                 label: client.first_name + " " + client.last_name + " - " + client.address + " - " + client.phone_number,
                 value: client.id
             }));
             return mappped;
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.error(error.message);
             } else {
@@ -83,7 +83,7 @@ function NetworkComponent() {
 
                 setToBeAdded([]);
                 setToBeRemoved([]);
-            } catch (error: any) {
+            } catch (error: unknown) {
                 if (error instanceof Error) {
                     toast.error(error.message);
                 } else {
@@ -105,7 +105,7 @@ function NetworkComponent() {
                 const res = await searchUsers(searchTerms);
                 console.log(res);
                 setBuddies(res ?? []);
-            } catch (error: any) {
+            } catch (error: unknown) {
                 if (error instanceof Error) {
                     toast.error(error.message);
                 } else {
@@ -173,7 +173,7 @@ function NetworkComponent() {
             // Optionally, refresh current network
 
 
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error instanceof Error) {
                 toast.dismiss();
                 toast.error(error.message);

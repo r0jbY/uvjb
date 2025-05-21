@@ -1,5 +1,5 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { User } from '../interfaces/UserInterface';
+import { User } from '../interfaces/Interfaces';
 
 type BuddyTooltipProps = {
   user: User;
