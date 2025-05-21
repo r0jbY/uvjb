@@ -81,11 +81,11 @@ jobs:
 
       - name: Install dependencies for Playwright
         run: npm ci && npx playwright install
-        working-directory: e2e
+        working-directory: Implementation/e2e-tests
 
       - name: Run E2E tests
         run: npm run test:e2e
-        working-directory: e2e
+        working-directory: Implementation/e2e-tests
 
       - name: Tear down environment
         if: always()
