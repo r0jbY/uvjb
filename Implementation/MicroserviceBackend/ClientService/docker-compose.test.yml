@@ -11,7 +11,7 @@ services:
     depends_on:
       clientdb:
         condition: service_healthy
-    command: ["npm", "run", "test:run"]
+    command: ["sh", "-c", "npm run lint && npm run test:run"]
 
   clientdb:
     image: postgres:latest

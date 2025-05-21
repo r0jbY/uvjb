@@ -66,7 +66,8 @@ CMD ["sh", "-c", "npx prisma migrate deploy && npm run dev"]
 FROM devdeps AS test
 
 COPY tsconfig*.json ./
-COPY jest.config.* ./               
+COPY jest.config.* ./ 
+COPY eslint.config.mjs ./              
 COPY src ./src
 COPY src/prisma ./src/prisma
 

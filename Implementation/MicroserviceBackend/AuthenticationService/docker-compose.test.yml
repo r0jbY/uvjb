@@ -15,7 +15,8 @@ services:
     depends_on:
       authdb:
         condition: service_healthy
-    command: ["npm", "run", "test:run"]
+    command: ["sh", "-c", "npm run lint && npm run test:run"]
+
 
   authdb:
     image: postgres:latest
