@@ -4,10 +4,10 @@ name: CI - Auth Service
 on:
   push:
     paths:
-      - 'Implementation/**
+      - 'Implementation/**'
   pull_request:
     paths:
-      - 'Implementation/**
+      - 'Implementation/**'
 
 jobs:
   
