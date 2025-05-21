@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { prisma } from "../config/database";
 import { createHttpError } from "../controllers/ClientController";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";

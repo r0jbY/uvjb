@@ -1,5 +1,8 @@
 import { prisma } from "../config/database";
 import { createHttpError } from "../controllers/UserController";
+import { UserRow } from "../interfaces/Interfaces";
+
+  
 
 export class UserService {
 
@@ -72,6 +75,8 @@ export class UserService {
     }
   }
 
+
+
   static async searchUsers(query: string) {
     if (!query || query.trim() === "") return [];
 
@@ -81,7 +86,7 @@ export class UserService {
       .map((word) => `${word}:*`)
       .join(" & ");
     try {
-      const result = await prisma.$queryRaw<any[]>`
+      const result = await prisma.$queryRaw<UserRow[]>`
         SELECT * FROM "User"
         WHERE to_tsvector('english', 
         coalesce("first_name", '') || ' ' ||

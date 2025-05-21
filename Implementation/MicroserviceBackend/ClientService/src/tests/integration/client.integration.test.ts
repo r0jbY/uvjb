@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "../../app";
 import { prisma } from "../../config/database";
+import { ClientRow } from "../../interfaces/Interfaces";
 
 describe("Client Routes - Get All Clients", () => {
     it("should return all seeded clients correctly", async () => {
@@ -19,7 +20,7 @@ describe("Client Routes - Get All Clients", () => {
         ];
 
         for (const id of expectedIds) {
-            const client = res.body.find((c: any) => c.id === id);
+            const client = res.body.find((c: ClientRow) => c.id === id);
             expect(client).toBeDefined();
         }
 

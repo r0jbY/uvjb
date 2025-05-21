@@ -8,7 +8,6 @@ export default[
     ignores: ['dist/**', 'node_modules/**'], // your ignore paths here
   },
   ...tseslint.config(
-  // @ts-ignore
   eslint.configs.recommended, 
   tseslint.configs.recommended,
 )];

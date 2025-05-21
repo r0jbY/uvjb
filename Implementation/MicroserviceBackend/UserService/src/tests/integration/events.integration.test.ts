@@ -1,5 +1,4 @@
 // src/tests/integration/userCreatedConsumer.integration.test.ts
-import amqp from "amqplib";
 import { consumeUserCreatedEvents } from "../../utils/userCreatedConsumer";
 import { connectRabbitMQ, getChannel, closeRabbitMQ } from "../../config/rabbitmq";
 import { prisma } from "../../config/database";
