@@ -66,7 +66,6 @@ jobs:
       - user-tests
       - client-tests
       - network-tests
-      - gateway-tests
 
     steps:
       - uses: actions/checkout@v3
