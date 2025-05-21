@@ -225,7 +225,7 @@ function NetworkComponent() {
                     <h1 className="text-[#658F8D] text-center text-xl font-semibold pb-3 border-b-1 border-[#E9E2CD]">
                         {`${selectedClient?.label} - Layer ${selectedLayer}`}
                     </h1>
-                    <div className="flex flex-1 flex-col gap-3 min-h-0 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-7 pb-2">
+                    <div className="flex flex-1 flex-col gap-3 pr-2 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-[#E4DFCC] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-clip-content [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-thumb:hover]:bg-[#cfc8af] lg:gap-7 pb-2">
                         {clientNetwork.length > 0 ? (clientNetwork.map((buddy, index) => (
                             <div className="flex flex-row items-center justify-between text-xl" key={index}>
                                 <BuddyTooltip user={buddy} />
@@ -251,7 +251,7 @@ function NetworkComponent() {
                             <MagnifyingGlassIcon className='w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[#658F8D]' />
                             <input placeholder="Search buddies" className="w-full p-2 pl-10 border rounded-xl border-[#B7C0B2] bg-[#FEF5E4] placeholder:text-[#658F8D] placeholder:font-semibold font-semibold focus:outline-[#B7C0B2] " value={searchTerms} onChange={(e) => { setSearchterms(e.target.value) }} />
                         </div>
-                        {buddies.length > 0 ? (<div className="flex flex-col min-h-0 gap-1 lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        {buddies.length > 0 ? (<div className="flex flex-col min-h-0 gap-1 px-2 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-[#E4DFCC] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-clip-content [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-thumb:hover]:bg-[#cfc8af]">
                             {
                                 buddies
                                     .filter(
@@ -285,7 +285,7 @@ function NetworkComponent() {
                                 <h2 className="text-[#658F8D] text-xl font-bold lg:text-xl"> To Be Added </h2>
 
                                 <div className="flex  flex-col gap-3 overflow-y-auto border-t-1 border-[#E4DFCC] pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3">
-                                    {toBeAdded.length > 0 ? (<div className="flex  flex-col min-h-0 gap-3 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3 mt-3">
+                                    {toBeAdded.length > 0 ? (<div className="flex  flex-col min-h-0 gap-3  pr-1 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-[#E4DFCC] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-clip-content [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-thumb:hover]:bg-[#cfc8af] lg:gap-3 mt-3">
                                         {toBeAdded.map((buddy, index) => (
                                             <div className="flex flex-row justify-between items-center border-3  border-[#90EE90]   bg-[#FEF5E4] rounded-xl px-2 py-1" key={index}>
                                                 <BuddyTooltip user={buddy} />
@@ -302,7 +302,7 @@ function NetworkComponent() {
                                 <h2 className="text-[#658F8D] text-xl font-bold lg:text-xl"> To Be Removed </h2>
 
                                 <div className="flex  flex-col gap-3 overflow-y-auto border-t-1 border-[#E4DFCC] pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3">
-                                    {toBeRemoved.length > 0 ? (<div className="flex  flex-col min-h-0 gap-3 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:gap-3 mt-3">
+                                    {toBeRemoved.length > 0 ? (<div className="flex  flex-col min-h-0 gap-3 pr-1 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-[#E4DFCC] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-clip-content [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-thumb:hover]:bg-[#cfc8af] lg:gap-3 mt-3">
                                         {toBeRemoved.map((buddy, index) => (
                                             <div className="flex flex-row justify-between items-center border-3 border-[#e64a1b] bg-[#FEF5E4] rounded-xl px-2 py-1" key={index}>
                                                 <BuddyTooltip user={buddy} />

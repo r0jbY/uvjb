@@ -197,7 +197,7 @@ function ClientComponent() {
 
                         </div>
 
-                        <div className="w-full h-full overflow-y-scroll [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                        <div className="w-full h-full my-2 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-[#E4DFCC] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-clip-content [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-thumb:hover]:bg-[#cfc8af]">
                             {!loading && clients.length === 0 ? (
                                 <div className="h-full w-full  flex items-center justify-center  text-[#658F8D] text-3xl font-semibold">
                                     {!serverError ? `No clients matching the search terms were found.` : "Internal server error."}
