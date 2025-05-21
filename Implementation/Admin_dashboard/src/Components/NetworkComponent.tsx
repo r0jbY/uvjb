@@ -326,7 +326,7 @@ function NetworkComponent() {
 
 
 
-            {selectedClient && selectedLayer && (<button className="bg-[#658F8D] text-white rounded-2xl text-lg border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out lg:mt-auto lg:mb-4" onClick={commitNetworkChanges}> Commit Network Changes</button>)}
+            {selectedClient && selectedLayer && (<button className="bg-[#658F8D] text-white rounded-2xl w-[30%] text-lg border border-[#5B7C6F] font-bold shadow-[0_4px_4px_0_rgba(0,0,0,0.1)] px-3 py-2 cursor-pointer hover:bg-[#739B99] active:scale-[0.98] transition-all duration-150 ease-in-out lg:mt-auto lg:mb-4" onClick={commitNetworkChanges}> Commit Network Changes</button>)}
         </div>
 
     );
