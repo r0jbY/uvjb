@@ -45,6 +45,6 @@ describe("validate middleware", () => {
       const middleware = validate(mockSchema);
       middleware(req as Request, res as Response, next);
   
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(403);
     });
   });
