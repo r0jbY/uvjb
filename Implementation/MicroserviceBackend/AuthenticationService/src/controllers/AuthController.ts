@@ -1,117 +1,140 @@
 import { Request, Response } from "express";
 import { AuthService } from "../services/auth.service";
-import jwt, { VerifyErrors } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs"
-import {v4 as uuidv4} from "uuid";
+import { v4 as uuidv4 } from "uuid";
+import { publishUserCreatedEvent, publishUserDeletedEvent, publishUserUpdatedEvent } from "../utils/publisher";
 
+type TypedError = Error & { statusCode?: number };
 
+export const createHttpError = (message: string, statusCode: number): TypedError => {
+  const err = new Error(message) as TypedError;
+  err.statusCode = statusCode;
+  return err;
+};
+ 
 export default class AuthController {
-    
-    static async login (req: Request, res: Response) : Promise<Response> {
-        try {
-
-            console.log("Entered this!")
-
-            const { email, password } = req.body;
-            // 1️⃣ Get user from database
-            const user = await AuthService.getUserByEmail(email);
-            if (!user) {
-              return res.status(404).json({ message: "Invalid credentials", result: false });
-            }
-
-            // 2️⃣ Validate password
-            const isMatch =await bcrypt.compare(password, user.password);
-            if (!isMatch) {
-              return res.status(404).json({ message: "Invalid credentials", result: false });
-            }
-
-            if(user.role!=='admin') {
-              return res.status(401).json({message: "Access denied"});
-            }
 
 
-            const accessToken = jwt.sign({id: user.id, role: user.role}, process.env.ACCESS_SECRET as string, {expiresIn: '15m'})
-            const refreshToken = jwt.sign({id: user.id, role: user.role}, process.env.REFRESH_SECRET as string, {expiresIn: '1d'})
+  static async login(req: Request, res: Response): Promise<Response> {
 
-            res.cookie("accessToken", accessToken, {
-              httpOnly: true,
-              secure: true,
-              sameSite: "none",
-            });
-      
-            res.cookie("refreshToken", refreshToken, {
-              maxAge: 1 * 24 * 60 * 60 * 1000,
-              httpOnly: true,
-              secure: true,
-              sameSite: "none",
-            });
+    const { email, password } = req.body;
+    // 1️⃣ Get user from database
+    const user = await AuthService.getUserByEmail(email);
 
-            return res.status(200).json({
-                message: "User logged in successfully",
-                result: true,
-                userid: user.id,
-              });
-        }
-        catch (error) {
-          console.log(error);
-          return res.status(500).json({ message: "Internal server error" });
-        }
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw createHttpError("Invalid credentials", 401);
     }
 
-    static async logout (req: Request, res: Response) : Promise<Response> {
-      res.cookie("accessToken", "", {
+    if (user.role !== 'admin') {
+      throw createHttpError("Access denied", 403);
+    }
+
+    const accessToken = jwt.sign({ id: user.id, role: user.role }, process.env.ACCESS_SECRET as string, { expiresIn: '15m' })
+    const refreshToken = jwt.sign({ id: user.id, role: user.role }, process.env.REFRESH_SECRET as string, { expiresIn: '1d' })
+
+    return res
+      .cookie("accessToken", accessToken, { httpOnly: true, secure: true, sameSite: "none" })
+      .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "none", maxAge: 86400000 })
+      .status(200)
+      .json({ message: "User logged in successfully", result: true, userid: user.id });
+  }
+
+
+  static async logout(req: Request, res: Response): Promise<Response> {
+    return res
+      .cookie("accessToken", "", {
         httpOnly: true,
         secure: true,
         sameSite: "none",
         expires: new Date(0),
-      });
-      res.cookie("refreshToken", "", {
+      })
+      .cookie("refreshToken", "", {
         httpOnly: true,
         secure: true,
         sameSite: "none",
         expires: new Date(0),
-      });
-        return res.status(200).send("Logout successful");
+      })
+      .status(200)
+      .json({ message: "Logout successful" });
+  }
+
+  static async getUserById(req: Request, res: Response): Promise<Response> {
+    const user = await AuthService.getUserById(req.params.id);
+    if (!user) throw createHttpError("User not found", 404);
+
+    return res.status(200).json({ email: user.email, role: user.role });
+  }
+
+  static async updateUser(req: Request, res: Response): Promise<Response> {
+    const { id } = req.params;
+    const { email, role, firstName, lastName, address, phoneNumber, active } = req.body;
+
+    await AuthService.updateUser(id, email, role);
+
+
+    await publishUserUpdatedEvent({ id, firstName, lastName, address, phoneNumber, active });
+
+    return res.status(200).json({ message: "User updated successfully" });
+  }
+
+  static async whoAmI(req: Request, res: Response): Promise<Response> {
+
+
+    const accessToken = req.cookies.accessToken;
+    if (!accessToken) throw createHttpError("No token provided", 401);
+
+    try {
+      const decoded = jwt.verify(accessToken, process.env.ACCESS_SECRET as string) as { id: string; role: string };
+      return res.status(200).json({ id: decoded.id, role: decoded.role });
+    } catch {
+      throw createHttpError("Invalid or expired token", 401);
     }
+  }
 
-    static async whoAmI(req: Request, res: Response): Promise<Response> {
+  static async register(req: Request, res: Response): Promise<Response> {
 
-      const accessToken = res.locals.accessToken || req.cookies.accessToken;
-      
-      if (!accessToken) {
-        return res.status(401).json({ message: "Expired access" });
-      }
+    const id = uuidv4();
+    const { email, password, role, firstName, lastName, phoneNumber, address, active } = req.body;
 
-      try {
-        const decoded = await new Promise<{ id: string; role: string }>((resolve, reject) => {
-          jwt.verify(accessToken, process.env.ACCESS_SECRET as string, (err : VerifyErrors | null, _decoded: string | undefined | object) => {
-            if (err || !_decoded) {
-              reject(new Error("Invalid or expired token"));
-            } else {
-              resolve(_decoded as { id: string; role: string });
-            }
-          });
-        });
-        return res.status(200).json({ id: decoded.id, role: decoded.role });
-    
-      } catch {
-        return res.status(401).json({ message: "Expired access" });
-      }
-    }
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    static async register(req: Request, res: Response): Promise<Response> {
+    await AuthService.createAccount(id, email, hashedPassword, role);
 
-      const id = uuidv4();
-      const {email, password, role} = req.body;
+    await publishUserCreatedEvent({
+      uuid: id,
+      firstName,
+      lastName,
+      address,
+      phoneNumber,
+      active
+    });
 
-      const hashedPassword = await bcrypt.hash(password, 12);
+    return res.status(200).json({ message: "Account created" });
+  }
 
-      try {
-        await AuthService.createAccount(id, email, hashedPassword, role);
-        return res.status(200).send("Account created") ;
-      } catch (error) {
-        console.log(error);
-        return res.status(400).send("Account creation failed");
-      }
-    }
+  static async getSuperbuddies(req: Request, res: Response): Promise<Response> {
+
+    const { query, limit } = req.query;
+
+    const parsedLimit = limit ? parseInt(limit as string, 10) : 5; // fallback default
+
+    console.log(query, " :query");
+
+    const superBuddies = await AuthService.getSuperbuddies(query as string, parsedLimit);
+
+    return res.status(200).json({ superBuddies });
+  }
+
+  static async deleteUser(req: Request, res: Response): Promise<Response> {
+
+    const { id } = req.params;
+
+    await AuthService.deleteAccount(id);
+
+    await publishUserDeletedEvent({ id });
+
+    return res.status(200).json({ message: "User deleted" });
+  }
 }
+

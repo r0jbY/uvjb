@@ -1,0 +1,8 @@
+node_modules
+.env
+coverage
+dist
+.env.*
+!.env.example
+test-results
+/tests/.auth/

@@ -4,67 +4,162 @@ name: CI - Auth Service
 on:
   push:
     paths:
-      - 'Implementation/MicroserviceBackend/AuthenticationService/**'
+      - 'Implementation/**'
   pull_request:
     paths:
-      - 'Implementation/MicroserviceBackend/AuthenticationService/**'
+      - 'Implementation/**'
 
 jobs:
   
-  build-and-test:
-    runs-on: ubuntu-latest
+  ############################
+  # 1. Microservices Tests   #
+  ############################
 
+  detect-auth-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.set.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: set
+        run: |
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^Implementation/MicroserviceBackend/AuthenticationService/' && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"
+
+  detect-user-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.set.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: set
+        run: |
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^Implementation/MicroserviceBackend/UserService/' && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"        
+  
+
+  detect-client-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.set.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: set
+        run: |
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^Implementation/MicroserviceBackend/ClientService/' && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"
+
+  detect-network-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.set.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: set
+        run: |
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^Implementation/MicroserviceBackend/ClientNetworkService/' && echo "changed=true" >> "$GITHUB_OUTPUT" || echo "changed=false" >> "$GITHUB_OUTPUT"        
+
+  auth-tests:
+    runs-on: ubuntu-latest
+    needs: detect-auth-changes
+    if: needs.detect-auth-changes.outputs.changed == 'true'
     defaults:
       run:
         working-directory: Implementation/MicroserviceBackend/AuthenticationService/
-
-    env:
-      ACCESS_SECRET: ${{ secrets.ACCESS_SECRET }}
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 22
+      - name: linting + unit & integration tests
+        run: npm run test
 
-      - name: Install dependencies
-        run: npm install
+  user-tests:
+    runs-on: ubuntu-latest
+    needs: detect-user-changes
+    if: needs.detect-user-changes.outputs.changed == 'true'
+    defaults:
+      run:
+        working-directory: Implementation/MicroserviceBackend/UserService/
+    steps:
+      - uses: actions/checkout@v3
 
-      - name: Lint code
-        run: npm run lint 
+      - name: linting + unit & integration tests
+        run: npm run test
 
-      - name: Run Jest tests with coverage
-        run:  npm test 
+  client-tests:
+    runs-on: ubuntu-latest
+    needs: detect-client-changes
+    if: needs.detect-client-changes.outputs.changed == 'true'
+    defaults:
+      run:
+        working-directory: Implementation/MicroserviceBackend/ClientService/
+    steps:
+      - uses: actions/checkout@v3
 
-      - name: Upload Jest Coverage Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: jest-coverage
-          path: Implementation/MicroserviceBackend/AuthenticationService/coverage/lcov.info
-          retention-days: 1
+      - name: linting + unit & integration tests
+        run: npm run test
 
+  network-tests:
+    runs-on: ubuntu-latest
+    needs: detect-network-changes
+    if: needs.detect-network-changes.outputs.changed == 'true'
+    defaults:
+      run:
+        working-directory: Implementation/MicroserviceBackend/ClientNetworkService/
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: linting + unit & integration tests
+        run: npm run test
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Implementation
+    needs:
+      - auth-tests
+      - user-tests
+      - client-tests
+      - network-tests
+    if: always()
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Start E2E environment
+        run: docker compose -f docker-compose.test.yaml up -d --build
+
+      - name: Wait for services to be ready
+        run: sleep 10  # or implement a health check wait script
+
+      - name: Install dependencies for Playwright
+        run: npm ci && npx playwright install
+        working-directory: Implementation/e2e-tests
+
+      - name: Run E2E tests
+        run: npx playwright test --reporter=list 
+        working-directory: Implementation/e2e-tests
+
+      - name: Tear down environment
+        if: always()
+        run: docker compose -f docker-compose.test.yaml down
   sonarqube:
     name: SonarQube
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: e2e-tests
 
     defaults:
       run:
-        working-directory: Implementation/MicroserviceBackend/AuthenticationService/
+        working-directory: Implementation/MicroserviceBackend/
         
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  
-
-      - name: Download Jest Coverage Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: jest-coverage
-          path: coverage
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5

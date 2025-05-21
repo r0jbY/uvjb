@@ -1,0 +1,261 @@
+name: e2e-test
+version: "3.9"
+
+###############################################################################
+#  Infrastructure containers (test databases, broker)                         #
+###############################################################################
+services:
+  # ───────── RabbitMQ ────────────────────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    restart: unless-stopped
+    ports:
+      - "5672:5672"      # AMQP
+      - "15672:15672"    # Management UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ───────── Test Postgres for the *authentication* service ──────────────────
+  authdb:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: test_authdb
+    ports:               
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d test_authdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ───────── Test Postgres for the *user* service ────────────────────────────
+  userdb:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: test_userdb
+    ports:               
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d test_userdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  clientdb:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: test_clientdb
+    ports:               
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d test_clientdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  networkdb:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: test_networkdb
+    ports:               
+      - "5435:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d test_networkdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+###############################################################################
+#  Micro‑services (runtime images – use override file for hot reload)         #
+###############################################################################
+  auth-svc:
+    build:
+      context: ./MicroserviceBackend/AuthenticationService
+      target: runtime
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgres://app:secret@authdb:5432/test_authdb
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      ACCESS_SECRET : 0df81c6de2bdd7cc25a1384be7df44b631beced77103e6f78c6aa4a1c76eb357a6f22b89ba29b401e19862e7f65744b4afe055af52329e9fdf6ef82255a7d33d
+      REFRESH_SECRET : ab79db7f0862595f3b773cee86e9ef3f949e02a6ef1931d80efc2891d40923c568b169d23be0e2d9c1b2d5f4592cd2dbae819f96550f875c24848adf8c0e5b82
+      E2E: 'true'
+    depends_on:
+      authdb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    command: >
+      sh -c "npx prisma migrate deploy &&
+            npx prisma db seed &&
+            node dist/index.js"
+
+  user-svc:
+    build:
+      context: ./MicroserviceBackend/UserService
+      target: runtime
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgres://app:secret@userdb:5432/test_userdb
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      userdb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    command: >
+      sh -c "npx prisma migrate deploy &&
+            npx prisma db seed &&
+            node dist/index.js"
+
+  client-svc:
+    build:
+      context: ./MicroserviceBackend/ClientService
+      target: runtime
+    environment:
+      PORT: 3002
+      DATABASE_URL: postgres://app:secret@clientdb:5432/test_clientdb
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      clientdb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "3002:3002"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    command: >
+      sh -c "npx prisma migrate deploy &&
+            npx prisma db seed &&
+            node dist/index.js"
+
+  network-svc:
+    build:
+      context: ./MicroserviceBackend/ClientNetworkService
+      target: runtime
+    environment:
+      PORT: 3003
+      DATABASE_URL: postgres://app:secret@networkdb:5432/test_networkdb
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      clientdb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "3003:3003"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    command: >
+      sh -c "npx prisma migrate deploy &&
+            npx prisma db seed &&
+            node dist/index.js"
+
+  gateway-svc:
+    build:
+      context: ./MicroserviceBackend/APIGateway
+      target: runtime
+    environment:
+      PORT: 8080
+      ACCESS_SECRET : 0df81c6de2bdd7cc25a1384be7df44b631beced77103e6f78c6aa4a1c76eb357a6f22b89ba29b401e19862e7f65744b4afe055af52329e9fdf6ef82255a7d33d
+      REFRESH_SECRET : ab79db7f0862595f3b773cee86e9ef3f949e02a6ef1931d80efc2891d40923c568b169d23be0e2d9c1b2d5f4592cd2dbae819f96550f875c24848adf8c0e5b82
+      AUTH_SERVICE_URL : http://auth-svc:3000
+      USER_SERVICE_URL : http://user-svc:3001
+      CLIENT_SERVICE_URL : http://client-svc:3002
+      NETWORK_SERVICE_URL : http://network-svc:3003
+    depends_on:
+      auth-svc:
+        condition: service_started
+      user-svc:
+        condition: service_started
+      client-svc:
+        condition: service_started
+      network-svc:
+        condition: service_started
+      clientdb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 9
+      
+  frontend:
+    build:
+      context: ./Admin_dashboard
+      dockerfile: Dockerfile
+      target: build
+      # args:
+      #   VITE_API_URL: http://gateway-svc:8080
+    depends_on:
+      gateway-svc:
+        condition: service_healthy
+    ports:
+      - "5173:5173"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5173"]
+      interval: 10s
+      timeout: 3s
+      retries: 9
+  
+  # e2e-tests:
+  #   build:
+  #     context: ./e2e-tests
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     frontend:
+  #       condition: service_healthy
+  #     gateway-svc:
+  #       condition: service_healthy
+  #   environment:
+  #     PLAYWRIGHT_BASE_URL: http://frontend:5173
+  #     PLAYWRIGHT_LOGIN_URL: http://frontend:5173
+  #   volumes:
+  #   - ./e2e-tests:/e2e
+###############################################################################
+#  Persist database files between runs                                         #
+###############################################################################
+volumes:
+  authdb-data:
+  userdb-data:
+  clientdb-data:
+  networkdb-data:

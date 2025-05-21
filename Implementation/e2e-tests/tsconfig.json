@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",          // now includes both config and test files
+    "outDir": "dist",        // optional: to separate compiled output
+    "module": "CommonJS",
+    "target": "ESNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["playwright.config.ts", "tests/**/*"]
+}

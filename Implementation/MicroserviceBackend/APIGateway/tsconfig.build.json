@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",     // inherit all the common rules
+  "compilerOptions": {
+    "outDir": "dist",               // guarantee compiled JS goes here
+    "rootDir": "src",               // only accept imports under src/
+    "declaration": false,           // no .d.ts in the final image
+    "sourceMap": false              // smaller image, faster start
+  },
+  "include": ["src/**/*.ts"],       // ✅ compile the service code only
+  "exclude": [
+    "src/tests/**/*",               // 🛑 ignore tests & mocks
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
+}

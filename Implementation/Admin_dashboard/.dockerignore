@@ -1,0 +1,30 @@
+# Node modules (always reinstall inside container)
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Local builds and output
+dist
+build
+
+# Vite cache
+.vite
+
+# System / IDE files
+.DS_Store
+.env.local
+.env.development
+.env.test
+.env.production
+.vscode
+.idea
+
+# Test and coverage output
+coverage
+*.spec.ts
+*.test.ts
+*.spec.tsx
+*.test.tsx
+playwright-report

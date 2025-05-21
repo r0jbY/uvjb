@@ -1,39 +1,52 @@
 import express from 'express';
-import {createProxyMiddleware} from 'http-proxy-middleware'
 import * as dotenv from "dotenv";
 import cors from 'cors';
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
+import clientRoutes from './routes/clientRoutes'
+import networkRoutes from './routes/networkRoutes'
+import cookieParser from 'cookie-parser';
+import errorHandler from './middleware/errorHandler';
+import healthRoute from './routes/health';
 
 dotenv.config();
 
 const app = express();
+app.use(cookieParser());
+const allowedOrigins = [
+  'http://localhost:5173',        // local dev
+  'http://127.0.0.1:5173',        // alt local dev
+  'http://frontend:5173'          // docker-internal Playwright container
+];
 
 app.use(cors({
-    origin: 'http://localhost:5173', // or use '*' to allow all (less secure)
-    credentials: true, // allow cookies if needed
-  }));
-
-app.use('/auth/login', createProxyMiddleware({
-    target: 'http://localhost:3001/auth/login',
-    changeOrigin: true,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
 }));
 
-app.use('/auth/logout', createProxyMiddleware({
-    target: 'http://localhost:3001/auth/logout', 
-    changeOrigin: true,
-}));
+app.use(express.json());
 
-app.use('/auth/register', createProxyMiddleware({
-    target: 'http://localhost:3001/auth/register', 
-    changeOrigin: true,
-}));
+app.use(healthRoute);
+
+app.use(authRoutes);
+
+app.use(userRoutes);
+
+app.use(clientRoutes);
+
+app.use(networkRoutes);
   
-app.use('/auth/whoAmI', createProxyMiddleware({
-    target: 'http://localhost:3001/auth/whoAmI', 
-    changeOrigin: true,
-}));
-
-app.get('/', (req, res) => {
+  // Basic welcome route
+  app.get('/', (req, res) => {
     res.send('Welcome to the API Gateway!');
-});
+  });
+
+app.use(errorHandler);
 
 export default app;
