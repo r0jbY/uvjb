@@ -84,7 +84,7 @@ jobs:
         working-directory: Implementation/e2e-tests
 
       - name: Run E2E tests
-        run: npx playwright test
+        run: npx playwright test --reporter=list 
         working-directory: Implementation/e2e-tests
 
       - name: Tear down environment
