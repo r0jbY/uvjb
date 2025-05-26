@@ -8,6 +8,7 @@ type FloatingLabelInputProps = {
     onChangeText: (text: string) => void;
     secureTextEntry?: boolean;
     keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad' | 'decimal-pad' | 'visible-password' | 'url';
+    error: boolean
 };
 
 export default function FloatingLabelInput({
@@ -15,7 +16,8 @@ export default function FloatingLabelInput({
     value,
     onChangeText,
     secureTextEntry = false,
-    keyboardType = 'default'
+    keyboardType = 'default',
+    error
 }: FloatingLabelInputProps) {
 
     const [isFocused, setIsFocused] = useState(false);
@@ -26,7 +28,7 @@ export default function FloatingLabelInput({
 
 
     return (
-        <View className="relative w-full mb-4">
+        <View className="relative w-full">
             {showLabel && (
                 <Text className="absolute left-[8px] top-[7px] bg-transparent px-1 text-[10px] text-[#658F8D]/70  font-bold z-50">
                     {label}
@@ -56,7 +58,7 @@ export default function FloatingLabelInput({
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 secureTextEntry={isPassword && !showPassword}
-                className={`h-14 w-full rounded-full border border-[#C3B295] bg-[#F7F7F7] px-[11px] text-[#658F8D] ${showLabel ? 'pt-4 pb-0' : ''} placeholder:text-[#658F8D] placeholder:font-semibold`}
+                className={`h-14 w-full rounded-full border border-[#C3B295] bg-[#F7F7F7] px-[11px] text-[#658F8D] ${error ? 'border-red-600 border-2' : ''} ${showLabel ? 'pt-4 pb-0' : ''} placeholder:text-[#658F8D] placeholder:font-semibold`}
 
             />
         </View>
