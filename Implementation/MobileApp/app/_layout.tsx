@@ -6,7 +6,16 @@ import { AuthProvider } from '../context/AuthContext';
 import { useAuth }      from '../hooks/useAuth';
 import '../global.css';
 
-// ⬅︎ keep it visible right away (runs before React mounts)
+import {
+  configureReanimatedLogger,
+  ReanimatedLogLevel,
+} from 'react-native-reanimated';
+
+
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false, 
+}); //done this to enable animations without warnings
 
 SplashScreen.preventAutoHideAsync();
 
