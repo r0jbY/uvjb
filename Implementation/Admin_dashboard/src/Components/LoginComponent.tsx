@@ -59,10 +59,12 @@ function LoginComponent() {
     const loginCall = async () => {
         if (validate()) {
             try {
+                console.log("We are here now!");
                 const res = await login(email, password);
                 console.log(res);
                 setEmail("");
                 setPassword("");
+                
                 await refreshAuth();
                 navigate('/UserOverview');
             } catch (error) {

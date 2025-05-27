@@ -5,6 +5,9 @@ import catchAsync from '../utils/catchAsync';
 const router = express.Router();
 
 // Auth routes
+
+router.post("/auth/refresh", catchAsync((req, res, next) => forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/refresh`)));
+
 router.post('/auth/login', catchAsync((req, res, next) =>
     forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/login`)));
 
@@ -16,5 +19,7 @@ router.post('/auth/register', verifyJwt, catchAsync((req, res, next) =>
 
 router.get('/auth/whoAmI', verifyJwt, catchAsync((req, res, next) =>
     forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/whoAmI`)));
+
+
 
 export default router;

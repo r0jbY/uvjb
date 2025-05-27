@@ -105,6 +105,24 @@ export default class AuthController {
     }
   }
 
+  static async refresh(req: Request, res: Response) : Promise<Response> {
+    console.log("entered this!");
+    const { refreshToken } = req.body || null;
+
+    if(!refreshToken) {
+      throw createHttpError("No token provided", 401);
+    }
+
+    try {
+      const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET as string) as {id: string, role: string};
+
+      const accessToken = jwt.sign({ id: decoded.id, role: decoded.role }, process.env.ACCESS_SECRET as string, { expiresIn: '15m' })
+      return res.status(200).json({ id: decoded.id, role: decoded.role, accessToken: accessToken });
+    } catch {
+      throw createHttpError("Invalid or expired token", 401);
+    }
+  }
+
   static async register(req: Request, res: Response): Promise<Response> {
 
     const id = uuidv4();

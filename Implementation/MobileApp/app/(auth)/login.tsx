@@ -1,10 +1,12 @@
 import { Feather } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { Image, Keyboard, Pressable, Text, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import logo from '../../assets/Logo.png';
 import FloatingLabelInput from '../Components/FloatingLabelInput';
 import { login } from '@/Services/Authentication';
+import { useAuth } from '@/hooks/useAuth';
+import { router } from 'expo-router';
 
 
 export default function LoginScreen() {
@@ -15,6 +17,7 @@ export default function LoginScreen() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const {refreshAuth} = useAuth();
 
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () => setIsKeyboardOpen(true));
@@ -59,7 +62,10 @@ export default function LoginScreen() {
 
     try {
       await login(email, password);
-      console.log('Worked!');
+      
+      setLoginError("");
+      await refreshAuth();
+      router.replace('/(tabs)');
     } catch (error: unknown) {  
 
       console.log(error);

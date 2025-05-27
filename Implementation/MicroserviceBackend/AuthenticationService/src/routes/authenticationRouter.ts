@@ -16,6 +16,8 @@ router.get("/superbuddies", catchAsync(AuthController.getSuperbuddies));
 
 router.get("/whoAmI", catchAsync(AuthController.whoAmI));
 
+router.post('/refresh', catchAsync(AuthController.refresh));
+
 router.delete("/delete/:id", catchAsync(AuthController.deleteUser));
 
 router.put("/update/:id", validate(updateSchema) , catchAsync(AuthController.updateUser));

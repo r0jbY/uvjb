@@ -21,25 +21,21 @@ export const checkAuth = async () => {
   const refreshToken = await SecureStore.getItemAsync('refreshToken');
   if (!refreshToken) return { isAuthenticated: false, userId: null, role: null };
 
-   return {
+  try {
+    const { data } = await axios.post('/auth/refresh', { refreshToken });
+
+    // Save access token in memory
+    axios.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
+
+
+    return {
       isAuthenticated: true,
-      userId: 1,
-      role: "admin",
+      userId: data.userId,
+      role: data.role,
     };
-
-//   try {
-//     const { data } = await axios.post('/auth/refresh', { refreshToken });
-
-//     // Save access token in memory
-//     axios.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
-
-//     return {
-//       isAuthenticated: true,
-//       userId: data.userId,
-//       role: data.role,
-//     };
-//   } catch {
-//     await SecureStore.deleteItemAsync('refreshToken');
-//     return { isAuthenticated: false, userId: null, role: null };
-//   }
+  } catch (error) {
+    console.log(error);
+    await SecureStore.deleteItemAsync('refreshToken');
+    return { isAuthenticated: false, userId: null, role: null };
+  }
 };
