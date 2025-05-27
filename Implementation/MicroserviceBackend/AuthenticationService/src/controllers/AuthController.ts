@@ -12,12 +12,14 @@ export const createHttpError = (message: string, statusCode: number): TypedError
   err.statusCode = statusCode;
   return err;
 };
- 
+
 export default class AuthController {
 
 
   static async login(req: Request, res: Response): Promise<Response> {
 
+    const isMobile = req.get('X-Client-Type') === 'mobile';
+    console.log(isMobile);
     const { email, password } = req.body;
     // 1️⃣ Get user from database
     const user = await AuthService.getUserByEmail(email);
@@ -26,19 +28,30 @@ export default class AuthController {
       throw createHttpError("Invalid credentials", 401);
     }
 
-    if (user.role !== 'admin') {
+    if (user.role !== 'admin' && !isMobile) {
       throw createHttpError("Access denied", 403);
     }
 
     const accessToken = jwt.sign({ id: user.id, role: user.role }, process.env.ACCESS_SECRET as string, { expiresIn: '15m' })
     const refreshToken = jwt.sign({ id: user.id, role: user.role }, process.env.REFRESH_SECRET as string, { expiresIn: '1d' })
 
-    return res
-      .cookie("accessToken", accessToken, { httpOnly: true, secure: true, sameSite: "none" })
-      .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "none", maxAge: 86400000 })
-      .status(200)
-      .json({ message: "User logged in successfully", result: true, userid: user.id });
-  }
+    if (isMobile) {
+      return res.status(200).json({
+        message: "User logged in successfully",
+        result: true,
+        userId: user.id,
+        accessToken,
+        refreshToken,
+      });
+
+    } else {
+      return res
+        .cookie("accessToken", accessToken, { httpOnly: true, secure: true, sameSite: "none" })
+        .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "none", maxAge: 86400000 })
+        .status(200)
+        .json({ message: "User logged in successfully", result: true, userid: user.id });
+    }
+  } 
 
 
   static async logout(req: Request, res: Response): Promise<Response> {
