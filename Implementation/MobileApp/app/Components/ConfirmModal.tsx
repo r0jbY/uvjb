@@ -46,7 +46,7 @@ export default function ConfirmLogoutModal({
       <View className="flex-1 items-center justify-center  bg-black/35">
         <Animated.View
           style={cardStyle}
-          className="rounded-2xl bg-[#FFF7E8] px-8 py-6 shadow-lg gap-10"
+          className="rounded-2xl bg-[#FFF7E8] px-8 py-5 shadow-lg gap-4"
         >
           <Text className="text-2xl font-bold text-[#4D6F70] text-center">
             Log out
