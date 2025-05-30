@@ -7,26 +7,19 @@ import FloatingLabelInput from '../Components/FloatingLabelInput';
 import { login } from '@/Services/Authentication';
 import { useAuth } from '@/hooks/useAuth';
 import { router } from 'expo-router';
-
+import useKeyboard from '@/hooks/useKeyboard';
 
 export default function LoginScreen() {
 
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null);
   const {refreshAuth} = useAuth();
+  const {isKeyboardOpen} = useKeyboard();
 
-  useEffect(() => {
-    const showSub = Keyboard.addListener('keyboardDidShow', () => setIsKeyboardOpen(true));
-    const hideSub = Keyboard.addListener('keyboardDidHide', () => setIsKeyboardOpen(false));
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
-  }, []);
 
 
   function isValidEmail(email: string): boolean {
