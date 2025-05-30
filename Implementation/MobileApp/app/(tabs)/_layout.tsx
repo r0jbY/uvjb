@@ -7,7 +7,10 @@ import FloatingMenu from '../Components/FloatingMenu';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TabBar from '../Components/TabBar';
 
-
+function HeaderRight() {
+  const router = useRouter(); 
+  return <FloatingMenu />;
+}
 
 export default function TabLayout() {
 
@@ -32,12 +35,7 @@ export default function TabLayout() {
             fontSize: 23,                 // Optional
             // Must match loaded font name
           },
-          headerRight: () => {
-            const router = useRouter();
-            return (
-              <FloatingMenu />
-            )
-          }
+          headerRight: () => <HeaderRight />
         }}
 
 
