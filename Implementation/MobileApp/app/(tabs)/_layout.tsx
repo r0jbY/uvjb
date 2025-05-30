@@ -22,8 +22,10 @@ export default function TabLayout() {
   return (
     <View className='flex-1 bg-[#F7EFDA]'>
       <Tabs
+      
         tabBar= {props => <TabBar {...props}/>}
         screenOptions={{
+          tabBarHideOnKeyboard: true,
           headerStyle: {
             backgroundColor: "#F7EFDA"
           },

@@ -80,7 +80,7 @@ export default function LoginScreen() {
         justifyContent: isKeyboardOpen ? "flex-start" : 'center',
         alignItems: 'center',
         backgroundColor: '#F7EFDA', // keeps background steady
-        paddingBottom: isKeyboardOpen ? 60 : 0,
+        paddingBottom: isKeyboardOpen ? 320 : 0,
       }}
       enableOnAndroid           // turns on automatic handling
       keyboardShouldPersistTaps="handled"
