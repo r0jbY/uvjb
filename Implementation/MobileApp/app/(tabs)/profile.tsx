@@ -3,7 +3,6 @@ import { View, Image, SafeAreaView, Text, Pressable, TouchableOpacity, Alert } f
 import ProfileField from '../Components/ProfileField';
 import turtle from '../../assets/turtle.png'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useHeaderHeight } from '@react-navigation/elements';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import useKeyboard from '@/hooks/useKeyboard';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -19,8 +18,7 @@ export default function ProfileScreen() {
   const { bottom } = useSafeAreaInsets();
   const { isKeyboardOpen } = useKeyboard();
   const SPARE = bottom + 64 + 124;
-  const navigation = useNavigation();
-
+  
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -84,7 +82,7 @@ export default function ProfileScreen() {
         setIsActiveNew(user.active);
 
       } catch (err) {
-        console.error("Failed to load user data", err);
+        console.log("Failed to load user data", err);
       }
     }
   }

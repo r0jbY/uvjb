@@ -22,7 +22,7 @@ export const checkAuth = async () => {
   if (!refreshToken) return { isAuthenticated: false, userId: null, role: null };
 
   try {
-    const { data } = await axios.post('/auth/refresh', { refreshToken });
+    const { data } = await axios.post('/auth/refresh', { refreshToken }, { skipAuthRefresh: true } );
     console.log(data);
     // Save access token in memory
     axios.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;

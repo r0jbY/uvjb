@@ -1,14 +1,14 @@
 import axios from "@/app/axiosConfigs";
 import { UserProfile } from "@/types/UserProfile";
 import { handleAxiosError } from "@/utils/axiosErrorHandler";
+import { AxiosError } from "axios";
 import * as SecureStore from 'expo-secure-store';
+import { checkAuth } from "./Authentication";
 
 export const getProfileInfo = async (id: string): Promise<{ data: UserProfile }> => {
 
     try {
-        console.log("Hello!");
-        const  data  = await axios.get(`/users/full/${id}`);
-        
+        const data = await axios.get(`/users/full/${id}`);
         return data;
     } catch (error: unknown) {
         handleAxiosError(error);

@@ -13,11 +13,11 @@ router.get('/users/full/:id', verifyJwt('buddy'), catchAsync(async (req, res) =>
 
   const [userRes, authRes] = await Promise.all([
     axios.get(`${process.env.USER_SERVICE_URL}/users/${userId}`, {
-      headers: { Cookie: cookies },
+      headers: {...req.headers, Cookie: cookies },
       withCredentials: true,
     }),
     axios.get(`${process.env.AUTH_SERVICE_URL}/auth/${userId}`, {
-      headers: { Cookie: cookies },
+      headers: {...req.headers, Cookie: cookies },
       withCredentials: true,
     }),
   ]);
