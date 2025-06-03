@@ -1,29 +1,35 @@
 // app/(tabs)/_layout.tsx
 import { Tabs } from 'expo-router';
-import { useRouter } from 'expo-router';
+
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity, View } from 'react-native';
+import {TouchableOpacity, View } from 'react-native';
 import FloatingMenu from '../Components/FloatingMenu';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import TabBar from '../Components/TabBar';
+import { useUnsavedStore } from '../../utils/unsavedChanges';
+import ConfirmModal from "../Components/ConfirmModal";
+import { useRef, useState } from 'react';
+
 
 function HeaderRight() {
-  const router = useRouter(); 
   return <FloatingMenu />;
 }
 
 export default function TabLayout() {
 
-  const insets = useSafeAreaInsets();
+  const hasUnsaved = useUnsavedStore((s) => s.hasUnsaved);
+  const clearUnsaved = () => useUnsavedStore.getState().setHasUnsaved(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [pendingRoute, setPendingRoute]   = useState<string | null>(null); 
 
 
-
+  const navRef = useRef<any>(null);
 
   return (
     <View className='flex-1 bg-[#F7EFDA]'>
       <Tabs
-      
-        tabBar= {props => <TabBar {...props}/>}
+        tabBar={props => <TabBar {...props} />}
         screenOptions={{
           tabBarHideOnKeyboard: true,
           headerStyle: {
@@ -39,7 +45,25 @@ export default function TabLayout() {
           },
           headerRight: () => <HeaderRight />
         }}
+        screenListeners={({ navigation }) => {
+          navRef.current = navigation;            // save navigator once
+          return {
+            tabPress: (e) => {
+              if (!hasUnsaved) return;            // nothing to block
+              e.preventDefault();                 // stop the switch
 
+              // ── replicate your original “find target route” logic
+              const targetKey = e.target;
+              const routes = navigation.getState().routes;
+              const target = routes.find(r => r.key === targetKey);
+
+              if (target) {
+                setPendingRoute(target.name);     // remember where to go
+                setModalVisible(true);            // show custom modal
+              }
+            },
+          };
+        }}
 
       >
         <Tabs.Screen
@@ -66,6 +90,24 @@ export default function TabLayout() {
           options={{ title: 'Profile' }}
         />
       </Tabs>
-    </View>
+
+      <ConfirmModal
+        visible={modalVisible}
+        title="Discard changes?"
+        message="You have unsaved changes to you profile."
+        cancelLabel="Stay"
+        confirmLabel="Discard"
+        onCancel={() => setModalVisible(false)}
+         onConfirm={() => {
+          setModalVisible(false);
+          clearUnsaved();
+
+          if (pendingRoute && navRef.current) {
+            navRef.current.navigate(pendingRoute as never); // same logic, but after confirm
+            setPendingRoute(null);
+          }
+        }}
+      />
+    </View >
   );
 }

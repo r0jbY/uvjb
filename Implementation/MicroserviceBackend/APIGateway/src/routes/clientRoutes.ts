@@ -6,7 +6,7 @@ import catchAsync from '../utils/catchAsync'; // ✅ Import your catchAsync help
 
 const router = Router();
 
-router.use(verifyJwt); // ✅ Protect all routes
+router.use(verifyJwt('admin')); // ✅ Protect all routes
 
 router.get('/clients/full/:id', catchAsync(async (req, res) => {
   const clientId = req.params.id;

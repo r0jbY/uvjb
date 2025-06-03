@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pressable, TouchableOpacity, View, Text, Alert } from "react-native";
 import * as SecureStore from 'expo-secure-store';
 
@@ -11,17 +11,27 @@ import Animated, {
     runOnJS,
 } from 'react-native-reanimated';
 import { useAuth } from "@/hooks/useAuth";
-import ConfirmLogoutModal from "./ConfirmModal";
+import ConfirmModal from "./ConfirmModal";
+import { useFocusEffect, useNavigation } from "expo-router";
 
 
 export default function FloatingMenu() {
 
+    const navigation = useNavigation();
     const [menuVisible, setMenuVisible] = useState(false);
     const [shouldRenderMenu, setShouldRenderMenu] = useState(false);
     const [show, setShow] = useState(false);
     const menuAnimation = useSharedValue(0);
     const { refreshAuth } = useAuth();
 
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('blur', () => {
+            setMenuVisible(false);
+        });
+
+        return unsubscribe;
+    }, [navigation]);
 
 
     const animatedMenuStyle = useAnimatedStyle(() => ({
@@ -48,7 +58,7 @@ export default function FloatingMenu() {
         await refreshAuth();
     }
 
-   
+
 
     return (
         <>
@@ -77,14 +87,13 @@ export default function FloatingMenu() {
                         <Text className="text-red-600 font-medium">Log out</Text>
                     </Pressable>
 
-                    <ConfirmLogoutModal
+                    <ConfirmModal
                         visible={show}
                         onCancel={() => setShow(false)}
                         onConfirm={() => {
                             setShow(false);
                             logout();
-                        }}
-                    />
+                        } } title={"Logout"} message={"Are you sure you want to logout?"}                    />
                 </Animated.View>
             )}
         </>

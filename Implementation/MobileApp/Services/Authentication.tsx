@@ -23,14 +23,14 @@ export const checkAuth = async () => {
 
   try {
     const { data } = await axios.post('/auth/refresh', { refreshToken });
-
+    console.log(data);
     // Save access token in memory
     axios.defaults.headers.common.Authorization = `Bearer ${data.accessToken}`;
 
 
     return {
       isAuthenticated: true,
-      userId: data.userId,
+      userId: data.id,
       role: data.role,
     };
   } catch (error) {

@@ -14,10 +14,10 @@ router.post('/auth/login', catchAsync((req, res, next) =>
 router.post('/auth/logout', catchAsync((req, res, next) =>
     forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/logout`)));
 
-router.post('/auth/register', verifyJwt, catchAsync((req, res, next) =>
+router.post('/auth/register', verifyJwt('admin'), catchAsync((req, res, next) =>
     forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/register`)));
 
-router.get('/auth/whoAmI', verifyJwt, catchAsync((req, res, next) =>
+router.get('/auth/whoAmI', verifyJwt('admin'), catchAsync((req, res, next) =>
     forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/whoAmI`)));
 
 

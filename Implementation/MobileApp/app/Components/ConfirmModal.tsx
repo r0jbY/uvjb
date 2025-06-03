@@ -1,73 +1,88 @@
-import React, { useEffect } from "react";
-import { Modal, TouchableOpacity, View, Text } from "react-native";
+// components/ConfirmModal.tsx
+import React, { useEffect, useState } from 'react';
+import { Modal, TouchableOpacity, View, Text } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   runOnJS,
-} from "react-native-reanimated";
+} from 'react-native-reanimated';
 
 type Props = {
   visible: boolean;
+
+  /** Content */
+  title: string;
+  message: string;
+  cancelLabel?: string;
+  confirmLabel?: string;
+
+  /** Callbacks */
   onCancel: () => void;
   onConfirm: () => void;
+
+  /** Optional style overrides */
+  confirmColor?: string; // text colour of confirm button
 };
 
-export default function ConfirmLogoutModal({
+export default function ConfirmModal({
   visible,
+  title,
+  message,
+  cancelLabel = 'Cancel',
+  confirmLabel = 'Confirm',
+  confirmColor = '#A04030',
   onCancel,
   onConfirm,
 }: Props) {
-  /** 0 = hidden, 1 = visible (drives opacity + scale) */
-  const anim = useSharedValue(0);
-  const [render, setRender] = React.useState(false);
+  const [mounted, setMounted] = useState(false);
+  const anim = useSharedValue(0);            // 0 = hidden, 1 = shown
 
-  /* mount + animate in/out when visible toggles */
+  /* mount + animate */
   useEffect(() => {
     if (visible) {
-      setRender(true);
-      anim.value = withTiming(1, { duration: 100 });
+      setMounted(true);
+      anim.value = withTiming(1, { duration: 150 });
     } else {
-      anim.value = withTiming(0, { duration: 100 }, (f) =>
-        f ? runOnJS(setRender)(false) : null
+      anim.value = withTiming(0, { duration: 150 }, (f) =>
+        f ? runOnJS(setMounted)(false) : null
       );
     }
   }, [visible]);
 
-  const cardStyle = useAnimatedStyle(() => ({
+  const card = useAnimatedStyle(() => ({
     opacity: anim.value,
-    transform: [{ scale: anim.value * 0.05 + 0.95 }], // 0.95→1
+    transform: [{ scale: 0.95 + anim.value * 0.05 }],
   }));
 
-  if (!render) return null;
+  if (!mounted) return null;
 
   return (
-    <Modal visible transparent animationType="none" onRequestClose={onCancel}>
-      <View className="flex-1 items-center justify-center  bg-black/35">
+    <Modal transparent animationType="none" onRequestClose={onCancel}>
+      <View className="flex-1 items-center justify-center bg-black/35">
         <Animated.View
-          style={cardStyle}
-          className="rounded-2xl bg-[#FFF7E8] px-8 py-5 shadow-lg gap-4"
+          style={card}
+          className="gap-4 rounded-2xl bg-[#FFF7E8] px-8 py-6 shadow-lg"
         >
-          <Text className="text-2xl font-bold text-[#4D6F70] text-center">
-            Log out
+          <Text className="text-center text-2xl font-bold text-[#4D6F70]">
+            {title}
           </Text>
-          <Text className="text-lg text-[#4D6F70] text-center">
-            Are you sure you want to log out?
-          </Text>
+          <Text className="text-center text-lg text-[#4D6F70]">{message}</Text>
 
-          <View className="flex-row justify-between">
-            <TouchableOpacity
-              onPress={onCancel}
-              className="py-2 rounded-lg active:scale-95 transition-all duration-200"
-            >
-              <Text className="text-[#4D6F70] text-lg font-semibold">Cancel</Text>
+          <View className="mt-2 flex-row justify-between">
+            <TouchableOpacity onPress={onCancel} className="active:scale-95">
+              <Text className="text-lg font-semibold text-[#4D6F70]">
+                {cancelLabel}
+              </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={onConfirm}
-              className="py-2 rounded-lg active:scale-95 transition-all duration-200"
-            >
-              <Text className="text-[#A04030] text-lg font-semibold">Log out</Text>
+            <TouchableOpacity onPress={onConfirm} className="active:scale-95">
+              <Text
+                className="text-lg font-semibold"
+                style={{ color: confirmColor }}
+              >
+                {confirmLabel}
+              </Text>
             </TouchableOpacity>
           </View>
         </Animated.View>

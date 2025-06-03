@@ -20,7 +20,7 @@ export default function ProfileField({ label, icon, text, setText }: ProfileFiel
     }, [isKeyboardOpen]);
 
     return (
-        <View className="flex-row px-3 py-2  items-center gap-3 w-[80%]  bg-white  rounded-[2rem] border border-[#C3B295] shadow-md elevation-md">
+        <View className="flex-row px-3 py-1  items-center gap-3 w-[80%]  bg-white  rounded-[2rem] border border-[#C3B295] shadow-md elevation-md">
             <Ionicons name={`${icon ?? 'chevron-back'}`} size={24} color="#426363" style={{ padding: 2 }} />
             <View className="gap-1 flex-1">
                 <Text className="text-[#658F8D] font-bold text-lg">{label}</Text>
@@ -31,7 +31,7 @@ export default function ProfileField({ label, icon, text, setText }: ProfileFiel
                 )}
             </View>
             <TouchableOpacity className="" onPress={() => setIsEditing(!isEditing)}>
-                <Ionicons name={isEditing  ? 'checkmark' : 'pencil'} size={24} color="#426363" style={{ padding: 2 }} />
+                <Ionicons name={isEditing ? 'checkmark' : 'pencil'} size={24} color="#426363" style={{ padding: 2 }} />
             </TouchableOpacity>
         </View>
     )

@@ -2,14 +2,12 @@ import { Router } from "express";
 import axios from "axios";
 import forwardRequest from "../utils/forwardRequest";
 import { verifyJwt } from '../middleware/jwtMiddleware';
-import catchAsync from '../utils/catchAsync'; // ✅ Import your catchAsync helper
+import catchAsync from '../utils/catchAsync';
 
 const router = Router();
 
-router.use(verifyJwt); // ✅ Protect all routes
-
-// ✅ Full User (custom handling)
-router.get('/users/full/:id', catchAsync(async (req, res) => {
+// ✅ Routes accessible to 'buddy' (or higher)
+router.get('/users/full/:id', verifyJwt('buddy'), catchAsync(async (req, res) => {
   const userId = req.params.id;
   const cookies = req.headers.cookie || '';
 
@@ -33,25 +31,24 @@ router.get('/users/full/:id', catchAsync(async (req, res) => {
   res.status(200).json(fullUser);
 }));
 
-// ✅ Forwarded requests (using catchAsync to forward errors too)
-router.put('/users/update/:id', catchAsync((req, res, next) => {
+router.put('/users/update/:id', verifyJwt('buddy'), catchAsync((req, res, next) => {
   const { id } = req.params;
   return forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/update/${id}`);
 }));
 
-router.get('/users/getAll', catchAsync((req, res, next) =>
+// ✅ Admin-only routes
+router.get('/users/getAll', verifyJwt('admin'), catchAsync((req, res, next) =>
   forwardRequest(req, res, next, `${process.env.USER_SERVICE_URL}/users/getAll`)));
 
-router.get('/users/search', catchAsync((req, res, next) =>
+router.get('/users/search', verifyJwt('admin'), catchAsync((req, res, next) =>
   forwardRequest(req, res, next, `${process.env.USER_SERVICE_URL}/users/search`)));
 
-router.get('/users/searchSuperbuddies', catchAsync((req, res, next) =>
+router.get('/users/searchSuperbuddies', verifyJwt('admin'), catchAsync((req, res, next) =>
   forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/superbuddies`)));
 
-router.delete('/users/delete/:id', catchAsync((req, res, next) => {
+router.delete('/users/delete/:id', verifyJwt('admin'), catchAsync((req, res, next) => {
   const { id } = req.params;
   return forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/delete/${id}`);
 }));
-
 
 export default router;
