@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+enum MeetingStatus {
+  pending   // Meeting was requested, awaiting response
+  accepted  // Buddy accepted, meeting is in progress
+  expired   // No response in 20 mins, auto-expired
+  closed    // Buddy marked it as finished
+}
+
+model Meeting {
+  id           String        @id @default(uuid()) @db.Uuid
+
+  clientId     String
+  buddyId      String?
+
+  createdAt    DateTime      @default(now())
+  acceptedAt   DateTime?
+
+  description  String?       @db.VarChar(500)  
+  
+  status       MeetingStatus @default(pending)
+}
+
+
+
+
+

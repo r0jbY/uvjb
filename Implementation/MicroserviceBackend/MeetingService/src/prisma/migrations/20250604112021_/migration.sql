@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Meeting" ALTER COLUMN "clientId" SET DATA TYPE TEXT,
+ALTER COLUMN "buddyId" SET DATA TYPE TEXT;
