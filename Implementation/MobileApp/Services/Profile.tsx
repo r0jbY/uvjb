@@ -15,3 +15,11 @@ export const getProfileInfo = async (id: string): Promise<{ data: UserProfile }>
         throw new Error("Unreachable");
     }
 };
+
+export const updateProfileInfo = async (
+  id: string,
+  payload: Partial<UserProfile>
+) => {
+    console.log(payload);
+  return axios.put(`/users/update/${id}`, payload);   
+};

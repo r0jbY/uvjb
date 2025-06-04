@@ -9,7 +9,7 @@ import TabBar from '../Components/TabBar';
 import { useUnsavedStore } from '../../utils/unsavedChanges';
 import ConfirmModal from "../Components/ConfirmModal";
 import { useRef, useState } from 'react';
-
+import Toast from 'react-native-toast-message';
 
 function HeaderRight() {
   return <FloatingMenu />;
@@ -28,8 +28,10 @@ export default function TabLayout() {
 
   return (
     <View className='flex-1 bg-[#F7EFDA]'>
+      
       <Tabs
         tabBar={props => <TabBar {...props} />}
+        backBehavior='history'
         screenOptions={{
           tabBarHideOnKeyboard: true,
           headerStyle: {
@@ -108,6 +110,7 @@ export default function TabLayout() {
           }
         }}
       />
+      <Toast/>
     </View >
   );
 }

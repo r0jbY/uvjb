@@ -6,11 +6,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import useKeyboard from '@/hooks/useKeyboard';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getProfileInfo } from '@/Services/Profile';
+import { getProfileInfo, updateProfileInfo } from '@/Services/Profile';
 import { useAuth } from '@/hooks/useAuth';
 import { useFocusEffect, useNavigation } from 'expo-router';
 import { UserProfile } from '@/types/UserProfile';
 import { useUnsavedStore } from '@/utils/unsavedChanges';
+import { validateProfile } from '@/utils/profileValidation';
+import Toast from 'react-native-toast-message'; // or your favourite lib
+import ConfirmModal from '../Components/ConfirmModal';
+import { BackHandler } from 'react-native';
 
 export default function ProfileScreen() {
 
@@ -18,13 +22,14 @@ export default function ProfileScreen() {
   const { bottom } = useSafeAreaInsets();
   const { isKeyboardOpen } = useKeyboard();
   const SPARE = bottom + 64 + 124;
-  
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [isActive, setIsActive] = useState(false);
+  const [role, setRole] = useState('');
 
   const [firstNameNew, setFirstNameNew] = useState("");
   const [lastNameNew, setLastNameNew] = useState("");
@@ -34,6 +39,37 @@ export default function ProfileScreen() {
   const [isActiveNew, setIsActiveNew] = useState(false);
 
   const setHasUnsaved = useUnsavedStore((s) => s.setHasUnsaved);
+  const hasUnsaved = useUnsavedStore(s => s.hasUnsaved);
+  const clearUnsaved = () => useUnsavedStore.getState().setHasUnsaved(false);
+  const navigation = useNavigation();
+
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<any>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (!hasUnsaved) return false;               // nothing to block
+
+        // Save what *would* happen by default
+        setPendingAction(() => {
+          if (navigation.canGoBack()) {
+            return () => navigation.goBack();
+          }
+          return () => BackHandler.exitApp();        // tab root → exit app
+        });
+
+        setShowLeaveModal(true);                     // show confirm dialog
+        return true;                                // we handled the key
+      };
+
+      const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => sub.remove();
+    }, [hasUnsaved, navigation])
+  );
+
+
+
 
   const hasChanges = useMemo(() => {
     return (
@@ -54,8 +90,8 @@ export default function ProfileScreen() {
   ]);
 
   useEffect(() => {
-  setHasUnsaved(hasChanges);
-}, [hasChanges]);
+    setHasUnsaved(hasChanges);
+  }, [hasChanges]);
 
 
 
@@ -73,6 +109,7 @@ export default function ProfileScreen() {
         setPhone(user.phoneNumber);
         setAddress(user.address);
         setIsActive(user.active);
+        setRole(user.role);
 
         setFirstNameNew(user.firstName);
         setLastNameNew(user.lastName);
@@ -92,6 +129,41 @@ export default function ProfileScreen() {
       loadUserData();
     }, [])
   );
+
+  const handleSave = async () => {
+    const form = {
+      firstName: firstNameNew,
+      lastName: lastNameNew,
+      email: emailNew,
+      phoneNumber: phoneNew,
+      address: addressNew,
+      active: isActiveNew,
+      role,                     // unchanged by UI but backend requires it
+    };
+
+    const result = validateProfile(form);
+    if (!result.valid) {
+      Toast.show({ type: 'error', text1: result.message });
+      return;
+    }
+
+    try {
+      await updateProfileInfo(userId!, form);  // userId is defined here
+      /* ─── sync originals so hasChanges becomes false ─── */
+      setFirstName(form.firstName);
+      setLastName(form.lastName);
+      setEmail(form.email);
+      setPhone(form.phoneNumber);
+      setAddress(form.address);
+      setIsActive(isActiveNew);
+
+      setHasUnsaved(false);                   // clear global flag
+      Toast.show({ type: 'success', text1: 'Profile updated!' });
+    } catch (err) {
+      Toast.show({ type: 'error', text1: 'Update failed. Please try again.' });
+      console.error(err);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -135,7 +207,7 @@ export default function ProfileScreen() {
 
         {hasChanges && (
           <TouchableOpacity
-
+            onPress={handleSave}
             className="bg-[#658F8D] px-6 py-3 rounded-full mt-4 active:scale-95"
           >
             <Text className="text-white font-semibold text-base">Save Changes</Text>
@@ -143,6 +215,20 @@ export default function ProfileScreen() {
         )}
 
       </KeyboardAwareScrollView>
+
+      <ConfirmModal
+        visible={showLeaveModal}
+        title="Discard changes?"
+        message="You have unsaved changes to your profile."
+        cancelLabel="Stay"
+        confirmLabel="Discard"
+        onCancel={() => setShowLeaveModal(false)}
+        onConfirm={() => {
+          clearUnsaved();               // reset global flag
+          setShowLeaveModal(false);
+          if (pendingAction) navigation.dispatch(pendingAction); // continue back
+        }}
+      />
     </SafeAreaView>
   );
 }
