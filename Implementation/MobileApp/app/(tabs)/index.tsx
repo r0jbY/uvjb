@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, View, Text } from 'react-native';
+import { ActivityIndicator, FlatList, View, Text, ScrollView, RefreshControl } from 'react-native';
 import MeetingCard from '../Components/MeetingCard';
 import { useEffect, useState, useCallback } from 'react';
 import { getMeetings } from '@/Services/Meetings';
@@ -18,7 +18,7 @@ export default function MeetingScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false); // 👈 new state
   const [error, setError] = useState<string | null>(null);
-  
+
 
   const loadMeetings = useCallback(async () => {
     try {
@@ -38,22 +38,22 @@ export default function MeetingScreen() {
   }, [userId]);
 
   useFocusEffect(
-  useCallback(() => {
-    let isActive = true;
+    useCallback(() => {
+      let isActive = true;
 
-    const fetchData = async () => {
-      setLoading(true);
-      await loadMeetings();
-      if (isActive) setLoading(false);
-    };
+      const fetchData = async () => {
+        setLoading(true);
+        await loadMeetings();
+        if (isActive) setLoading(false);
+      };
 
-    fetchData();
+      fetchData();
 
-    return () => {
-      isActive = false;
-    };
-  }, [loadMeetings])
-);
+      return () => {
+        isActive = false;
+      };
+    }, [loadMeetings])
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -79,18 +79,31 @@ export default function MeetingScreen() {
 
   if (error) {
     return (
-      <View className="flex-1 justify-center items-center bg-[#F7EFDA]">
+      <ScrollView
+        className="bg-[#F7EFDA]"
+        contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Text className="text-red-600">{error}</Text>
-      </View>
+      </ScrollView>
     );
   }
 
   if (data.length === 0) {
     return (
-      <View className="flex-1 justify-center items-center bg-[#F7EFDA]">
-        <Text className="text-red-600">No meetings available</Text>
-      </View>
+      <ScrollView
+        className="bg-[#F7EFDA]"
+        contentContainerStyle={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <Text className="text-[#426363] text-3xl font-bold">No meetings available</Text>
+      </ScrollView>
     );
+
   }
 
   return (
