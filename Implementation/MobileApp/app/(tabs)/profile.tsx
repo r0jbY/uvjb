@@ -1,5 +1,5 @@
 // app/(tabs)/index.tsx
-import { View, Image, SafeAreaView, Text, Pressable, TouchableOpacity, Alert } from 'react-native';
+import { View, Image, SafeAreaView, Text, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
 import ProfileField from '../Components/ProfileField';
 import turtle from '../../assets/turtle.png'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -42,6 +42,8 @@ export default function ProfileScreen() {
   const hasUnsaved = useUnsavedStore(s => s.hasUnsaved);
   const clearUnsaved = () => useUnsavedStore.getState().setHasUnsaved(false);
   const navigation = useNavigation();
+
+  const [loading, setLoading] = useState(true);
 
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<any>(null);
@@ -118,6 +120,7 @@ export default function ProfileScreen() {
         setAddressNew(user.address);
         setIsActiveNew(user.active);
 
+        setLoading(false);
       } catch (err) {
         console.log("Failed to load user data", err);
       }
@@ -148,7 +151,7 @@ export default function ProfileScreen() {
     }
 
     try {
-      await updateProfileInfo(userId!, form);  // userId is defined here
+      await updateProfileInfo(userId!, form);  // userId isLoading  = useState(true);defined here
       /* ─── sync originals so hasChanges becomes false ─── */
       setFirstName(form.firstName);
       setLastName(form.lastName);
@@ -183,37 +186,43 @@ export default function ProfileScreen() {
         viewIsInsideTabBar
         keyboardShouldPersistTaps="handled"
       >
-        <View className='border-2 border-[#658F8D] rounded-full mt-4'>
+        {loading ? (
+          <View className="flex-1 items-center justify-center bg-[#F7EFDA]">
+            {/* any spinner you like */}
+            <ActivityIndicator size={50} color="#658F8D" />
+          </View>
+
+        ) : (<><View className='border-2 border-[#658F8D] rounded-full mt-4'>
           <Image
             source={turtle}
             className='w-32 h-32' // 👈 set fixed width & height
           />
         </View>
-        <Pressable
-          onPress={() => setIsActiveNew(!isActiveNew)}
-          className={`w-32 h-12 rounded-full justify-center items-center  transition-all active:scale-95 ${isActiveNew ? 'bg-[#A2D6AE]' : 'bg-[#E5746A]'
-            }`}
-        >
-
-          <Text className="text-[#426363] font-semibold text-base">
-            {isActiveNew ? 'Active' : 'Inactive'}
-          </Text>
-        </Pressable>
-        <ProfileField label='First Name' icon='person-outline' text={firstNameNew} setText={setFirstNameNew} />
-        <ProfileField label='Last Name' icon='person-outline' text={lastNameNew} setText={setLastNameNew} />
-        <ProfileField label='Email' icon='mail-outline' text={emailNew} setText={setEmailNew} />
-        <ProfileField label='Phone Number' icon='call-outline' text={phoneNew} setText={setPhoneNew} />
-        <ProfileField label='Address' icon='location-outline' text={addressNew} setText={setAddressNew} />
-
-        {hasChanges && (
-          <TouchableOpacity
-            onPress={handleSave}
-            className="bg-[#658F8D] px-6 py-3 rounded-full mt-4 active:scale-95"
+          <Pressable
+            onPress={() => setIsActiveNew(!isActiveNew)}
+            className={`w-32 h-12 rounded-full justify-center items-center  transition-all active:scale-95 ${isActiveNew ? 'bg-[#A2D6AE]' : 'bg-[#E5746A]'
+              }`}
           >
-            <Text className="text-white font-semibold text-base">Save Changes</Text>
-          </TouchableOpacity>
-        )}
 
+            <Text className="text-[#426363] font-semibold text-base">
+              {isActiveNew ? 'Active' : 'Inactive'}
+            </Text>
+          </Pressable>
+          <ProfileField label='First Name' icon='person-outline' text={firstNameNew} setText={setFirstNameNew} />
+          <ProfileField label='Last Name' icon='person-outline' text={lastNameNew} setText={setLastNameNew} />
+          <ProfileField label='Email' icon='mail-outline' text={emailNew} setText={setEmailNew} />
+          <ProfileField label='Phone Number' icon='call-outline' text={phoneNew} setText={setPhoneNew} />
+          <ProfileField label='Address' icon='location-outline' text={addressNew} setText={setAddressNew} />
+
+          {hasChanges && (
+            <TouchableOpacity
+              onPress={handleSave}
+              className="bg-[#658F8D] px-6 py-3 rounded-full mt-4 active:scale-95"
+            >
+              <Text className="text-white font-semibold text-base">Save Changes</Text>
+            </TouchableOpacity>
+          )}
+        </>)}
       </KeyboardAwareScrollView>
 
       <ConfirmModal

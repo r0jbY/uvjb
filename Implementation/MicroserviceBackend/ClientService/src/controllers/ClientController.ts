@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { UserService } from "../services/ClientService";
+import { ClientService } from "../services/ClientService";
 import { v4 as uuidv4 } from "uuid";
 type TypedError = Error & { statusCode?: number };
 
@@ -16,21 +16,39 @@ export default class ClientController {
     const limit = parseInt(req.query.limit as string) || 20;
     const offset = parseInt(req.query.offset as string) || 0;
 
-    const users = await UserService.getClients(limit, offset);
+    const users = await ClientService.getClients(limit, offset);
     return res.status(200).json(users);
   }
+
+  static async getSomeClients(req: Request, res: Response): Promise<Response> {
+
+
+        console.log('Here!');
+
+
+        const ids = req.query.clientIds;
+        const clientIds = Array.isArray(ids)
+            ? ids.map(id => String(id))    // 🔁 safely cast each to string
+            : typeof ids === 'string'
+                ? [ids]
+                : [];
+
+
+        const clients = await ClientService.getSomeClients(clientIds);
+        return res.status(200).json(clients);
+    }
 
   static async searchClients(req: Request, res: Response) {
     const query = req.query.query as string;
     const limit = parseInt(req.query.limit as string) || undefined;
-    const users = await UserService.searchClients(query, limit);
+    const users = await ClientService.searchClients(query, limit);
     return res.status(200).json(users);
 
   }
 
   static async getClient(req: Request, res: Response): Promise<Response> {
     const id = req.params.id;
-    const client = await UserService.getClient(id);
+    const client = await ClientService.getClient(id);
 
     if (!client) {
       throw createHttpError("Client not found", 404);
@@ -60,7 +78,7 @@ export default class ClientController {
     
     const id = uuidv4();
 
-    await UserService.createClient(
+    await ClientService.createClient(
       id,
       deviceCode,
       superbuddyId,
@@ -90,7 +108,7 @@ export default class ClientController {
       active
     } = req.body;
   
-    await UserService.updateClient(
+    await ClientService.updateClient(
       id,
       deviceCode,
       superbuddyId,
@@ -107,7 +125,7 @@ export default class ClientController {
   static async deleteClient(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
   
-    await UserService.deleteClient(id);
+    await ClientService.deleteClient(id);
   
     return res.status(200).json({ message: "Client deleted successfully." });
   }

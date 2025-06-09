@@ -5,10 +5,22 @@ import { createHttpError } from "../controllers/MeetingController";
 
 export class MeetingService {
 
-  
+
 
   static async createMeeting(clientId: string) {
     try {
+
+      const existing = await prisma.meeting.findFirst({
+        where: {
+          clientId,
+          status: { in: ['pending', 'accepted'] },
+        },
+      });
+
+      if (existing) {
+        throw createHttpError("Meeting already active for this client.", 409); // 409 Conflict
+      }
+
       const meeting = await prisma.meeting.create({
         data: {
           clientId: clientId,
@@ -17,8 +29,48 @@ export class MeetingService {
 
       return meeting;
     } catch (error) {
+
+      if (error instanceof Error && 'statusCode' in error) {
+        throw error; // 🔁 re-throw the original error with its status code
+      }
+
+
       console.error("DB error (createMeeting):", error);
       throw createHttpError("Failed to create meeting.", 500);
+    }
+  }
+
+  static async listActiveMeetings(clientIds: string[]) {
+    const now = new Date();
+    const cutoff = new Date(now.getTime() - 21 * 60 * 1000);
+
+    try {
+
+
+      await prisma.meeting.updateMany({
+        where: {
+          status: 'pending',
+          createdAt: { lt: cutoff },
+        },
+        data: { status: 'expired' },
+      });
+
+      // 2⃣  Fetch the still-valid meetings for these clients
+      return prisma.meeting.findMany({
+        where: {
+          clientId: { in: clientIds },
+          status: 'pending',
+        },
+        select: {
+          id: true,
+          clientId: true,
+          createdAt: true
+
+        }
+      });
+    } catch (err) {
+      console.error("DB error (listActiveMeetings):", err);
+      throw createHttpError("Failed to retrieve meetings.", 500);
     }
   }
 

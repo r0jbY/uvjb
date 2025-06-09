@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import clientRoutes from './routes/clientRoutes'
 import networkRoutes from './routes/networkRoutes'
+import meetingRoutes from './routes/meetingRoutes'
 import cookieParser from 'cookie-parser';
 import errorHandler from './middleware/errorHandler';
 import healthRoute from './routes/health';
@@ -38,10 +39,13 @@ app.use(authRoutes);
 
 app.use(userRoutes);
 
+app.use(meetingRoutes);
+
 app.use(clientRoutes);
 
 app.use(networkRoutes);
-  
+
+
   // Basic welcome route
   app.get('/', (req, res) => {
     res.send('Welcome to the API Gateway!');

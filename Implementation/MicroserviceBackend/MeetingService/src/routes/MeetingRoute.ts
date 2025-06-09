@@ -7,9 +7,12 @@ import { acceptSchema } from "../utils/schema";
 
 const router = Router();
 
+router.get('/getMeetings', catchAsync(MeetingController.getMeetings))
+
 router.post("/create",  catchAsync(MeetingController.createMeeeting));
 
-router.put("/accept/:id", validate(acceptSchema), catchAsync(MeetingController.acceptMeeting));
+router.put("/accept/:id", validate(acceptSchema), catchAsync(MeetingController.createMeeeting));
+
 
 export default router;
  

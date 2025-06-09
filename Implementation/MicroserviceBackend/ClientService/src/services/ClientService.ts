@@ -2,7 +2,7 @@ import { prisma } from "../config/database";
 import { createHttpError } from "../controllers/ClientController";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
-export class UserService {
+export class ClientService {
 
   // ✅ Retrieve user from database
   static async createClient(id: string, device_code: string, superbuddy_id: string, first_name: string, last_name: string, phone_number: string, address: string, active: boolean) {
@@ -62,6 +62,35 @@ export class UserService {
     } catch (error) {
       console.error("DB error (getClients):", error);
       throw createHttpError("Failed to get clients.", 500);
+    }
+  }
+
+  static async getSomeClients(clientIds: string[]) {
+    const now = new Date();
+    const cutoff = new Date(now.getTime() - 21 * 60 * 1000);
+
+    try {
+
+
+      
+
+      // 2⃣  Fetch the still-valid meetings for these clients
+      return prisma.client.findMany({
+        where: {
+          id: { in: clientIds },
+        },
+        select: {
+          id: true,
+          first_name: true,
+          last_name: true,
+          phone_number: true,
+          address: true
+
+        }
+      });
+    } catch (err) {
+      console.error("DB error (listActiveMeetings):", err);
+      throw createHttpError("Failed to retrieve meetings.", 500);
     }
   }
 
