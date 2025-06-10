@@ -1,5 +1,5 @@
 import { ActivityIndicator, FlatList, View, Text, ScrollView, RefreshControl } from 'react-native';
-import MeetingCard from '../Components/MeetingCard';
+import MeetingCard from '../../Components/MeetingCard';
 import { useEffect, useState, useCallback } from 'react';
 import { getMeetings } from '@/Services/Meetings';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +10,7 @@ type Meeting = {
   createdAt: Date;
   name: string;
   address: string;
+  phone: string;          
 };
 
 export default function MeetingScreen() {
@@ -28,6 +29,7 @@ export default function MeetingScreen() {
         id: item.id,
         name: `${item.first_name} ${item.last_name}`,
         address: item.address,
+        phone: item.phone_number,   
         createdAt: new Date(item.createdAt),
       })).sort((a: Meeting, b: Meeting) => a.createdAt.getTime() - b.createdAt.getTime());;
       setData(meetings);
@@ -63,9 +65,7 @@ export default function MeetingScreen() {
 
   const renderCard = ({ item }: { item: Meeting }) => (
     <MeetingCard
-      date={item.createdAt}
-      name={item.name}
-      address={item.address}
+      {...item}
     />
   );
 

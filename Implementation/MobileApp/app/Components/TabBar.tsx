@@ -66,7 +66,7 @@ export default function TabBar({ state, descriptors, navigation }: BottomTabBarP
 
                             <Ionicons
                                 name={
-                                    route.name === 'index'
+                                    route.name === 'meetings'
                                         ? (isFocused ? 'people' : 'people-outline')
                                         : route.name === 'history'
                                             ? (isFocused ? 'time' : 'time-outline')

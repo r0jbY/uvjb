@@ -7,7 +7,6 @@ import Animated, {
     useSharedValue,
     useAnimatedStyle,
     withTiming,
-
     runOnJS,
 } from 'react-native-reanimated';
 import { useAuth } from "@/hooks/useAuth";

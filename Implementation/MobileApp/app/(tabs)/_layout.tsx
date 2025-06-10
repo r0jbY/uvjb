@@ -69,17 +69,14 @@ export default function TabLayout() {
 
       >
         <Tabs.Screen
-          name="index"
+          name="meetings"
           options={{
             title: 'Meetings',
-            headerLeft: () => (
-              <TouchableOpacity style={{ paddingHorizontal: 16 }}>
-                <Ionicons name="chevron-back" size={24} color="#426363" style={{ padding: 2 }} />
-
-              </TouchableOpacity>
-            ),
+            
+           
+            
           }}
-
+          
         />
         <Tabs.Screen
           name="history"

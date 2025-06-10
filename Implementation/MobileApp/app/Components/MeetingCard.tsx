@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Text, TouchableOpacity, View } from "react-native"
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from "expo-router";
 
 
 const AGE_LIMIT_MIN = { FRESH: 5, INTERMEDIATE: 12 };   // minutes
@@ -29,15 +30,30 @@ const timeLabelFor = (created?: Date) => {
 
 
 type MeetingProps = {
-    date?: Date
+    id: string;          // 👈 added
+    createdAt?: Date;
     name?: string;
     address?: string;
-}
+    phone?: string;      // 👈 optional, pass it along
+};
 
-export default function MeetingCard({ date, name = 'Undefined', address = 'Undefined' }: MeetingProps) {
+export default function MeetingCard({
+    id,
+    createdAt,
+    name = 'Undefined',
+    address = 'Undefined',
+    phone,
+}: MeetingProps) {
 
-    const accent = useMemo(() => colourForDate(date), [date]);
-    const time = useMemo(() => timeLabelFor(date), [date]);
+    const accent = useMemo(() => colourForDate(createdAt), [createdAt]);
+    const time = useMemo(() => timeLabelFor(createdAt), [createdAt]);
+    const router = useRouter();
+
+    const handleVisit = () =>
+        router.push({
+            pathname: "/(tabs)/meetings/[meetingId]",                 // absolute path to the dynamic route
+            params: { meetingId: id, name, address, phone },
+        });
 
     return (
         <View className="relative w-[45%] h-72">
@@ -71,7 +87,7 @@ export default function MeetingCard({ date, name = 'Undefined', address = 'Undef
                     </Text>
                     <TouchableOpacity
                         className="bg-[#658F8D] px-8 py-1 rounded-full  active:scale-95"
-                    
+                        onPress={handleVisit}
                     >
                         <Text className="text-center text-white font-semibold text-lg">Visit</Text>
                     </TouchableOpacity>
