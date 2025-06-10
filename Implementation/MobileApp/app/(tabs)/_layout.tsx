@@ -10,6 +10,7 @@ import { useUnsavedStore } from '../../utils/unsavedChanges';
 import ConfirmModal from "../Components/ConfirmModal";
 import { useRef, useState } from 'react';
 import Toast from 'react-native-toast-message';
+import { Host } from "react-native-portalize";
 
 function HeaderRight() {
   return <FloatingMenu />;
@@ -27,6 +28,7 @@ export default function TabLayout() {
   const navRef = useRef<any>(null);
 
   return (
+    <Host>
     <View className='flex-1 bg-[#F7EFDA]'>
       
       <Tabs
@@ -35,16 +37,21 @@ export default function TabLayout() {
         screenOptions={{
           tabBarHideOnKeyboard: true,
           headerStyle: {
-            backgroundColor: "#F7EFDA"
+            backgroundColor: "#F7EFDA",
+            height: 83,
           },
+
           headerTitleAlign: 'center',
-          headerTintColor: '#426363',    // Back arrow and icon color
+          headerTintColor: '#426363',
+              // Back arrow and icon color
           headerTitleStyle: {
+            padding: 0,
             color: '#426363',             // Title color
             fontWeight: 'bold',           // Optional
             fontSize: 23,                 // Optional
             // Must match loaded font name
           },
+          headerRightContainerStyle: { paddingRight: 16 },
           headerRight: () => <HeaderRight />
         }}
         screenListeners={({ navigation }) => {
@@ -69,11 +76,10 @@ export default function TabLayout() {
 
       >
         <Tabs.Screen
-          name="meetings"
+          name="(Meetings)"
           options={{
             title: 'Meetings',
-            
-           
+            headerShown: false,
             
           }}
           
@@ -109,5 +115,6 @@ export default function TabLayout() {
       />
       <Toast/>
     </View >
+    </Host>
   );
 }

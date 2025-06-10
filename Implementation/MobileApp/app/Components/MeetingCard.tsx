@@ -51,7 +51,7 @@ export default function MeetingCard({
 
     const handleVisit = () =>
         router.push({
-            pathname: "/(tabs)/meetings/[meetingId]",                 // absolute path to the dynamic route
+            pathname: "/(tabs)/(Meetings)/[meetingId]",                 // absolute path to the dynamic route
             params: { meetingId: id, name, address, phone },
         });
 
