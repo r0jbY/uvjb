@@ -78,7 +78,7 @@ export function MeetingScreen({
                                 )}`
                             )
                         }
-                        className="flex-row items-center justify-center gap-3 rounded-full px-10 py-5 bg-[#ECECEC] border border-[#C3B295] active:bg-[#E2ECEA] active:scale-95 elevation-sm">
+                        className="flex-row items-center justify-center gap-3 rounded-full px-10 py-4 bg-[#ECECEC] border border-[#C3B295] active:bg-[#E2ECEA] active:scale-95 elevation-sm">
                         <Ionicons name="location-sharp" size={24} color="#317B63" />
                         <Text className="text-2xl font-medium text-[#317B63]">
                             {address}

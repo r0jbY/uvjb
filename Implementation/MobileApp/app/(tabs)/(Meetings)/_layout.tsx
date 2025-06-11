@@ -43,6 +43,12 @@ export default function MeetingsStack() {
 
         />
 
+        <Tabs.Screen
+          name="[meetingId].ongoing"
+          options={{ title: 'Ongoing Meeting',  headerShown: true, headerRight: () => <HeaderRight /> }}   // can tweak more if you want
+
+        />
+
         
       </Tabs>
   );

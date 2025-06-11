@@ -6,6 +6,7 @@ import axios from 'axios';
 import { acceptMeeting } from '@/Services/Meetings';
 import { useAuth } from '@/hooks/useAuth';
 import MeetingScreen from '../../Components/MeetingScreen';
+import Toast from 'react-native-toast-message';
 
 type Params = {
   meetingId: string;   // from the [meetingId] segment
@@ -26,10 +27,25 @@ export default function MeetingDetail() {
     try {
       console.log('Pressed');
       await acceptMeeting(meetingId, userId || '');
-      router.replace(
-        `/(tabs)/(Meetings)/${meetingId}?name=${encodeURIComponent(name || '')}&address=${encodeURIComponent(address || '')}&phone=${encodeURIComponent(phone || '')}&createdAt=${encodeURIComponent(createdAt || '')}&accepted=${encodeURIComponent('true')}`
-      );
+      router.replace({
+        pathname: '/(tabs)/(Meetings)/acceptedMeeting',   // target route
+        params: {
+          meetingId,        // dynamic segment
+          name,
+          phone,
+          address,
+          createdAt,        // must be a string
+        },
+      });
     } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === "Meeting not found or already accepted / expired.") {
+          Toast.show({ type: 'error', text1: "Meeting not found or already accepted / expired." });
+          setTimeout(() => {
+            router.back();
+          }, 1000);
+        }
+      }
       console.log(error);
     }
   }
@@ -37,7 +53,7 @@ export default function MeetingDetail() {
   return (
     <MeetingScreen
       data={{ id: meetingId, name, phone, address, createdAt }}
-      mode="ongoing"
+      mode="pending"
       onPrimaryAction={handleAccept}   // accept → router.replace('/ongoing/id')
     />
   );
