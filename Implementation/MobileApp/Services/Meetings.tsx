@@ -8,6 +8,19 @@ import { checkAuth } from "./Authentication";
 export const getMeetings = async (id: string) => {
     try {
         const res = await axios.get(`/meetings/${id}`);
+        console.log(res.data);
+        return res.data;
+    } catch (error: unknown) {
+        console.log(error);
+        handleAxiosError(error);
+    }
+};
+
+export const acceptMeeting = async (meetingId: string, buddyId: string) => {
+    try {
+        const res = await axios.put(`/meetings/accept/${meetingId}`, {buddyId});
+        console.log(res.data);
+        console.log('Accepted!');
         return res.data;
     } catch (error: unknown) {
         console.log(error);

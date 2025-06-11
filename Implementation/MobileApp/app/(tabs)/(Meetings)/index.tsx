@@ -33,8 +33,8 @@ export default function MeetingScreen() {
         createdAt: new Date(item.createdAt),
       })).sort((a: Meeting, b: Meeting) => a.createdAt.getTime() - b.createdAt.getTime());;
       setData(meetings);
+      setError(null);
     } catch (err: any) {
-      console.error(err);
       setError('Failed to load meetings');
     }
   }, [userId]);

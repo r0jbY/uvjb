@@ -2,6 +2,7 @@ import { Router } from "express";
 import axios from "axios";
 import catchAsync from '../utils/catchAsync'; // ✅ Import your catchAsync helper
 import { verifyJwt } from "../middleware/jwtMiddleware";
+import forwardRequest from "../utils/forwardRequest";
 
 const router = Router();
 
@@ -12,6 +13,12 @@ interface Meeting {
   clientId: string;
   createdAt: string;
 }
+
+router.put('/meetings/accept/:id', catchAsync((req, res, next) => {
+    const { id } = req.params;
+    console.log(id);
+    return forwardRequest(req, res, next, `${process.env.MEETING_SERVICE_URL}/meetings/accept/${id}`);
+}));
 
 router.get('/meetings/:buddyId', catchAsync(async (req, res) => {
 
@@ -52,7 +59,7 @@ router.get('/meetings/:buddyId', catchAsync(async (req, res) => {
         meetingRes.data.map((m: any) => [m.clientId, m] as const),
     );
 
-    // 2.  Merge the two datasets, flattening the meeting fields
+   
     const merged = clientFullRes.data
         .filter((client: any) => meetingByClientId.has(client.id)) // keep only matches
         .map((client: any) => {
@@ -64,7 +71,7 @@ router.get('/meetings/:buddyId', catchAsync(async (req, res) => {
             };
         });
 
-    // 3.  Send the merged array back to the caller
+    
     return res.status(200).json(merged);
 }));
 

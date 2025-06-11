@@ -38,7 +38,7 @@ export default function TabLayout() {
           tabBarHideOnKeyboard: true,
           headerStyle: {
             backgroundColor: "#F7EFDA",
-            height: 83,
+   
           },
 
           headerTitleAlign: 'center',
@@ -51,7 +51,7 @@ export default function TabLayout() {
             fontSize: 23,                 // Optional
             // Must match loaded font name
           },
-          headerRightContainerStyle: { paddingRight: 16 },
+        
           headerRight: () => <HeaderRight />
         }}
         screenListeners={({ navigation }) => {

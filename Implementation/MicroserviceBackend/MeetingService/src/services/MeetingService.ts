@@ -76,6 +76,7 @@ export class MeetingService {
 
   static async acceptMeeting(buddyId: string, meetingId: string) {
     try {
+      console.log(meetingId + ' This is the id of the meeting')
       const result = await prisma.meeting.updateMany({
         where: {
           id: meetingId,

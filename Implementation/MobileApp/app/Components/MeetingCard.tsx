@@ -52,7 +52,7 @@ export default function MeetingCard({
     const handleVisit = () =>
         router.push({
             pathname: "/(tabs)/(Meetings)/[meetingId]",                 // absolute path to the dynamic route
-            params: { meetingId: id, name, address, phone },
+            params: { meetingId: id, name, address, phone, createdAt: time },
         });
 
     return (
@@ -86,7 +86,8 @@ export default function MeetingCard({
                         {address}
                     </Text>
                     <TouchableOpacity
-                        className="bg-[#658F8D] px-8 py-1 rounded-full  active:scale-95"
+                        style={{ backgroundColor: accent }}
+                        className={` px-8 py-1 rounded-full  active:scale-95`}
                         onPress={handleVisit}
                     >
                         <Text className="text-center text-white font-semibold text-lg">Visit</Text>

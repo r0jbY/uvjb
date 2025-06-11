@@ -11,7 +11,7 @@ router.get('/getMeetings', catchAsync(MeetingController.getMeetings))
 
 router.post("/create",  catchAsync(MeetingController.createMeeeting));
 
-router.put("/accept/:id", validate(acceptSchema), catchAsync(MeetingController.createMeeeting));
+router.put("/accept/:meetingId", validate(acceptSchema), catchAsync(MeetingController.acceptMeeting));
 
 
 export default router;

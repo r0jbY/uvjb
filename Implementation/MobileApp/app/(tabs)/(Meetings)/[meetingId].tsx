@@ -1,49 +1,44 @@
 import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import { View, Text, Pressable, Linking, Alert } from 'react-native';
+import { View, Text, Pressable, Linking, Alert, TouchableOpacity } from 'react-native';
+import { Feather, Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import axios from 'axios';
+import { acceptMeeting } from '@/Services/Meetings';
+import { useAuth } from '@/hooks/useAuth';
+import MeetingScreen from '../../Components/MeetingScreen';
+
+type Params = {
+  meetingId: string;   // from the [meetingId] segment
+  name?: string;       // all query-string params come through as strings
+  address?: string;
+  phone?: string;
+  createdAt?: string;
+  accepted?: string
+};
+
 
 export default function MeetingDetail() {
-  const { meetingId } = useLocalSearchParams<{ meetingId: string }>();
+  const { meetingId, name, address, phone, createdAt, accepted = 'false' } = useLocalSearchParams<Params>();
   const router = useRouter();
+  const { userId } = useAuth();
 
-  // Ideally you’d fetch the meeting again here, or pass full data via router.push()
-  // For brevity I'll assume you passed everything in route params:
-  
-
-  const handle = async (action: 'accept' | 'cancel') => {
+  const handleAccept = async () => {
     try {
-      await axios.post(`${process.env.API_URL}/meetings/${meetingId}/${action}`);
-      Alert.alert('Success', action === 'accept' ? 'Meeting accepted' : 'Meeting dismissed');
-      router.back();      // list refreshes via useFocusEffect already in place
-    } catch {
-      Alert.alert('Error', 'Please try again');
+      console.log('Pressed');
+      await acceptMeeting(meetingId, userId || '');
+      router.replace(
+        `/(tabs)/(Meetings)/${meetingId}?name=${encodeURIComponent(name || '')}&address=${encodeURIComponent(address || '')}&phone=${encodeURIComponent(phone || '')}&createdAt=${encodeURIComponent(createdAt || '')}&accepted=${encodeURIComponent('true')}`
+      );
+    } catch (error) {
+      console.log(error);
     }
-  };
+  }
 
   return (
-    <View className="flex-1 items-center justify-center bg-[#F7EFDA] px-6 gap-6">
-      {/* — avatar / name / createdAt section — */}
-      <Text className="text-2xl font-bold text-[#426363]">a</Text>
-
-      <Pressable onPress={() => Linking.openURL(`tel:$`)}>
-        <Text className="text-lg text-[#426363]">📞 a</Text>
-      </Pressable>
-
-      <Pressable
-        onPress={() =>
-          Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('address')}`)
-        }
-      >
-        <Text className="text-lg text-[#426363]">📍 a</Text>
-      </Pressable>
-
-      <Pressable className="bg-[#6AA58F] px-8 py-3 rounded-2xl" onPress={() => handle('accept')}>
-        <Text className="text-white font-semibold">Accept</Text>
-      </Pressable>
-
-      <Pressable className="bg-[#DE8E86] px-8 py-3 rounded-2xl" onPress={() => handle('cancel')}>
-        <Text className="text-white font-semibold">Dismiss</Text>
-      </Pressable>
-    </View>
+    <MeetingScreen
+      data={{ id: meetingId, name, phone, address, createdAt }}
+      mode="ongoing"
+      onPrimaryAction={handleAccept}   // accept → router.replace('/ongoing/id')
+    />
   );
 }

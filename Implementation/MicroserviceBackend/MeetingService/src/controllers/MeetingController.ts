@@ -52,7 +52,6 @@ export default class MeetingController {
         const { buddyId } = req.body;
         const { meetingId } = req.params;
 
-
         const meeting = await MeetingService.acceptMeeting(buddyId, meetingId);
 
         console.log(meeting);
