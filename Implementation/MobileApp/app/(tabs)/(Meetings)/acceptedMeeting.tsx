@@ -31,20 +31,19 @@ export default function OngoingScreen() {
 
     useEffect(() => {
         if (!blockBack) return;
-
         const sub = BackHandler.addEventListener('hardwareBackPress', () => true);
         return () => sub.remove(); // cleanup
     }, [blockBack]);
 
     const handleFinish = async (notes = '') => {
-  setBlockBack(false); // ✅ allow back navigation again
-  router.replace('/(tabs)/(Meetings)');
-}
+        setBlockBack(false); // ✅ allow back navigation again
+        router.replace('/(tabs)/(Meetings)');
+    }
 
     return (
         <MeetingScreen
             key={meetingId}
-            data={{ id: meetingId, name: 'alalala', phone, address, createdAt }}
+            data={{ id: meetingId, name, phone, address, createdAt }}
             mode="ongoing"
             onPrimaryAction={handleFinish}
         />

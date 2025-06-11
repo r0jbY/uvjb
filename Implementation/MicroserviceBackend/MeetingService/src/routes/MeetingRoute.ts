@@ -13,6 +13,8 @@ router.post("/create",  catchAsync(MeetingController.createMeeeting));
 
 router.put("/accept/:meetingId", validate(acceptSchema), catchAsync(MeetingController.acceptMeeting));
 
+router.get('/current-accepted/:buddyId', catchAsync(MeetingController.getAccepted));
+
 
 export default router;
  

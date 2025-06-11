@@ -74,6 +74,30 @@ export class MeetingService {
     }
   }
 
+  static async getAcceptedMeeting(buddyId: string) {
+    
+
+    try {
+
+
+
+      // 2⃣  Fetch the still-valid meetings for these clients
+      return prisma.meeting.findFirst({
+        where: {
+          buddyId,
+          status: 'accepted',
+        },
+        select: {
+          id: true,
+          clientId: true
+        }
+      });
+    } catch (err) {
+      console.error("DB error (listActiveMeetings):", err);
+      throw createHttpError("Failed to retrieve meetings.", 500);
+    }
+  }
+
   static async acceptMeeting(buddyId: string, meetingId: string) {
     try {
       console.log(meetingId + ' This is the id of the meeting')

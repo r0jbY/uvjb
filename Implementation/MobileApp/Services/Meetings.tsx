@@ -25,5 +25,13 @@ export const acceptMeeting = async (meetingId: string, buddyId: string) => {
     } catch (error: unknown) {
         console.log(error);
         handleAxiosError(error);
-    }
+    } 
 };
+ 
+export async function getCurrentActiveMeeting(userId: string) {
+    console.log('Here!');
+    console.log(userId);  
+  const res = await axios.get(`/meetings/current-accepted/${userId}`);
+  console.log(res.data);
+  return res.data; // assumes: { id, name, phone, address, createdAt }
+} 

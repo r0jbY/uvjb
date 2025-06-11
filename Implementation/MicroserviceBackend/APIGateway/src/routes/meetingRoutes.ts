@@ -8,6 +8,7 @@ const router = Router();
 
 router.use(verifyJwt('buddy'));
 
+
 interface Meeting {
   id: string;
   clientId: string;
@@ -20,13 +21,43 @@ router.put('/meetings/accept/:id', catchAsync((req, res, next) => {
     return forwardRequest(req, res, next, `${process.env.MEETING_SERVICE_URL}/meetings/accept/${id}`);
 }));
 
+router.get('/meetings/current-accepted/:buddyId', catchAsync(async(req, res) => {
+
+    console.log("Started!");
+
+    const {buddyId} = req.params;
+    const cookies = req.headers.cookie || "";
+
+    const meetingResult = await axios.get(`${process.env.MEETING_SERVICE_URL}/meetings/current-accepted/${buddyId}`, {
+            headers: { Authorization: req.headers.authorization, Cookie: cookies },
+            withCredentials: true,
+        });
+
+    const clientRes = await axios.get(`${process.env.CLIENT_SERVICE_URL}/clients/${meetingResult.data.clientId}`, {
+    headers: {...req.headers, Cookie: cookies },
+    withCredentials: true,
+  });
+
+    console.log(clientRes.data);
+
+    console.log(meetingResult.data);
+    return res.status(200).json({
+       id : meetingResult.data.id,
+       first_name: clientRes.data.firstName,
+       last_name: clientRes.data.lastName,
+       phone: clientRes.data.phoneNumber,
+       address: clientRes.data.address
+    });
+}));
+
 router.get('/meetings/:buddyId', catchAsync(async (req, res) => {
 
 
     const { buddyId } = req.params;
     const cookies = req.headers.cookie || "";
 
-    const clientRes = await axios.get(`${process.env.NETWORK_SERVICE_URL}/network/getClients/${buddyId}`);
+    const clientRes = await axios.get(`${process.env.NETWORK_SERVICE_URL}/network/getClients/${buddyId}`, {
+            headers: { Authorization: req.headers.authorization, Cookie: cookies, }});
 
 
 
