@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth';
 import MeetingScreen from '../../Components/MeetingScreen';
 import { useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
+import { finishMeeting } from '@/Services/Meetings';
+import Toast from 'react-native-toast-message';
 
 type Params = {
     meetingId: string;
@@ -35,9 +37,28 @@ export default function OngoingScreen() {
         return () => sub.remove(); // cleanup
     }, [blockBack]);
 
-    const handleFinish = async (notes = '') => {
-        setBlockBack(false); // ✅ allow back navigation again
-        router.replace('/(tabs)/(Meetings)');
+    const handleFinish = async (description = '') => {
+
+        if (!description.trim()) {
+            Toast.show({
+                type: 'error',
+                text1: 'Please enter a description.',
+            });
+            return;
+        }
+
+        try {
+            await finishMeeting(meetingId, userId || "", description);
+            console.log("Finished the meeting!");
+            Toast.show({ type: 'success', text1: 'Meeting successfully finished!' })
+            setTimeout(() => {
+                setBlockBack(false); // ✅ allow back navigation again
+                router.replace('/(tabs)/(Meetings)');
+            }, 2000); // 2-second delay
+        } catch (err) {
+            console.log(err);
+        }
+
     }
 
     return (

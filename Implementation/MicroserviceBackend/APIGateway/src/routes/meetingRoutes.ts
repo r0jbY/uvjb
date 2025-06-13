@@ -10,9 +10,9 @@ router.use(verifyJwt('buddy'));
 
 
 interface Meeting {
-  id: string;
-  clientId: string;
-  createdAt: string;
+    id: string;
+    clientId: string;
+    createdAt: string;
 }
 
 router.put('/meetings/accept/:id', catchAsync((req, res, next) => {
@@ -21,32 +21,89 @@ router.put('/meetings/accept/:id', catchAsync((req, res, next) => {
     return forwardRequest(req, res, next, `${process.env.MEETING_SERVICE_URL}/meetings/accept/${id}`);
 }));
 
-router.get('/meetings/current-accepted/:buddyId', catchAsync(async(req, res) => {
+router.put('/meetings/finish/:id', catchAsync((req, res, next) => {
+    const { id } = req.params;
+
+    return forwardRequest(req, res, next, `${process.env.MEETING_SERVICE_URL}/meetings/finish/${id}`);
+}));
+
+
+
+router.get('/meetings/history/:buddyId', catchAsync(async (req, res) => {
 
     console.log("Started!");
 
-    const {buddyId} = req.params;
+    const { buddyId } = req.params;
+    const cookies = req.headers.cookie || "";
+
+
+    const meetingResult = await axios.get(`${process.env.MEETING_SERVICE_URL}/meetings/history/${buddyId}`, {
+        headers: { Authorization: req.headers.authorization, Cookie: cookies },
+        withCredentials: true,
+    });
+
+
+
+    const clientIds = meetingResult.data.map((m: any) => m.clientId);
+
+
+
+    const clientRes = await axios.get(`${process.env.CLIENT_SERVICE_URL}/clients/getSome`, {
+        headers: { Authorization: req.headers.authorization, Cookie: cookies },
+        withCredentials: true,
+        params: { clientIds },
+    });
+
+    const clientsById = new Map(clientRes.data.map((c: any) => [c.id, c]));
+
+    const merged: any[] = [];
+
+    for (const meeting of meetingResult.data) {
+        const client = clientsById.get(meeting.clientId);
+        if (!client) continue;
+
+        const { clientId, ...meetingRest } = meeting; // remove clientId
+
+        merged.push({
+            ...client,        // all client fields (includes `id`)
+            ...meetingRest,   // all meeting fields except clientId
+        });
+    }
+
+    res.status(200).json(merged);
+
+
+
+}));
+
+
+
+router.get('/meetings/current-accepted/:buddyId', catchAsync(async (req, res) => {
+
+    console.log("Started!");
+
+    const { buddyId } = req.params;
     const cookies = req.headers.cookie || "";
 
     const meetingResult = await axios.get(`${process.env.MEETING_SERVICE_URL}/meetings/current-accepted/${buddyId}`, {
-            headers: { Authorization: req.headers.authorization, Cookie: cookies },
-            withCredentials: true,
-        });
+        headers: { Authorization: req.headers.authorization, Cookie: cookies },
+        withCredentials: true,
+    });
 
     const clientRes = await axios.get(`${process.env.CLIENT_SERVICE_URL}/clients/${meetingResult.data.clientId}`, {
-    headers: {...req.headers, Cookie: cookies },
-    withCredentials: true,
-  });
+        headers: { ...req.headers, Cookie: cookies },
+        withCredentials: true,
+    });
 
     console.log(clientRes.data);
 
     console.log(meetingResult.data);
     return res.status(200).json({
-       id : meetingResult.data.id,
-       first_name: clientRes.data.firstName,
-       last_name: clientRes.data.lastName,
-       phone: clientRes.data.phoneNumber,
-       address: clientRes.data.address
+        id: meetingResult.data.id,
+        first_name: clientRes.data.firstName,
+        last_name: clientRes.data.lastName,
+        phone: clientRes.data.phoneNumber,
+        address: clientRes.data.address
     });
 }));
 
@@ -57,7 +114,8 @@ router.get('/meetings/:buddyId', catchAsync(async (req, res) => {
     const cookies = req.headers.cookie || "";
 
     const clientRes = await axios.get(`${process.env.NETWORK_SERVICE_URL}/network/getClients/${buddyId}`, {
-            headers: { Authorization: req.headers.authorization, Cookie: cookies, }});
+        headers: { Authorization: req.headers.authorization, Cookie: cookies, }
+    });
 
 
 
@@ -90,7 +148,7 @@ router.get('/meetings/:buddyId', catchAsync(async (req, res) => {
         meetingRes.data.map((m: any) => [m.clientId, m] as const),
     );
 
-   
+
     const merged = clientFullRes.data
         .filter((client: any) => meetingByClientId.has(client.id)) // keep only matches
         .map((client: any) => {
@@ -102,7 +160,7 @@ router.get('/meetings/:buddyId', catchAsync(async (req, res) => {
             };
         });
 
-    
+
     return res.status(200).json(merged);
 }));
 

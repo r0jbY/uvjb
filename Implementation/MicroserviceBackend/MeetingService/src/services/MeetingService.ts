@@ -40,6 +40,27 @@ export class MeetingService {
     }
   }
 
+  static async getMeetingHistory(buddyId: string) {  
+
+    try {
+      // 2⃣  Fetch the still-valid meetings for these clients
+      return prisma.meeting.findMany({
+        where: {
+          buddyId,
+          status: 'closed',
+        },
+        select: {
+          clientId: true,
+          createdAt: true,
+          description: true
+        }
+      });
+    } catch (err) {
+      console.error("DB error (listActiveMeetings):", err);
+      throw createHttpError("Failed to retrieve meetings.", 500);
+    }
+  }
+
   static async listActiveMeetings(clientIds: string[]) {
     const now = new Date();
     const cutoff = new Date(now.getTime() - 21 * 60 * 1000);
@@ -75,12 +96,8 @@ export class MeetingService {
   }
 
   static async getAcceptedMeeting(buddyId: string) {
-    
 
     try {
-
-
-
       // 2⃣  Fetch the still-valid meetings for these clients
       return prisma.meeting.findFirst({
         where: {
@@ -103,13 +120,15 @@ export class MeetingService {
       console.log(meetingId + ' This is the id of the meeting')
       const result = await prisma.meeting.updateMany({
         where: {
-          id: meetingId,
-          status: 'pending', // ✅ now allowed
+          AND: [
+            { id: meetingId },
+            { status: 'pending' },
+          ],
         },
         data: {
           buddyId,
           acceptedAt: new Date(),
-          status: "accepted",
+          status: 'accepted',
         },
       });
 
@@ -127,6 +146,32 @@ export class MeetingService {
       }
 
       throw createHttpError("Failed to accept meeting.", 500);
+    }
+  }
+
+  static async finishMeeting(buddyId: string, meetingId: string, description: string) {
+    try {
+      console.log(meetingId + ' This is the id of the meeting')
+      const result = await prisma.meeting.update({
+        where: {
+          id: meetingId,
+          buddyId: buddyId, // ✅ now allowed
+          status: "accepted"
+        },
+        data: {
+          description,
+          status: "closed",
+        },
+      });
+
+
+
+      // Optionally return the updated record
+      return await prisma.meeting.findUnique({ where: { id: meetingId } });
+    } catch (error) {
+      console.error("DB error (acceptMeeting):", error);
+
+      throw createHttpError("Failed to finish meeting.", 500);
     }
   }
 

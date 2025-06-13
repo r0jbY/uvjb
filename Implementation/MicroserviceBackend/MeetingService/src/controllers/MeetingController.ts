@@ -46,6 +46,15 @@ export default class MeetingController {
         return res.status(200).json(meetings);
     }
 
+    static async getHistory(req: Request, res: Response): Promise<Response> {
+
+        const { buddyId } = req.params;
+
+        const meetings = await MeetingService.getMeetingHistory(buddyId);
+
+        return res.status(200).json(meetings);
+    }
+
     static async getAccepted(req: Request, res: Response): Promise<Response> {
         const { buddyId } = req.body;
 
@@ -55,12 +64,25 @@ export default class MeetingController {
     }
 
     static async acceptMeeting(req: Request, res: Response): Promise<Response> {
-        
+
 
         const { buddyId } = req.body;
         const { meetingId } = req.params;
 
         const meeting = await MeetingService.acceptMeeting(buddyId, meetingId);
+
+        console.log(meeting);
+
+        return res.sendStatus(200);
+    }
+
+    static async finishMeeting(req: Request, res: Response): Promise<Response> {
+
+
+        const { buddyId, description } = req.body;
+        const { meetingId } = req.params;
+
+        const meeting = await MeetingService.finishMeeting(buddyId, meetingId, description);
 
         console.log(meeting);
 

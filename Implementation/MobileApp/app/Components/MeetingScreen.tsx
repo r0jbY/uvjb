@@ -20,7 +20,7 @@ export function MeetingScreen({
         createdAt?: string;
     };
     mode: Mode;
-    onPrimaryAction: () => void;
+    onPrimaryAction: (description? : string) => void;
 }) {
     const {
         name = 'Undefined',
@@ -32,6 +32,7 @@ export function MeetingScreen({
     const SPARE = 64 + 124;
     const { isKeyboardOpen } = useKeyboard();
     const [inputHeight, setInputHeight] = useState(40);
+    const [description, setDescription] = useState('');
 
     return (
         <SafeAreaView className="flex-1 bg-white">
@@ -110,6 +111,8 @@ export function MeetingScreen({
                         <TextInput
                             placeholder="Add description..."
                             multiline
+                            value={description}
+                            onChange={e => setDescription(e.nativeEvent.text)}
                             textAlignVertical="top"
                             onContentSizeChange={(e) =>
                                 setInputHeight(e.nativeEvent.contentSize.height)
@@ -132,7 +135,7 @@ export function MeetingScreen({
                         /> 
                         <TouchableOpacity
                             className="bg-[#6AA58F] px-8 py-3 rounded-3xl mt-auto"
-                            onPress={onPrimaryAction}
+                            onPress={() => onPrimaryAction(description)}
                         >
                             <Text className="text-white text-xl font-semibold">
                                 Finish Meeting

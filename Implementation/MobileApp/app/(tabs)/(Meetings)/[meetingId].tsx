@@ -25,18 +25,25 @@ export default function MeetingDetail() {
 
   const handleAccept = async () => {
     try {
-      console.log('Pressed');
+
       await acceptMeeting(meetingId, userId || '');
-      router.replace({
-        pathname: '/(tabs)/(Meetings)/acceptedMeeting',   // target route
-        params: {
-          meetingId,        // dynamic segment
-          name,
-          phone,
-          address,
-          createdAt,        // must be a string
-        },
-      });
+
+      Toast.show({ type: 'success', text1: 'Meeting successfully accepted!' })
+
+      setTimeout(() => {
+        router.replace({
+          pathname: '/(tabs)/(Meetings)/acceptedMeeting',   
+          params: {
+            meetingId,        
+            name,
+            phone,
+            address,
+            createdAt,       
+          },
+        });
+      }, 2000); 
+
+
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === "Meeting not found or already accepted / expired.") {
