@@ -12,12 +12,14 @@ export const createHttpError = (message: string, statusCode: number): TypedError
   err.statusCode = statusCode;
   return err;
 };
- 
+
 export default class AuthController {
 
 
   static async login(req: Request, res: Response): Promise<Response> {
 
+    const isMobile = req.get('X-Client-Type') === 'mobile';
+    console.log(isMobile);
     const { email, password } = req.body;
     // 1️⃣ Get user from database
     const user = await AuthService.getUserByEmail(email);
@@ -26,19 +28,30 @@ export default class AuthController {
       throw createHttpError("Invalid credentials", 401);
     }
 
-    if (user.role !== 'admin') {
+    if (user.role !== 'admin' && !isMobile) {
       throw createHttpError("Access denied", 403);
     }
 
     const accessToken = jwt.sign({ id: user.id, role: user.role }, process.env.ACCESS_SECRET as string, { expiresIn: '15m' })
     const refreshToken = jwt.sign({ id: user.id, role: user.role }, process.env.REFRESH_SECRET as string, { expiresIn: '1d' })
 
-    return res
-      .cookie("accessToken", accessToken, { httpOnly: true, secure: true, sameSite: "none" })
-      .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "none", maxAge: 86400000 })
-      .status(200)
-      .json({ message: "User logged in successfully", result: true, userid: user.id });
-  }
+    if (isMobile) {
+      return res.status(200).json({
+        message: "User logged in successfully",
+        result: true,
+        userId: user.id,
+        accessToken,
+        refreshToken,
+      });
+
+    } else {
+      return res
+        .cookie("accessToken", accessToken, { httpOnly: true, secure: true, sameSite: "none" })
+        .cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "none", maxAge: 86400000 })
+        .status(200)
+        .json({ message: "User logged in successfully", result: true, userid: user.id });
+    }
+  } 
 
 
   static async logout(req: Request, res: Response): Promise<Response> {
@@ -87,6 +100,24 @@ export default class AuthController {
     try {
       const decoded = jwt.verify(accessToken, process.env.ACCESS_SECRET as string) as { id: string; role: string };
       return res.status(200).json({ id: decoded.id, role: decoded.role });
+    } catch {
+      throw createHttpError("Invalid or expired token", 401);
+    }
+  }
+
+  static async refresh(req: Request, res: Response) : Promise<Response> {
+    console.log("entered this!");
+    const { refreshToken } = req.body || null;
+
+    if(!refreshToken) {
+      throw createHttpError("No token provided", 401);
+    }
+
+    try {
+      const decoded = jwt.verify(refreshToken, process.env.REFRESH_SECRET as string) as {id: string, role: string};
+
+      const accessToken = jwt.sign({ id: decoded.id, role: decoded.role }, process.env.ACCESS_SECRET as string, { expiresIn: '15m' })
+      return res.status(200).json({ id: decoded.id, role: decoded.role, accessToken: accessToken });
     } catch {
       throw createHttpError("Invalid or expired token", 401);
     }

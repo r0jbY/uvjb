@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import clientRoutes from './routes/clientRoutes'
 import networkRoutes from './routes/networkRoutes'
+import meetingRoutes from './routes/meetingRoutes'
 import cookieParser from 'cookie-parser';
 import errorHandler from './middleware/errorHandler';
 import healthRoute from './routes/health';
@@ -18,6 +19,12 @@ const allowedOrigins = [
   'http://127.0.0.1:5173',        // alt local dev
   'http://frontend:5173'          // docker-internal Playwright container
 ];
+
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
+
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -38,10 +45,13 @@ app.use(authRoutes);
 
 app.use(userRoutes);
 
+app.use(meetingRoutes);
+
 app.use(clientRoutes);
 
 app.use(networkRoutes);
-  
+
+
   // Basic welcome route
   app.get('/', (req, res) => {
     res.send('Welcome to the API Gateway!');

@@ -8,6 +8,8 @@ const router = Router();
 
 router.get("/getAll", catchAsync(ClientController.getClients));
 
+router.get("/getSome", catchAsync(ClientController.getSomeClients));
+
 router.get("/search", catchAsync(ClientController.searchClients));
 
 router.post("/create", validate(clientSchema), catchAsync(ClientController.createClient));

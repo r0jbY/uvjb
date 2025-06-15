@@ -6,7 +6,7 @@ import { Router } from "express";
 
 const router = Router();
 
-router.use(verifyJwt);
+router.use(verifyJwt('admin'));
 router.get('/network/getAll/:clientId/:layer', catchAsync(async (req, res, next) => {
     const { clientId, layer } = req.params;
     const networkRes = await axios.get(`${process.env.NETWORK_SERVICE_URL}/network/getAll/${clientId}/${layer}`);

@@ -33,4 +33,18 @@ export default class NetworkController {
     return res.status(200).json(result);
   }
 
+  static async getClients(req: Request, res: Response): Promise<Response> {
+
+    const {buddyId} = req.params
+
+    if(!buddyId) {
+      throw createHttpError("Invalid buddy ID or layer", 400);
+    }
+
+    const result = await NetworkService.getClients(buddyId);
+    
+    return res.status(200).json(result);
+
+  }
+
 };

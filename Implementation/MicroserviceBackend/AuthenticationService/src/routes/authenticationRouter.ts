@@ -3,6 +3,7 @@ import AuthController from "../controllers/AuthController";
 import { validate } from "../middleware/validate";
 import { loginSchema, registerSchema, updateSchema } from '../utils/auth.schema';
 import catchAsync from "../utils/catchAsync";
+import { allowSelfOrAdmin } from "../middleware/allowSelfOrAdmin";
 
 const router = Router();
 
@@ -16,11 +17,13 @@ router.get("/superbuddies", catchAsync(AuthController.getSuperbuddies));
 
 router.get("/whoAmI", catchAsync(AuthController.whoAmI));
 
-router.delete("/delete/:id", catchAsync(AuthController.deleteUser));
+router.post('/refresh', catchAsync(AuthController.refresh));
 
-router.put("/update/:id", validate(updateSchema) , catchAsync(AuthController.updateUser));
+router.delete("/delete/:id", allowSelfOrAdmin('id'), catchAsync(AuthController.deleteUser));
 
-router.get("/:id", catchAsync(AuthController.getUserById));
+router.put("/update/:id", allowSelfOrAdmin('id'), validate(updateSchema) , catchAsync(AuthController.updateUser));
+
+router.get("/:id", allowSelfOrAdmin('id'), catchAsync(AuthController.getUserById));
 
 
 

@@ -20,6 +20,7 @@ const forwardRequest = async (req: Request, res: Response, next: NextFunction, t
       url: targetUrl,
       data: req.body,
       headers: {
+        ...req.headers,
         Cookie: cookies,
         'Content-Type': 'application/json',
       },

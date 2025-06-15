@@ -46,9 +46,25 @@ export class NetworkService {
         })
         return res;
       } catch (error) {
-      console.error("Error managing netowrk:", error);
-      throw createHttpError("Failed to update client network", 500);
+      console.error("Error getting netowrk:", error);
+      throw createHttpError("Failed to get client network", 500);
     }
   }
-  
+
+  static async getClients(buddyId: string) {
+    try {
+      const res = prisma.network.findMany({
+        where: {
+          buddy_id : buddyId
+        },
+        select: {
+          client_id: true
+        }
+      })
+      return res;
+    } catch (error) {
+      console.error("Error getting clients:", error);
+      throw createHttpError("Failed to get clients in network", 500);
+    }
+  }
 }

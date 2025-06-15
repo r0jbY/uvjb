@@ -6,21 +6,23 @@ import catchAsync from '../utils/catchAsync'; // ✅ Import your catchAsync help
 
 const router = Router();
 
-router.use(verifyJwt); // ✅ Protect all routes
+router.use(verifyJwt('admin')); // ✅ Protect all routes
 
 router.get('/clients/full/:id', catchAsync(async (req, res) => {
   const clientId = req.params.id;
   const cookies = req.headers.cookie || "";
 
+
   const clientRes = await axios.get(`${process.env.CLIENT_SERVICE_URL}/clients/${clientId}`, {
-    headers: { Cookie: cookies },
+    headers: {...req.headers, Cookie: cookies },
     withCredentials: true,
   });
+
 
   const clientData = clientRes.data;
 
   const buddyRes = await axios.get(`${process.env.AUTH_SERVICE_URL}/auth/${clientData.superbuddyId}`, {
-    headers: { Cookie: cookies },
+    headers: {...req.headers, Cookie: cookies },
     withCredentials: true,
   });
 

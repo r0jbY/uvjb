@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, {VerifyErrors} from 'jsonwebtoken'
+import { attachUser } from '../utils/attachUser';
 
-export const refreshToken = (req: Request, res: Response, next: NextFunction): void => {
+type Role = 'buddy' | 'superbuddy' | 'admin';
+
+export const refreshToken = (req: Request, res: Response, next: NextFunction, requiredRole?: Role): void => {
     
     console.log("Entered refresh");
     const refreshToken = req.cookies.refreshToken;
@@ -36,7 +39,8 @@ export const refreshToken = (req: Request, res: Response, next: NextFunction): v
                 sameSite: "none",
             });
            
-            next();
+            const ok = attachUser(req, res, payload, requiredRole);
+      if (ok) next();
         }
     });
 };

@@ -6,6 +6,18 @@ import { prisma } from "../../config/database";
 
 jest.mock("../../utils/publisher");
 
+// test/helpers/authHeaders.ts
+export const adminHeaders = {
+  'x-user-id':  '00000000-0000-0000-0000-000000000000', // any UUID
+  'x-user-role': 'admin',
+};
+
+export const selfHeaders = (id: string) => ({
+  'x-user-id':  id,
+  'x-user-role': 'user',
+});
+
+
 describe("Auth Routes (login + logout) - Integration (Mocked DB)", () => {
 
   it("should return 401 if email not found", async () => {
@@ -218,95 +230,115 @@ describe("Auth Routes - GetSuperBuddies", () => {
   });
 });
 
-describe("Auth Routes - Delete", () => {
-  it("should delete an existing user and publish event", async () => {
+describe('Auth Routes – Delete', () => {
+  it('deletes an existing user (admin)', async () => {
+    const id = '11111111-1111-1111-1111-111111111111';
 
-    const res = await request(app).delete(`/auth/delete/11111111-1111-1111-1111-111111111111`);
+    const res = await request(app)
+      .delete(`/auth/delete/${id}`)
+      .set(adminHeaders);                         // ⬅️ add headers
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ message: "User deleted" });
+    expect(res.body).toEqual({ message: 'User deleted' });
 
-    const deleted = await prisma.user.findUnique({ where: { id: '11111111-1111-1111-1111-111111111111' } });
+    const deleted = await prisma.user.findUnique({ where: { id } });
     expect(deleted).toBeNull();
 
-    expect(publisher.publishUserDeletedEvent).toHaveBeenCalledWith({ id: '11111111-1111-1111-1111-111111111111' });
+    expect(publisher.publishUserDeletedEvent)
+      .toHaveBeenCalledWith({ id });
   });
 
-  it("should return 500 if user does not exist", async () => {
-    const res = await request(app).delete("/auth/delete/non-existent-id");
+  it('returns 500 if user does not exist', async () => {
+    const res = await request(app)
+      .delete('/auth/delete/non-existent-id')
+      .set(adminHeaders);                         // still authenticated
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({message: "Failed to delete user. Internal server error.", success: false})
+    expect(res.body).toEqual({
+      success: false,
+      message: 'Failed to delete user. Internal server error.',
+    });
   });
-
 });
 
-describe("Auth Routes -  Get User", () => {
-  it("should return user data for a valid ID", async () => {
-    const res = await request(app).get("/auth/22222222-2222-2222-2222-222222222222");
+describe('Auth Routes – Get User', () => {
+  it('returns user data for a valid ID (self)', async () => {
+    const id = '22222222-2222-2222-2222-222222222222';
+
+    const res = await request(app)
+      .get(`/auth/${id}`)
+      .set(selfHeaders(id));                      // self access
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({
-      email: "bob@example.com",
-      role: "buddy"
+      email: 'bob@example.com',
+      role:  'buddy',
     });
   });
 
-  it("should return 404 for a non-existent user", async () => {
-    const res = await request(app).get("/auth/00000000-0000-0000-0000-000000000000");
+  it('returns 404 for a non-existent user (admin)', async () => {
+    const res = await request(app)
+      .get('/auth/00000000-0000-0000-0000-000000000000')
+      .set(adminHeaders);
 
     expect(res.status).toBe(404);
     expect(res.body).toEqual({
       success: false,
-      message: "User not found"
+      message: 'User not found',
     });
   });
 });
 
-describe("Auth Routes - Update User", () => {
-  it("should update user email and role, and publish event", async () => {
+describe('Auth Routes – Update User', () => {
+  it('updates email & role and publishes event (admin)', async () => {
+    const id = '22222222-2222-2222-2222-222222222222';
+
     const res = await request(app)
-      .put("/auth/update/22222222-2222-2222-2222-222222222222")
+      .put(`/auth/update/${id}`)
+      .set(adminHeaders)                          // admin header
       .send({
-        email: "bob.updated@example.com",
-        role: "superbuddy",
-        firstName: "Bob",
-        lastName: "Updated",
-        address: "New Address",
-        phoneNumber: "+987654321",
-        active: true
+        email:       'bob.updated@example.com',
+        role:        'superbuddy',
+        firstName:   'Bob',
+        lastName:    'Updated',
+        address:     'New Address',
+        phoneNumber: '+987654321',
+        active:      true,
       });
 
     expect(res.status).toBe(200);
 
-    const updated = await prisma.user.findUnique({ where: { id: "22222222-2222-2222-2222-222222222222" } });
-    expect(updated?.email).toBe("bob.updated@example.com");
-    expect(updated?.role).toBe("superbuddy");
+    const updated = await prisma.user.findUnique({ where: { id } });
+    expect(updated?.email).toBe('bob.updated@example.com');
+    expect(updated?.role).toBe('superbuddy');
 
     expect(publisher.publishUserUpdatedEvent).toHaveBeenCalledWith({
-      id: "22222222-2222-2222-2222-222222222222",
-      firstName: "Bob",
-      lastName: "Updated",
-      address: "New Address",
-      phoneNumber: "+987654321",
-      active: true
+      id,
+      firstName:   'Bob',
+      lastName:    'Updated',
+      address:     'New Address',
+      phoneNumber: '+987654321',
+      active:      true,
     });
   });
 
-  it("should return 409 if email already exists", async () => {
+  it('returns 409 if email already exists (admin)', async () => {
+    const id = '22222222-2222-2222-2222-222222222222';
+
     const res = await request(app)
-      .put("/auth/update/22222222-2222-2222-2222-222222222222")
+      .put(`/auth/update/${id}`)
+      .set(adminHeaders)
       .send({
-        email: "charlie@example.com", // Already taken by user-2
-        role: "buddy",
-        firstName: "Test",
-        lastName: "User",
-        address: "Address",
-        phoneNumber: "+123456789",
-        active: true
+        email:       'charlie@example.com', // email of another user
+        role:        'buddy',
+        firstName:   'Test',
+        lastName:    'User',
+        address:     'Address',
+        phoneNumber: '+123456789',
+        active:      true,
       });
 
     expect(res.status).toBe(409);
-    expect(res.body.message).toBe("Email is already in use.");
+    expect(res.body.message).toBe('Email is already in use.');
   });
 });
