@@ -66,15 +66,8 @@ export class ClientService {
   }
 
   static async getSomeClients(clientIds: string[]) {
-    const now = new Date();
-    const cutoff = new Date(now.getTime() - 21 * 60 * 1000);
-
+    
     try {
-
-
-      
-
-      // 2⃣  Fetch the still-valid meetings for these clients
       return prisma.client.findMany({
         where: {
           id: { in: clientIds },
