@@ -1,0 +1,9 @@
+| Info           | Description                                                                                                                                                                                     |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Name:          | View History of Own Meetings                                                                                                                                                               |
+| Actor:         | Buddy, Superbuddy                                                                                                                                                                                            |
+| Description:   | User wants to view all previously accepted and completed meetings.                                                                                                                      |
+| Pre-condition: | User is logged in.                                                                                                                                                                              |
+| Scenario:      | 1. User navigates to the "History" screen. <br> 2. System displays a list of previously completed meetings with timestamps, client details and meeting description. |
+| Result:        | The User can see a complete history of their meetings.                                                                                                                                          |
+| Exceptions:    | None.                                                                                                                                                                                           |
