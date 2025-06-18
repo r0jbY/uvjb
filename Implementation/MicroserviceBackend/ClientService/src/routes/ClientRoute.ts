@@ -10,6 +10,8 @@ router.get("/getAll", catchAsync(ClientController.getClients));
 
 router.get("/getSome", catchAsync(ClientController.getSomeClients));
 
+router.get("/byDeviceCode/:code", catchAsync(ClientController.getByDeviceCode));
+
 router.get("/search", catchAsync(ClientController.searchClients));
 
 router.post("/create", validate(clientSchema), catchAsync(ClientController.createClient));

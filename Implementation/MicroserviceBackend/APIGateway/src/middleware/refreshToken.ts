@@ -6,17 +6,12 @@ type Role = 'buddy' | 'superbuddy' | 'admin';
 
 export const refreshToken = (req: Request, res: Response, next: NextFunction, requiredRole?: Role): void => {
     
-    console.log("Entered refresh");
     const refreshToken = req.cookies.refreshToken;
     if(!refreshToken) {
-        console.log("Failed");
         res.sendStatus(401);
         return;
     }
-
-
     jwt.verify(refreshToken, process.env.REFRESH_SECRET as string, (err : VerifyErrors | null, _decoded: string | undefined | object) => {
-        
         if(err || !_decoded) {
             console.log('Expired access');
             res.sendStatus(401);

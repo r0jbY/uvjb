@@ -3,7 +3,6 @@ import axios from 'axios';
 
 const forwardRequest = async (req: Request, res: Response, next: NextFunction, targetUrl: string) => {
   const method = req.method.toLowerCase() as 'get' | 'post' | 'put' | 'delete';
-
   let cookies = req.headers.cookie || '';
 
   if (res.locals.accessToken) {

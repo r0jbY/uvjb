@@ -8,7 +8,7 @@ const router = Router();
 
 router.use(verifyJwt('admin')); // ✅ Protect all routes
 
-router.get('/clients/full/:id', catchAsync(async (req, res) => {
+router.get('/full/:id', catchAsync(async (req, res) => {
   const clientId = req.params.id;
   const cookies = req.headers.cookie || "";
 
@@ -34,27 +34,27 @@ router.get('/clients/full/:id', catchAsync(async (req, res) => {
   res.status(200).json(fullClient);
 }));
 
-router.put('/clients/update/:id', catchAsync((req, res, next) => {
+router.put('/update/:id', catchAsync((req, res, next) => {
   const { id } = req.params;
   return forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/update/${id}`);
 }));
 
-router.post('/clients/register', catchAsync((req, res, next) =>
+router.post('/register', catchAsync((req, res, next) =>
   forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/create`)));
 
 
-router.get('/clients/getAll', catchAsync((req, res, next) =>
+router.get('/getAll', catchAsync((req, res, next) =>
   forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/getAll`)));
 
-router.get('/clients/search', catchAsync((req, res, next) =>
+router.get('/search', catchAsync((req, res, next) =>
   forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/search`)));
 
-router.delete('/clients/delete/:id', catchAsync((req, res, next) => {
+router.delete('/delete/:id', catchAsync((req, res, next) => {
   const { id } = req.params;
   return forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/delete/${id}`);
 }));
 
-router.get('/clients/:id', catchAsync((req, res, next) => {
+router.get('/:id', catchAsync((req, res, next) => {
   const { id } = req.params;
   return forwardRequest(req, res, next, `${process.env.CLIENT_SERVICE_URL}/clients/${id}`);
 }));

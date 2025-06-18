@@ -65,6 +65,24 @@ export default class ClientController {
     });
   }
 
+  static async getByDeviceCode(req: Request, res: Response): Promise<Response> {
+    const {code} = req.params;
+
+    if(!code) {
+      return res.status(400).json("No device code");
+    }
+
+    const client = await ClientService.getClientByCode(code);
+
+    if (!client) {
+      throw createHttpError("Client not found", 404);
+    }
+
+    return res.status(200).json({
+      clientId: client.id
+    });
+  }
+
   static async createClient(req: Request, res: Response): Promise<Response> {
     const {
       deviceCode,

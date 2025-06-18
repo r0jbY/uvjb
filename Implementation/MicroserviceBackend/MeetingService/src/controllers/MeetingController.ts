@@ -13,8 +13,7 @@ export const createHttpError = (message: string, statusCode: number): TypedError
 export default class MeetingController {
 
     static async createMeeeting(req: Request, res: Response): Promise<Response> {
-        console.log("Works!");
-
+        
         const clientId = req.body.clientId;
 
         if (!clientId) {
@@ -23,9 +22,7 @@ export default class MeetingController {
 
         const meeting = await MeetingService.createMeeting(clientId);
 
-        console.log(meeting);
-
-        return res.sendStatus(200);
+        return res.status(200).json( "Meeting created!" );
     }
 
     static async getMeetings(req: Request, res: Response): Promise<Response> {

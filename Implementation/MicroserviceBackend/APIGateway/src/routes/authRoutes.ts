@@ -6,18 +6,18 @@ const router = express.Router();
 
 // Auth routes
 
-router.post("/auth/refresh", catchAsync((req, res, next) => forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/refresh`)));
+router.post("/refresh", catchAsync((req, res, next) => forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/refresh`)));
 
-router.post('/auth/login', catchAsync((req, res, next) =>
+router.post('/login', catchAsync((req, res, next) =>
     forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/login`)));
 
-router.post('/auth/logout', catchAsync((req, res, next) =>
+router.post('/logout', catchAsync((req, res, next) =>
     forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/logout`)));
 
-router.post('/auth/register', verifyJwt('admin'), catchAsync((req, res, next) =>
+router.post('/register', verifyJwt('admin'), catchAsync((req, res, next) =>
     forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/register`)));
 
-router.get('/auth/whoAmI', verifyJwt('admin'), catchAsync((req, res, next) =>
+router.get('/whoAmI', verifyJwt('admin'), catchAsync((req, res, next) =>
     forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/whoAmI`)));
 
 

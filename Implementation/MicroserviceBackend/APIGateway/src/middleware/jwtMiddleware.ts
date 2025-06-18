@@ -14,22 +14,16 @@ export const verifyJwt = (requiredRole?: Role) => {
         const token = tokenFromCookie || tokenFromHeader;
         const isWebRequest = Boolean(tokenFromCookie || req.cookies?.refreshToken);
 
-
-
         jwt.verify(token, process.env.ACCESS_SECRET as string, async (err: VerifyErrors | null, decoded: string | jwt.JwtPayload | undefined) => {
             if (err) {
                 if (isWebRequest) {
                     // Automatically try refreshing for web
                     return refreshToken(req, res, next, requiredRole);
                 }
-
                 // For mobile, just reject
                 return res.status(401).json({ message: "Invalid token." });
             }
-
             // Valid token: continue
-
-            
             const ok = attachUser(
                 req,
                 res,

@@ -41,15 +41,11 @@ app.use(express.json());
 
 app.use(healthRoute);
 
-app.use(authRoutes);
-
-app.use(userRoutes);
-
-app.use(meetingRoutes);
-
-app.use(clientRoutes);
-
-app.use(networkRoutes);
+app.use('/auth',     authRoutes);
+app.use('/users',    userRoutes);
+app.use('/clients',  clientRoutes);
+app.use('/network',  networkRoutes);
+app.use('/meetings', meetingRoutes);
 
 
   // Basic welcome route

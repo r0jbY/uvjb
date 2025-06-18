@@ -96,6 +96,15 @@ export class ClientService {
     }
   }
 
+  static async getClientByCode(code: string) {
+    try {
+      return await prisma.client.findUnique({ where: { device_code: code }, select: {id: true} });
+    } catch (error) {
+      console.error("DB error (getClient):", error);
+      throw createHttpError("Failed to get client.", 500);
+    }
+  }
+
   static async searchClients(query: string, limit?: number) {
     const trimmedQuery = query?.trim();
 

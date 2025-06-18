@@ -7,7 +7,7 @@ import catchAsync from '../utils/catchAsync';
 const router = Router();
 
 // ✅ Routes accessible to 'buddy' (or higher)
-router.get('/users/full/:id', verifyJwt('buddy'), catchAsync(async (req, res) => {
+router.get('/full/:id', verifyJwt('buddy'), catchAsync(async (req, res) => {
   const userId = req.params.id;
   const cookies = req.headers.cookie || '';
 
@@ -31,22 +31,22 @@ router.get('/users/full/:id', verifyJwt('buddy'), catchAsync(async (req, res) =>
   res.status(200).json(fullUser);
 }));
 
-router.put('/users/update/:id', verifyJwt('buddy'), catchAsync((req, res, next) => {
+router.put('/update/:id', verifyJwt('buddy'), catchAsync((req, res, next) => {
   const { id } = req.params;
   return forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/update/${id}`);
 }));
 
 // ✅ Admin-only routes
-router.get('/users/getAll', verifyJwt('admin'), catchAsync((req, res, next) =>
+router.get('/getAll', verifyJwt('admin'), catchAsync((req, res, next) =>
   forwardRequest(req, res, next, `${process.env.USER_SERVICE_URL}/users/getAll`)));
 
-router.get('/users/search', verifyJwt('admin'), catchAsync((req, res, next) =>
+router.get('/search', verifyJwt('admin'), catchAsync((req, res, next) =>
   forwardRequest(req, res, next, `${process.env.USER_SERVICE_URL}/users/search`)));
 
-router.get('/users/searchSuperbuddies', verifyJwt('admin'), catchAsync((req, res, next) =>
+router.get('/searchSuperbuddies', verifyJwt('admin'), catchAsync((req, res, next) =>
   forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/superbuddies`)));
 
-router.delete('/users/delete/:id', verifyJwt('admin'), catchAsync((req, res, next) => {
+router.delete('/delete/:id', verifyJwt('admin'), catchAsync((req, res, next) => {
   const { id } = req.params;
   return forwardRequest(req, res, next, `${process.env.AUTH_SERVICE_URL}/auth/delete/${id}`);
 }));

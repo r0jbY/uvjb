@@ -7,7 +7,7 @@ import { Router } from "express";
 const router = Router();
 
 router.use(verifyJwt('admin'));
-router.get('/network/getAll/:clientId/:layer', catchAsync(async (req, res, next) => {
+router.get('/getAll/:clientId/:layer', catchAsync(async (req, res, next) => {
     const { clientId, layer } = req.params;
     const networkRes = await axios.get(`${process.env.NETWORK_SERVICE_URL}/network/getAll/${clientId}/${layer}`);
 
@@ -21,7 +21,7 @@ router.get('/network/getAll/:clientId/:layer', catchAsync(async (req, res, next)
     return res.json(usersRes.data);
 }));
 
-router.put('/network/update', catchAsync((req, res, next) => {
+router.put('/update', catchAsync((req, res, next) => {
     return forwardRequest(req, res, next, `${process.env.NETWORK_SERVICE_URL}/network/manage`);
 }));
 export default router;
