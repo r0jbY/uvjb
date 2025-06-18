@@ -13,7 +13,7 @@ export const createHttpError = (message: string, statusCode: number): TypedError
 export default class MeetingController {
 
     static async createMeeeting(req: Request, res: Response): Promise<Response> {
-        
+
         const clientId = req.body.clientId;
 
         if (!clientId) {
@@ -22,7 +22,19 @@ export default class MeetingController {
 
         const meeting = await MeetingService.createMeeting(clientId);
 
-        return res.status(200).json( "Meeting created!" );
+        return res.status(200).json("Meeting created!");
+    }
+
+    static async getStatus(req: Request, res: Response): Promise<Response> {
+        const clientId = req.params.clientId;
+
+        if (!clientId) {
+            throw createHttpError('No id provided', 400);
+        }
+
+        const meeting = await MeetingService.getStatus(clientId);
+
+        return res.status(200).json({ status: meeting.status });
     }
 
     static async getMeetings(req: Request, res: Response): Promise<Response> {

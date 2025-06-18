@@ -22,10 +22,26 @@ router.post('/create', catchAsync( async (req, res) => {
 
     const clientRes = await axios.get(`${process.env.CLIENT_SERVICE_URL}/clients/byDeviceCode/${deviceCode}`,);
 
-    const meetingRes = await axios.post(`${process.env.MEETING_SERVICE_URL}/meetings/create`, { clientId: clientRes.data.clientId });
+    await axios.post(`${process.env.MEETING_SERVICE_URL}/meetings/create`, { clientId: clientRes.data.clientId });
 
-    return res.status(200).json(meetingRes.status);
+    return res.status(200).json("Meetig created!");
 }))
+
+
+router.get('/meetingStatus/:deviceCode', catchAsync( async (req, res) => {
+    const {deviceCode} = req.params;
+
+    if(!deviceCode) {
+        return res.status(400);
+    }
+
+    const clientRes = await axios.get(`${process.env.CLIENT_SERVICE_URL}/clients/byDeviceCode/${deviceCode}`,);
+
+    const meetingRes = await axios.get(`${process.env.MEETING_SERVICE_URL}/meetings/getStatus/${clientRes.data.clientId}`);
+
+    return res.status(200).json(meetingRes.data);
+}))
+
 
 router.use(verifyJwt('buddy'));
 

@@ -7,7 +7,9 @@ import { acceptSchema, finishSchema } from "../utils/schema";
 
 const router = Router();
 
-router.get('/getMeetings', catchAsync(MeetingController.getMeetings))
+router.get('/getMeetings', catchAsync(MeetingController.getMeetings));
+
+router.get('/getStatus/:clientId', catchAsync(MeetingController.getStatus));
 
 router.post("/create",  catchAsync(MeetingController.createMeeeting));
 

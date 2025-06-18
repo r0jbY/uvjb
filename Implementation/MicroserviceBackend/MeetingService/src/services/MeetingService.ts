@@ -40,7 +40,49 @@ export class MeetingService {
     }
   }
 
-  static async getMeetingHistory(buddyId: string) {  
+  static async getStatus(clientId: string) {
+    try {
+      const meeting = await prisma.meeting.findFirst({
+        where: {
+          clientId,
+          status: { in: ['accepted', 'pending'] }
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      if (!meeting) {
+        throw createHttpError("No meeting found.", 404);
+      }
+
+      // Check if it's pending AND expired
+      if (meeting.status === 'pending') {
+        const now = new Date();
+        const created = new Date(meeting.createdAt);
+        const secondsPassed = (now.getTime() - created.getTime()) / 1000;
+
+        const EXPIRATION_THRESHOLD = 1260; // 🔁 e.g. 60 seconds
+
+        if (secondsPassed > EXPIRATION_THRESHOLD) {
+          // Mark as expired in DB
+          await prisma.meeting.update({
+            where: { id: meeting.id },
+            data: { status: 'expired' },
+          });
+
+          return { ...meeting, status: 'expired' };
+        }
+      }
+
+      return meeting;
+    } catch (err) {
+      console.error("DB error (getStatus):", err);
+      throw createHttpError("Failed to retrieve meeting status.", 500);
+    }
+  }
+
+  static async getMeetingHistory(buddyId: string) {
 
     try {
       // 2⃣  Fetch the still-valid meetings for these clients
