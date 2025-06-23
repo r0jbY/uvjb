@@ -22,7 +22,7 @@ export default class MeetingController {
 
         const meeting = await MeetingService.createMeeting(clientId);
 
-        return res.status(200).json("Meeting created!");
+        return res.status(200).json(meeting);
     }
 
     static async getStatus(req: Request, res: Response): Promise<Response> {

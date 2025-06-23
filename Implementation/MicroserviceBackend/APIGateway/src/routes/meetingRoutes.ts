@@ -22,9 +22,9 @@ router.post('/create', catchAsync( async (req, res) => {
 
     const clientRes = await axios.get(`${process.env.CLIENT_SERVICE_URL}/clients/byDeviceCode/${deviceCode}`,);
 
-    await axios.post(`${process.env.MEETING_SERVICE_URL}/meetings/create`, { clientId: clientRes.data.clientId });
+    const meetingRes = await axios.post(`${process.env.MEETING_SERVICE_URL}/meetings/create`, { clientId: clientRes.data.clientId });
 
-    return res.status(200).json("Meetig created!");
+    return res.status(200).json(meetingRes.data);
 }))
 
 
@@ -39,7 +39,9 @@ router.get('/meetingStatus/:deviceCode', catchAsync( async (req, res) => {
 
     const meetingRes = await axios.get(`${process.env.MEETING_SERVICE_URL}/meetings/getStatus/${clientRes.data.clientId}`);
 
-    return res.status(200).json(meetingRes.data);
+    console.log(meetingRes.data.status);
+
+    return res.status(200).json({status: meetingRes.data.status});
 }))
 
 
@@ -143,7 +145,6 @@ router.get('/:buddyId', catchAsync(async (req, res) => {
 
     const clients = clientRes.data;
 
-    console.log(clients);
 
     if (!clients || clients.length == 0) {
         return res.status(200).json([]);
@@ -151,7 +152,6 @@ router.get('/:buddyId', catchAsync(async (req, res) => {
 
     const clientIds = clients.map((c: any) => c.client_id);
 
-    console.log(process.env.MEETING_SERVICE_URL);
 
     const [clientFullRes, meetingRes] = await Promise.all([
         axios.get(`${process.env.CLIENT_SERVICE_URL}/clients/getSome`, {
