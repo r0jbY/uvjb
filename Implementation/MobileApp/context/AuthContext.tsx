@@ -3,6 +3,7 @@ import { createContext, useState, useEffect, ReactNode } from "react";
 import { checkAuth } from "../Services/Authentication";
 import { getExpoPushToken } from "@/utils/push";
 import { AppState } from 'react-native';
+import axios from "@/app/axiosConfigs";
 
 type AuthContextType = {
     isAuthenticated: boolean;
@@ -28,10 +29,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const token = await getExpoPushToken();
         if (!token) return;
         try {
-            console.log("Registred token" + token);
-        } catch (e) {
-            console.warn('Failed to send push token', e);
-        }
+    await axios.post(`notifications/addToken`, {
+      id: uid,
+      token,
+    });
+    console.log("✅ Registered push token:", token);
+  } catch (e) {
+    console.warn('❌ Failed to send push token', e);
+  }
     };
 
     const refreshAuth = async () => {
