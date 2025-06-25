@@ -23,7 +23,7 @@ export class MeetingService {
 
         console.log("Entered this!");
 
-        return ({message : "Meeting exists already", status: existing.status}); // 409 Conflict
+        return ({ message: "Meeting exists already", status: existing.status, meetingId: existing.id }); // 409 Conflict
       }
 
       const meeting = await prisma.meeting.create({
@@ -32,7 +32,7 @@ export class MeetingService {
         },
       });
 
-      return ({message : "Meeting created!", status: meeting.status});
+      return ({ message: "Meeting created!", status: meeting.status, meetingId: meeting.id });
     } catch (error) {
 
       if (error instanceof Error && 'statusCode' in error) {
@@ -46,51 +46,54 @@ export class MeetingService {
   }
 
   static async getStatus(clientId: string) {
+   
+    const EXPIRATION_THRESHOLD = 21 * 60; 
+    const NOTIFICATION_THRESHOLD = 10 * 60;      
+  
+
     try {
       const meeting = await prisma.meeting.findFirst({
-        where: {
-          clientId,
-          status: { in: ['accepted', 'pending'] }
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        where: { clientId, status: { in: ['accepted', 'pending'] } },
+        orderBy: { createdAt: 'desc' },
       });
 
-      if (!meeting) {
-        throw createHttpError("No meeting found.", 404);
+      if (!meeting) throw createHttpError('No meeting found.', 404);
+
+      const now = Date.now();
+      const secondsPassed = (now - new Date(meeting.createdAt).getTime()) / 1000;
+
+      const shouldExpire = meeting.status === 'pending'
+        && secondsPassed > EXPIRATION_THRESHOLD;
+
+      const shouldNotify = !meeting.notified
+        && secondsPassed > NOTIFICATION_THRESHOLD;
+
+      
+      if (!shouldExpire && !shouldNotify) {
+        return { ...meeting, notifiedUpdated: false };
       }
 
-      // Check if it's pending AND expired
-      if (meeting.status === 'pending') {
-        const now = new Date();
-        const created = new Date(meeting.createdAt);
-        const secondsPassed = (now.getTime() - created.getTime()) / 1000;
+     
+      const updatedMeeting = await prisma.meeting.update({
+        where: { id: meeting.id },
+        data: {
+          status: shouldExpire ? 'expired' : meeting.status,
+          notified: shouldNotify ? true : meeting.notified,
+        },
+      });
+     
 
-        const EXPIRATION_THRESHOLD = 1260; // 🔁 e.g. 60 seconds
-
-        if (secondsPassed > EXPIRATION_THRESHOLD) {
-          // Mark as expired in DB
-          await prisma.meeting.update({
-            where: { id: meeting.id },
-            data: { status: 'expired' },
-          });
-
-          return { ...meeting, status: 'expired' };
-        }
-      }
-
-      return meeting;
+      return { ...updatedMeeting, notifiedUpdated: shouldNotify };
     } catch (err) {
-      console.error("DB error (getStatus):", err);
-      throw createHttpError("Failed to retrieve meeting status.", 500);
+      console.error('DB error (getStatus):', err);
+      throw createHttpError('Failed to retrieve meeting status.', 500);
     }
   }
 
   static async getMeetingHistory(buddyId: string) {
 
     try {
-      // 2⃣  Fetch the still-valid meetings for these clients
+      
       return prisma.meeting.findMany({
         where: {
           buddyId,
@@ -123,7 +126,7 @@ export class MeetingService {
         data: { status: 'expired' },
       });
 
-      // 2⃣  Fetch the still-valid meetings for these clients
+     
       return prisma.meeting.findMany({
         where: {
           clientId: { in: clientIds },
@@ -145,7 +148,7 @@ export class MeetingService {
   static async getAcceptedMeeting(buddyId: string) {
 
     try {
-      // 2⃣  Fetch the still-valid meetings for these clients
+     
       return prisma.meeting.findFirst({
         where: {
           buddyId,
@@ -183,7 +186,7 @@ export class MeetingService {
         throw createHttpError("Meeting not found or already accepted / expired.", 404);
       }
 
-      // Optionally return the updated record
+     
       return await prisma.meeting.findUnique({ where: { id: meetingId } });
     } catch (error) {
       console.error("DB error (acceptMeeting):", error);
@@ -213,7 +216,7 @@ export class MeetingService {
 
 
 
-      // Optionally return the updated record
+      
       return await prisma.meeting.findUnique({ where: { id: meetingId } });
     } catch (error) {
       console.error("DB error (acceptMeeting):", error);

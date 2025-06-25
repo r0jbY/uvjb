@@ -6,6 +6,7 @@ import userRoutes from './routes/userRoutes';
 import clientRoutes from './routes/clientRoutes'
 import networkRoutes from './routes/networkRoutes'
 import meetingRoutes from './routes/meetingRoutes'
+import notificationRoutes from './routes/notificationRoutes'
 import cookieParser from 'cookie-parser';
 import errorHandler from './middleware/errorHandler';
 import healthRoute from './routes/health';
@@ -46,6 +47,7 @@ app.use('/users',    userRoutes);
 app.use('/clients',  clientRoutes);
 app.use('/network',  networkRoutes);
 app.use('/meetings', meetingRoutes);
+app.use('/notifications', notificationRoutes);
 
 
   // Basic welcome route

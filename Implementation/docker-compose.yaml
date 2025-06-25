@@ -102,7 +102,24 @@ services:
       test: ["CMD-SHELL", "pg_isready -U app -d meetingdb"]
       interval: 10s
       timeout: 5s
-      retries: 3    
+      retries: 3   
+
+  notificationdb:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: notificationdbgdb
+    volumes:
+      - notificationdb-data:/var/lib/postgresql/data
+    ports:               
+      - "5437:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d notificationdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 3 
 
 ###############################################################################
 #  Micro‑services (runtime images – use override file for hot reload)          #
@@ -210,7 +227,28 @@ services:
       test: ["CMD", "wget", "-qO-", "http://localhost:3004/health"]
       interval: 30s
       timeout: 3s
-      retries: 3    
+      retries: 3  
+
+  notification-svc:
+    build:
+      context: ./MicroserviceBackend/NotificationService
+      target: runtime
+    environment:
+      PORT: 3005
+      DATABASE_URL: postgres://app:secret@notificationdb:5432/notificationdb
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      notificationdb:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "3005:3005"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3005/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3       
   
   gateway-svc:
     build:
@@ -225,6 +263,7 @@ services:
       CLIENT_SERVICE_URL : http://client-svc:3002
       NETWORK_SERVICE_URL : http://network-svc:3003
       MEETING_SERVICE_URL : http://meeting-svc:3004
+      NOTIFICATION_SERVICE_URL : http://notification-svc:3005
     depends_on:
       auth-svc:
         condition: service_started
@@ -235,6 +274,8 @@ services:
       network-svc:
         condition: service_started
       meeting-svc:
+        condition: service_started
+      notification-svc:
         condition: service_started
       rabbitmq:
         condition: service_healthy
@@ -255,3 +296,4 @@ volumes:
   clientdb-data:
   networkdb-data:
   meetingdb-data:
+  notificationdb-data:

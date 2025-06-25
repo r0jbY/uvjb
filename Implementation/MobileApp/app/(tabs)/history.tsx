@@ -46,7 +46,7 @@ export default function HistoryScreen() {
       const fetchMeetingHistory = async () => {
         try {
           const res = await getMeetingHistory(userId || '');
-          console.log(res);
+          
           if (isActive) {
             setHistory(res);
           }

@@ -1,5 +1,6 @@
 import { Response, Request } from "express";
 import { MeetingService } from "../services/MeetingService";
+import { publishMeetingCreatedEvent } from "../utils/publisher";
 
 
 type TypedError = Error & { statusCode?: number };
@@ -22,6 +23,11 @@ export default class MeetingController {
 
         const meeting = await MeetingService.createMeeting(clientId);
 
+        if(meeting.message === 'Meeting created!') {
+        await publishMeetingCreatedEvent({ clientId, layer: 1, meetingId: meeting.meetingId });
+        }
+
+
         return res.status(200).json(meeting);
     }
 
@@ -34,6 +40,16 @@ export default class MeetingController {
 
         const meeting = await MeetingService.getStatus(clientId);
 
+        if (meeting.notifiedUpdated) {
+
+            console.log("Notified!")
+
+            await publishMeetingCreatedEvent({
+                clientId,
+                layer: 2,
+                meetingId: meeting.id,   // <- the DB id (rename if you store it as `meetingId`)
+            });
+        }
         return res.status(200).json({ status: meeting.status });
     }
 

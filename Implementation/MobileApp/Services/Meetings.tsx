@@ -31,8 +31,6 @@ export const acceptMeeting = async (meetingId: string, buddyId: string) => {
 export const getMeetingHistory = async (buddyId: string) => {
     try {
         const res = await axios.get(`/meetings/history/${buddyId}`);
-        console.log(res.data);
-        console.log('Got history!');
         return res.data;
     } catch (error: unknown) {
         console.log(error);

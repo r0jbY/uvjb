@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Pressable, TouchableOpacity, View, Text, Alert } from "react-native";
 import * as SecureStore from 'expo-secure-store';
 import { Portal } from "react-native-portalize";
-
+import axios from "../axiosConfigs"
 import Animated, {
     useSharedValue,
     useAnimatedStyle,
@@ -13,6 +13,7 @@ import Animated, {
 import { useAuth } from "@/hooks/useAuth";
 import ConfirmModal from "./ConfirmModal";
 import { useFocusEffect, useNavigation } from "expo-router";
+import { getExpoPushToken } from "@/utils/push";
 
 
 export default function FloatingMenu() {
@@ -22,7 +23,7 @@ export default function FloatingMenu() {
     const [shouldRenderMenu, setShouldRenderMenu] = useState(false);
     const [show, setShow] = useState(false);
     const menuAnimation = useSharedValue(0);
-    const { refreshAuth } = useAuth();
+    const { refreshAuth, userId } = useAuth();
     const [isFocused, setIsFocused] = useState(true);
 
     useEffect(() => {
@@ -60,11 +61,22 @@ export default function FloatingMenu() {
     }, [menuVisible]);
 
     const logout = async () => {
+        const token = await getExpoPushToken();
+
+        if (token) {
+            try {
+                await axios.delete(`/notifications/removeToken`, {
+                    data: { id: userId, token },
+                });
+            } catch (e) {
+                console.warn('Failed to remove push token', e);
+            }
+        }
         await SecureStore.deleteItemAsync('refreshToken');
         await refreshAuth();
     }
 
-    
+
 
     return (
         <>

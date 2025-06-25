@@ -49,6 +49,16 @@ services:
       - ./MicroserviceBackend/MeetingService/src/prisma:/usr/src/app/src/prisma
       - /usr/src/app/node_modules    
 
+  notification-svc:
+    build:
+      context: ./MicroserviceBackend/NotificationService
+      target: dev
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+    volumes:
+      - ./MicroserviceBackend/NotificationService/src:/usr/src/app/src
+      - ./MicroserviceBackend/NotificationService/src/prisma:/usr/src/app/src/prisma
+      - /usr/src/app/node_modules      
+
   gateway-svc:
     build:
       context: ./MicroserviceBackend/APIGateway
