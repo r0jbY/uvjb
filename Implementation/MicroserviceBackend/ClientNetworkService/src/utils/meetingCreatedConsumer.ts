@@ -24,7 +24,8 @@ export async function consumeMeetingCreatedEvents() {
             console.log(networkRes);
             channel.ack(msg);
 
-            const buddyIds = networkRes.map((b) => b.buddy_id);
+            const buddyIds = networkRes.map((b: { buddy_id: string }) => b.buddy_id);
+
 
             await publishNotificationEmittedEvent({ buddyIds, meetingId: data.meetingId });
 
