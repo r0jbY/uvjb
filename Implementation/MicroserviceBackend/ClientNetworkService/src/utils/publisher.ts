@@ -1,18 +1,17 @@
 import { getChannel } from "../config/rabbitmq";
 
 
-export async function publishMeetingCreatedEvent(data: {
-  clientId: string;
-  layer: number;
-  meetingId: string;
+export async function publishNotificationEmittedEvent(data: {
+  buddyIds: string[];
+  meetingId: string
 }) {
   const channel = getChannel();
-  const queue = "meeting.created";
+  const queue = "notification.emitted";
 
   await channel.assertQueue(queue, { durable: true });
 
   const event = {
-    type: "MeetingCreated",
+    type: "NotificationEmitted",
     timestamp: new Date().toISOString(),
     data,
   };
@@ -23,6 +22,6 @@ export async function publishMeetingCreatedEvent(data: {
     persistent: true,
   });
 
-  console.log("📤 Sent meeting.created event:", event);
+  console.log("📤 Sent notification.emited event:", event);
 }
 

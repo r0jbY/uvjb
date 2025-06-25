@@ -23,7 +23,7 @@ export class MeetingService {
 
         console.log("Entered this!");
 
-        return ({message : "Meeting exists already", status: existing.status}); // 409 Conflict
+        return ({message : "Meeting exists already", status: existing.status, meetingId : existing.id}); // 409 Conflict
       }
 
       const meeting = await prisma.meeting.create({
@@ -32,7 +32,7 @@ export class MeetingService {
         },
       });
 
-      return ({message : "Meeting created!", status: meeting.status});
+      return ({message : "Meeting created!", status: meeting.status, meetingId : meeting.id});
     } catch (error) {
 
       if (error instanceof Error && 'statusCode' in error) {

@@ -1,6 +1,6 @@
 import app from "./app";
 import { connectRabbitMQ } from "./config/rabbitmq";
-import { consumeUserCreatedEvents } from "./utils/userCreatedConsumer";
+import { consumeNotificationEmittedEvents } from "./utils/notificationEmittedConsumer";
 
 
 const PORT = Number(process.env.PORT) || 3001;
@@ -8,6 +8,7 @@ const PORT = Number(process.env.PORT) || 3001;
 
 async function start() {
   await connectRabbitMQ();
+  await consumeNotificationEmittedEvents();
   app.listen(PORT, () => {
   console.log(`Running on http://localhost:${PORT}`);
 });
