@@ -46,7 +46,7 @@ export default class NotificationController {
           title: "Meeting Request",
           body: "You have a new meeting request!",
           data: {
-            meetingId: meetingId // 👈 your custom payload here
+            meetingId// 👈 your custom payload here
           }
         }));
 

@@ -28,6 +28,8 @@ model Meeting {
   description  String?       @db.VarChar(500)  
   
   status       MeetingStatus @default(pending)
+
+  notified    Boolean @default(false)
 }
 
 

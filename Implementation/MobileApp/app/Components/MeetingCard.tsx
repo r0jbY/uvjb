@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { Text, TouchableOpacity, View } from "react-native"
+import { useEffect, useMemo, useRef } from "react";
+import { Animated, Easing, Text, TouchableOpacity, View } from "react-native"
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from "expo-router";
 
@@ -35,6 +35,7 @@ type MeetingProps = {
     name?: string;
     address?: string;
     phone?: string;      // 👈 optional, pass it along
+    highlighted?: boolean;
 };
 
 export default function MeetingCard({
@@ -43,12 +44,48 @@ export default function MeetingCard({
     name = 'Undefined',
     address = 'Undefined',
     phone,
+    highlighted = false
 }: MeetingProps) {
 
     const accent = useMemo(() => colourForDate(createdAt), [createdAt]);
     const time = useMemo(() => timeLabelFor(createdAt), [createdAt]);
     const router = useRouter();
 
+    const pulse = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        if (!highlighted) return;
+
+        const seq = Animated.sequence([
+            Animated.timing(pulse, {
+                toValue: 1,
+                duration: 1500,                           // ⬅️ slower
+                easing: Easing.bezier(0.4, 0, 0.2, 1),    // smooth ease-in-out
+                useNativeDriver: false,
+            }),
+            Animated.timing(pulse, {
+                toValue: 0,
+                duration: 1500,
+                easing: Easing.bezier(0.4, 0, 0.2, 1),
+                useNativeDriver: false,
+            }),
+        ]);
+
+        Animated.loop(seq, { iterations: 3 }).start(() => {
+            // force-reset
+            pulse.setValue(0);          // → borderWidth goes back to 1
+        });
+    }, [highlighted, pulse]);
+
+    /* Colour and thickness */
+    const borderColor = pulse.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['#C3B295', '#FFF44F'], // beige → vivid gold
+    });
+    const borderWidth = pulse.interpolate({
+        inputRange: [0, 1],
+        outputRange: [2, 8],               // grows while brightening
+    });
     const handleVisit = () =>
         router.push({
             pathname: "/(tabs)/(Meetings)/[meetingId]",                 // absolute path to the dynamic route
@@ -57,13 +94,19 @@ export default function MeetingCard({
 
     return (
         <View className="relative w-[45%] h-72">
-            <View
+            <Animated.View
                 pointerEvents="none"                      // touches go to the real card
-                style={{ top: 7, borderColor: accent }}               // <── nudge ↓+→ 3 px
+                style={{ top: 7, borderColor: accent, }}               // <── nudge ↓+→ 3 px
                 className="absolute w-full h-full
-               rounded-3xl border-8 border-red-500"
+               rounded-3xl border-8 "
             />
-            <View className=" bg-white rounded-3xl border-2 border-[#C3B295] p-0  items-center shadow-lg overflow-visible">
+            <Animated.View
+                style={{
+                    borderColor: highlighted ? borderColor : '#C3B295',
+                    borderWidth: highlighted ? borderWidth : 2  // beige when not highlighted
+                }}
+                className="bg-white rounded-3xl border-2 p-0 items-center shadow-lg overflow-visible"
+            >
 
 
 
@@ -93,7 +136,7 @@ export default function MeetingCard({
                         <Text className="text-center text-white font-semibold text-lg">Visit</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </Animated.View>
         </View>
     );
 }
