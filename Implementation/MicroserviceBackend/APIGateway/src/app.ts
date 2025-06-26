@@ -18,7 +18,9 @@ app.use(cookieParser());
 const allowedOrigins = [
   'http://localhost:5173',        // local dev
   'http://127.0.0.1:5173',        // alt local dev
-  'http://frontend:5173'          // docker-internal Playwright container
+  'http://frontend:5173',
+  "https://uurtjevoorjebuurtje.com",
+  "https://www.uurtjevoorjebuurtje.com"         
 ];
 
 app.use((req, res, next) => {
