@@ -41,7 +41,7 @@ export class NotificationService {
     const tokens = await prisma.pushToken.findMany({
       where: { userId: { in: userIds } },
     });
-    return tokens.map(t => t.token);
+    return tokens.map((t: { token: string }) => t.token);
   }
 
 }

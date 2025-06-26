@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { NotificationService } from "../services/NotificationService";
-import { Expo } from "expo-server-sdk";
+import { Expo, ExpoPushMessage } from "expo-server-sdk";
 
 type TypedError = Error & { statusCode?: number };
 
@@ -29,7 +29,7 @@ export default class NotificationController {
     return res.sendStatus(200);
   }
 
-  static async handleNotificationEmittedEvent( buddyIds: string[], meetingId: string ) {
+  static async handleNotificationEmittedEvent(buddyIds: string[], meetingId: string) {
     try {
       const expo = new Expo();
 
@@ -38,19 +38,17 @@ export default class NotificationController {
 
       console.log(tokens);
 
-      const messages = tokens
+      const messages: ExpoPushMessage[] = tokens
         .filter(Expo.isExpoPushToken)
-        .map(token => ({
+        .map((token: string) => ({
           to: token,
           sound: "default",
           title: "Meeting Request",
           body: "You have a new meeting request!",
-          data: {
-            meetingId// 👈 your custom payload here
-          }
+          data: { meetingId }           // custom payload
         }));
 
-        console.log(meetingId);
+      console.log(meetingId);
 
       const chunks = expo.chunkPushNotifications(messages);
 
