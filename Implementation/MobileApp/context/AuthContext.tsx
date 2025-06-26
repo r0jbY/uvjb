@@ -27,6 +27,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const registerToken = async (uid: string) => {
         const token = await getExpoPushToken();
+        console.log(token);
+        console.log(uid);
         if (!token) return;
         try {
     await axios.post(`notifications/addToken`, {
