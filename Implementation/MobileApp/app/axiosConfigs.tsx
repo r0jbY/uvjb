@@ -8,7 +8,7 @@ import { checkAuth } from '../Services/Authentication'
 /* 1. Create the instance                                        */
 /* ------------------------------------------------------------- */
 const axiosInstace = axios.create({
-  baseURL: 'http://192.168.0.109:8080/', 
+  baseURL: 'https://api.uurtjevoorjebuurtje.com/', 
   timeout: 7000,
   headers: {
     'X-Client-Type': 'mobile',   // 👈 tell backend it's a mobile client
