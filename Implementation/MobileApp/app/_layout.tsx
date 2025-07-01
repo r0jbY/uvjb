@@ -12,6 +12,7 @@ import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from 'react-native-reanimated';
+import { LanguageProvider } from '@/context/LanguageProvider';
 
 
 configureReanimatedLogger({
@@ -32,13 +33,15 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
 
-  
+
 
   return (
-    <AuthProvider>
-      <NotificationNavigator/>
-      <RootNavigator />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <NotificationNavigator />
+        <RootNavigator />
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 
@@ -56,7 +59,7 @@ function NotificationNavigator() {
       if (meetingId) {
         router.push({
           pathname: '/(tabs)/(Meetings)',
-          params:   { focusId: meetingId },
+          params: { focusId: meetingId },
         });
       }
     })();

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { BackHandler } from 'react-native';
 import { finishMeeting } from '@/Services/Meetings';
 import Toast from 'react-native-toast-message';
+import { useLanguage } from '@/context/LanguageProvider';
 
 type Params = {
     meetingId: string;
@@ -23,7 +24,7 @@ export default function OngoingScreen() {
     const { userId } = useAuth();
     const router = useRouter();
     const [blockBack, setBlockBack] = useState(true);
-
+    const { t } = useLanguage();
 
     // optional fetch in case you need live data
     const [meeting, setMeeting] = useState<any>(null);
@@ -42,7 +43,7 @@ export default function OngoingScreen() {
         if (!description.trim()) {
             Toast.show({
                 type: 'error',
-                text1: 'Please enter a description.',
+                text1: t('meeting.finishDescriptionRequired'),
             });
             return;
         }
@@ -50,7 +51,10 @@ export default function OngoingScreen() {
         try {
             await finishMeeting(meetingId, userId || "", description);
             console.log("Finished the meeting!");
-            Toast.show({ type: 'success', text1: 'Meeting successfully finished!' })
+            Toast.show({
+                type: 'success',
+                text1: t('meeting.finishSuccess'),
+            });
             setTimeout(() => {
                 setBlockBack(false); // ✅ allow back navigation again
                 router.replace('/(tabs)/(Meetings)');

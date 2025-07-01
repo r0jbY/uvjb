@@ -4,6 +4,8 @@ import { TouchableOpacity, View, Text, TextInput, Pressable, Linking, ScrollView
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import useKeyboard from "@/hooks/useKeyboard";
 import { useState } from "react";
+import { useLanguage } from '@/context/LanguageProvider';
+
 
 type Mode = 'pending' | 'ongoing';
 
@@ -20,7 +22,7 @@ export function MeetingScreen({
         createdAt?: string;
     };
     mode: Mode;
-    onPrimaryAction: (description? : string) => void;
+    onPrimaryAction: (description?: string) => void;
 }) {
     const {
         name = 'Undefined',
@@ -29,6 +31,7 @@ export function MeetingScreen({
         createdAt,
     } = data;
 
+    const { t } = useLanguage();
     const SPARE = 64 + 124;
     const { isKeyboardOpen } = useKeyboard();
     const [inputHeight, setInputHeight] = useState(40);
@@ -96,21 +99,25 @@ export function MeetingScreen({
                             className="bg-[#DE8E86] px-8 py-3 rounded-3xl"
                             onPress={() => router.back()}
                         >
-                            <Text className="text-white text-xl  font-semibold">Dismiss</Text>
+                            <Text className="text-white text-xl font-semibold">
+                                {t('meeting.dismiss')}
+                            </Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity
                             className="bg-[#6AA58F] px-8 py-3 rounded-3xl"
                             onPress={() => onPrimaryAction()}
                         >
-                            <Text className="text-white text-xl font-semibold" >Accept</Text>
+                            <Text className="text-white text-xl font-semibold">
+                                {t('meeting.accept')}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 ) : (
                     <>
                         <TextInput
-                            placeholder="Add description..."
-                            placeholderTextColor="#658F8D" 
+                            placeholder={t('meeting.descriptionPlaceholder')}
+                            placeholderTextColor="#658F8D"
                             multiline
                             value={description}
                             onChange={e => setDescription(e.nativeEvent.text)}
@@ -133,13 +140,13 @@ export function MeetingScreen({
                                 elevation: 2,
                                 marginTop: 'auto'
                             }}
-                        /> 
+                        />
                         <TouchableOpacity
                             className="bg-[#6AA58F] px-8 py-3 rounded-3xl mt-auto"
                             onPress={() => onPrimaryAction(description)}
                         >
                             <Text className="text-white text-xl font-semibold">
-                                Finish Meeting
+                                {t('meeting.finish')}
                             </Text>
                         </TouchableOpacity>
                     </>

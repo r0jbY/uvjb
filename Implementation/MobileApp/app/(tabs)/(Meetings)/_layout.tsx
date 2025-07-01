@@ -6,6 +6,7 @@ import { useCallback, useState } from 'react';
 
 import { useAuth }                   from '@/hooks/useAuth';
 import { getCurrentActiveMeeting }   from '@/Services/Meetings';
+import { useLanguage } from '@/context/LanguageProvider';
 
 /* header-right shortcut */
 const HeaderRight = () => <FloatingMenu />;
@@ -14,6 +15,7 @@ export default function MeetingsStack() {
   const router                     = useRouter();
   const { userId, loading: authLoading } = useAuth();
 
+  const { t } = useLanguage();
   const [checking, setChecking] = useState(true);   // 🆕 gate state
 
   /* run every time Meetings tab gains focus */
@@ -68,27 +70,27 @@ export default function MeetingsStack() {
       }}
     >
       <Tabs.Screen
-        name="index"
-        options={{ title: 'Meetings', headerShown: true }}
-      />
+  name="index"
+  options={{ title: t('meetingsTabs.meetingsTitle'), headerShown: true }}
+/>
 
-      <Tabs.Screen
-        name="[meetingId]"
-        options={{
-          title: 'Meeting',
-          headerShown: true,
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{ paddingHorizontal: 16 }}>
-              <Ionicons name="chevron-back" size={24} color="#426363" />
-            </TouchableOpacity>
-          ),
-        }}
-      />
+<Tabs.Screen
+  name="[meetingId]"
+  options={{
+    title: t('meetingsTabs.meetingTitle'),
+    headerShown: true,
+    headerLeft: () => (
+      <TouchableOpacity onPress={() => router.back()} style={{ paddingHorizontal: 16 }}>
+        <Ionicons name="chevron-back" size={24} color="#426363" />
+      </TouchableOpacity>
+    ),
+  }}
+/>
 
-      <Tabs.Screen
-        name="acceptedMeeting"
-        options={{ title: 'Ongoing Meeting', headerShown: true }}
-      />
+<Tabs.Screen
+  name="acceptedMeeting"
+  options={{ title: t('meetingsTabs.ongoingMeetingTitle'), headerShown: true }}
+/>
     </Tabs>
   );
 }
