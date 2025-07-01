@@ -110,6 +110,7 @@ export function MeetingScreen({
                     <>
                         <TextInput
                             placeholder="Add description..."
+                            placeholderTextColor="#658F8D" 
                             multiline
                             value={description}
                             onChange={e => setDescription(e.nativeEvent.text)}
