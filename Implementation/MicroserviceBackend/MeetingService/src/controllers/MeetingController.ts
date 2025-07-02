@@ -81,7 +81,9 @@ export default class MeetingController {
     }
 
     static async getAccepted(req: Request, res: Response): Promise<Response> {
-        const { buddyId } = req.body;
+
+
+        const { buddyId } = req.params;
 
         const meeting = await MeetingService.getAcceptedMeeting(buddyId);
 
