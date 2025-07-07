@@ -224,8 +224,8 @@ services:
       context: ./Admin_dashboard
       dockerfile: Dockerfile
       target: build
-      # args:
-      #   VITE_API_URL: http://gateway-svc:8080
+      args:
+        VITE_API_URL: http://gateway-svc:8080
     depends_on:
       gateway-svc:
         condition: service_healthy
