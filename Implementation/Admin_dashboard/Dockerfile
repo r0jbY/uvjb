@@ -11,5 +11,7 @@ COPY . .
 # 👇 This is important! Pass the variable to Vite's build step
 RUN npm install && VITE_API_URL=$VITE_API_URL npm run build
 
+RUN echo "VITE_API_URL=$VITE_API_URL"
+
 # 👇 This is okay for preview mode
 CMD ["npm", "run", "preview", "--", "--port", "5173", "--host"]
