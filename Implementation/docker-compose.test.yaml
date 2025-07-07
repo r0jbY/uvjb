@@ -225,9 +225,9 @@ services:
       dockerfile: Dockerfile
       target: build
       args:
-        VITE_API_URL: http://gateway-svc:8080
+        VITE_API_URL: http://localhost:8080/
     environment:
-      - VITE_API_URL=http://gateway-svc:8080
+      - VITE_API_URL=http://localhost:8080/
     depends_on:
       gateway-svc:
         condition: service_healthy
