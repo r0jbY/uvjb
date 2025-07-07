@@ -6,30 +6,7 @@ import { getMeetingHistory } from '@/Services/Meetings';
 import { useAuth } from '@/hooks/useAuth';
 import { useFocusEffect } from 'expo-router';
 
-export function getRelativeDate(dateString: string): string {
-  const createdDate = new Date(dateString);
-  const now = new Date();
-  const diffTime = now.getTime() - createdDate.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return 'Yesterday';
-  return `${diffDays} days ago`;
-}
-
-const mockData = [
-  {
-    id: '2e30a99a-34e4-4971-9e95-85862508ee4a',
-    first_name: 'Alex',
-    last_name: 'Pop',
-    phone_number: '0760686187',
-    address: 'Carpatilor 63',
-    createdAt: '2025-06-13T9:20:15.549Z',
-    description: 'It was fun! It was fun! It was fun!fun! It was fun! It was fun! It was fun! It was fun! It was fun!',
-  },
-
-  // ... add more items if needed
-];
 
 export default function HistoryScreen() {
 
@@ -39,6 +16,7 @@ export default function HistoryScreen() {
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
@@ -46,7 +24,7 @@ export default function HistoryScreen() {
       const fetchMeetingHistory = async () => {
         try {
           const res = await getMeetingHistory(userId || '');
-          
+
           if (isActive) {
             setHistory(res);
           }

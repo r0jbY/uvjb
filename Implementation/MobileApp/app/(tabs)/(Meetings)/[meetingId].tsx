@@ -1,12 +1,9 @@
-import { Link, useLocalSearchParams, useRouter } from 'expo-router';
-import { View, Text, Pressable, Linking, Alert, TouchableOpacity } from 'react-native';
-import { Feather, Ionicons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
-import axios from 'axios';
+import {useLocalSearchParams, useRouter } from 'expo-router';
 import { acceptMeeting } from '@/Services/Meetings';
 import { useAuth } from '@/hooks/useAuth';
 import MeetingScreen from '../../Components/MeetingScreen';
 import Toast from 'react-native-toast-message';
+import { useLanguage } from '@/context/LanguageProvider';
 
 type Params = {
   meetingId: string;   // from the [meetingId] segment
@@ -22,13 +19,14 @@ export default function MeetingDetail() {
   const { meetingId, name, address, phone, createdAt, accepted = 'false' } = useLocalSearchParams<Params>();
   const router = useRouter();
   const { userId } = useAuth();
+  const { t } = useLanguage();
 
   const handleAccept = async () => {
     try {
 
       await acceptMeeting(meetingId, userId || '');
 
-      Toast.show({ type: 'success', text1: 'Meeting successfully accepted!' })
+      Toast.show({ type: 'success', text1: t('meeting.acceptSuccess') });
 
       setTimeout(() => {
         router.replace({
@@ -47,7 +45,7 @@ export default function MeetingDetail() {
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === "Meeting not found or already accepted / expired.") {
-          Toast.show({ type: 'error', text1: "Meeting not found or already accepted / expired." });
+          Toast.show({ type: 'error', text1: t('meeting.acceptError') });
           setTimeout(() => {
             router.back();
           }, 1000);

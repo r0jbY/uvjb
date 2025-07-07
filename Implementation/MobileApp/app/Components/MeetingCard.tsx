@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Animated, Easing, Text, TouchableOpacity, View } from "react-native"
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from "expo-router";
+import { useLanguage } from '@/context/LanguageProvider';
 
 
 const AGE_LIMIT_MIN = { FRESH: 5, INTERMEDIATE: 12 };   // minutes
@@ -20,13 +21,7 @@ const colourForDate = (created?: Date) => {
     return TIER_COLOURS.URGENT;
 };
 
-const timeLabelFor = (created?: Date) => {
-    if (!created) return '';
-    const mins = Math.floor((Date.now() - created.getTime()) / 60_000);
-    if (mins < 1) return 'Just now';
-    if (mins === 1) return '1 min ago';
-    return `${mins} min ago`;
-};
+
 
 
 type MeetingProps = {
@@ -47,9 +42,21 @@ export default function MeetingCard({
     highlighted = false
 }: MeetingProps) {
 
+    const timeLabelFor = (created?: Date, t?: any) => {
+        if (!created || !t) return '';
+        const mins = Math.floor((Date.now() - created.getTime()) / 60_000);
+        if (mins < 1) return t('meetingCard.justNow');
+        if (mins === 1) return t('meetingCard.oneMinAgo');
+        return t('meetingCard.minAgo', { count: mins });
+    };
+
+    const { t } = useLanguage();
+
     const accent = useMemo(() => colourForDate(createdAt), [createdAt]);
-    const time = useMemo(() => timeLabelFor(createdAt), [createdAt]);
+    const time = useMemo(() => timeLabelFor(createdAt, t), [createdAt, t]);
     const router = useRouter();
+
+
 
     const pulse = useRef(new Animated.Value(0)).current;
 
@@ -133,7 +140,7 @@ export default function MeetingCard({
                         className={` px-8 py-1 rounded-full  active:scale-95`}
                         onPress={handleVisit}
                     >
-                        <Text className="text-center text-white font-semibold text-lg">Visit</Text>
+                        <Text className="text-center text-white font-semibold text-lg">{t('meetingCard.visit')}</Text>
                     </TouchableOpacity>
                 </View>
             </Animated.View>

@@ -93,7 +93,7 @@ export default function LoginScreen() {
           className='w-28 h-20' // 👈 set fixed width & height
         />
 
-        <Text className="text-center text-4xl font-extrabold text-[#658F8D]">
+        <Text className="text-center min-w-[100%] text-4xl font-extrabold text-[#658F8D]">
           Welcome to Uvjb
         </Text>
 
@@ -131,7 +131,7 @@ export default function LoginScreen() {
             onPress={handleLogin}
             className="h-14 items-center justify-center rounded-full bg-[#658F8D] mt-6 active:scale-95 active:opacity-85"
           >
-            <Text className="text-xl font-bold text-white">Log in</Text>
+            <Text className="text-xl text-center min-w-[140px] text-white">Log in</Text>
           </Pressable>
         </View>
       </View>

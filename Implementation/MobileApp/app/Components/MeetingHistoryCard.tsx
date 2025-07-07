@@ -1,16 +1,7 @@
 import { View, Text, Image } from 'react-native';
 import turtle from '../../assets/turtle.png'
+import { useLanguage } from '@/context/LanguageProvider';
 
-function getRelativeDate(dateString: string): string {
-    const createdDate = new Date(dateString);
-    const now = new Date();
-    const diffTime = now.getTime() - createdDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Yesterday';
-    return `${diffDays} days ago`;
-}
 
 type Props = {
     first_name: string;
@@ -29,6 +20,19 @@ export default function MeetingHistoryCard({
     description,
     createdAt,
 }: Props) {
+
+    const { t } = useLanguage();
+
+    function getRelativeDate(dateString: string): string {
+        const createdDate = new Date(dateString);
+        const now = new Date();
+        const diffDays = Math.floor((now.getTime() - createdDate.getTime()) / 86_400_000);
+
+        if (diffDays === 0) return t('history.today');
+        if (diffDays === 1) return t('history.yesterday');
+        return t('history.daysAgo', { count: diffDays });
+    }
+
     return (
         <View
             className="bg-white rounded-3xl p-5  shadow-md elevation-md gap-2"
@@ -66,7 +70,7 @@ export default function MeetingHistoryCard({
                 </View>
             </View>
             <Text className="text-base text-[#555]  text-justify">
-                Description: {description}
+                {t('history.descriptionLabel')} {description}
             </Text>
 
             <Text className="text-sm text-[#999] text-right">

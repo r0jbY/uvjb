@@ -15,6 +15,8 @@ import { validateProfile } from '@/utils/profileValidation';
 import Toast from 'react-native-toast-message'; // or your favourite lib
 import ConfirmModal from '../Components/ConfirmModal';
 import { BackHandler } from 'react-native';
+import { useLanguage } from '@/context/LanguageProvider';
+
 
 export default function ProfileScreen() {
 
@@ -47,6 +49,7 @@ export default function ProfileScreen() {
 
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<any>(null);
+  const { t } = useLanguage();
 
   useFocusEffect(
     useCallback(() => {
@@ -161,9 +164,9 @@ export default function ProfileScreen() {
       setIsActive(isActiveNew);
 
       setHasUnsaved(false);                   // clear global flag
-      Toast.show({ type: 'success', text1: 'Profile updated!' });
+      Toast.show({ type: 'success', text1: t('profile.updateSuccess') });
     } catch (err) {
-      Toast.show({ type: 'error', text1: 'Update failed. Please try again.' });
+      Toast.show({ type: 'error', text1: t('profile.updateFail') });
       console.error(err);
     }
   };
@@ -205,21 +208,20 @@ export default function ProfileScreen() {
           >
 
             <Text className="text-[#426363] font-semibold text-base">
-              {isActiveNew ? 'Active' : 'Inactive'}
+              {isActiveNew ? t('profile.active') : t('profile.inactive')}
             </Text>
           </Pressable>
-          <ProfileField label='First Name' icon='person-outline' text={firstNameNew} setText={setFirstNameNew} />
-          <ProfileField label='Last Name' icon='person-outline' text={lastNameNew} setText={setLastNameNew} />
-          <ProfileField label='Email' icon='mail-outline' text={emailNew} setText={setEmailNew} />
-          <ProfileField label='Phone Number' icon='call-outline' text={phoneNew} setText={setPhoneNew} />
-          <ProfileField label='Address' icon='location-outline' text={addressNew} setText={setAddressNew} />
-
+          <ProfileField label={t('profile.firstName')} icon='person-outline' text={firstNameNew} setText={setFirstNameNew} />
+          <ProfileField label={t('profile.lastName')} icon='person-outline' text={lastNameNew} setText={setLastNameNew} />
+          <ProfileField label={t('profile.email')} icon='mail-outline' text={emailNew} setText={setEmailNew} />
+          <ProfileField label={t('profile.phone')} icon='call-outline' text={phoneNew} setText={setPhoneNew} />
+          <ProfileField label={t('profile.address')} icon='location-outline' text={addressNew} setText={setAddressNew} />
           {hasChanges && (
             <TouchableOpacity
               onPress={handleSave}
               className="bg-[#658F8D] px-6 py-3 rounded-full mt-4 active:scale-95"
             >
-              <Text className="text-white font-semibold text-base">Save Changes</Text>
+              <Text className="text-white font-semibold text-base">{t('profile.save')}</Text>
             </TouchableOpacity>
           )}
         </>)}
@@ -227,10 +229,10 @@ export default function ProfileScreen() {
 
       <ConfirmModal
         visible={showLeaveModal}
-        title="Discard changes?"
-        message="You have unsaved changes to your profile."
-        cancelLabel="Stay"
-        confirmLabel="Discard"
+        title={t('profile.unsavedDialogTitle')}
+        message={t('profile.unsavedDialogBody')}
+        cancelLabel={t('profile.unsavedStay')}
+        confirmLabel={t('profile.unsavedDiscard')}
         onCancel={() => setShowLeaveModal(false)}
         onConfirm={() => {
           clearUnsaved();               // reset global flag

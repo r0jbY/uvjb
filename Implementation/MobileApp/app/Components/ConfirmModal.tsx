@@ -62,12 +62,12 @@ export default function ConfirmModal({
       <View className="flex-1 items-center justify-center bg-black/35">
         <Animated.View
           style={card}
-          className="gap-4 rounded-2xl bg-[#FFF7E8] px-8 py-6 shadow-lg"
+          className="gap-4 rounded-2xl bg-[#FFF7E8] px-6 py-5 shadow-lg"
         >
           <Text className="text-center text-2xl font-bold text-[#4D6F70]">
             {title}
           </Text>
-          <Text className="text-center text-lg text-[#4D6F70]">{message}</Text>
+          <Text className="text-center text-lg text-[#4D6F70]" style={{ flexShrink: 1 , maxWidth: '80%'}}>{message}</Text>
 
           <View className="mt-2 flex-row justify-between">
             <TouchableOpacity onPress={onCancel} className="active:scale-95">

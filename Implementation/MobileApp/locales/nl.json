@@ -1,0 +1,65 @@
+{
+    "profile": {
+        "sectionTitle": "Profiel",
+        "firstName": "Voornaam",
+        "lastName": "Achternaam",
+        "email": "E-mail",
+        "phone": "Telefoonnummer",
+        "address": "Adres",
+        "active": "Actief",
+        "inactive": "Inactief",
+        "save": "Wijzigingen opslaan",
+        "updateSuccess": "Profiel bijgewerkt!",
+        "updateFail": "Bijwerken mislukt. Probeer het opnieuw.",
+        "unsavedDialogTitle": "Wijzigingen weggooien?",
+        "unsavedDialogBody": "Je hebt niet-opgeslagen wijzigingen in je profiel.",
+        "unsavedStay": "Blijven",
+        "unsavedDiscard": "Weggooien"
+    },
+    "history": {
+        "today": "Vandaag",
+        "yesterday": "Gisteren",
+        "daysAgo": "{{count}} dagen geleden",
+        "loading": "Laden...",
+        "descriptionLabel": "Beschrijving:"
+    },
+    "tabs": {
+        "meetings": "Afspraken",
+        "history": "Geschiedenis",
+        "profile": "Profiel"
+    },
+    "floatingMenu": {
+        "switchLabel": "Wissel naar {{lang}}",
+        "english": "Engels",
+        "dutch": "Nederlands",
+        "logout": "Uitloggen",
+        "logoutTitle": "Uitloggen",
+        "logoutMessage": "Weet je zeker dat je wilt uitloggen?"
+    },
+    "meetingsTabs": {
+        "meetingsTitle": "Afspraken",
+        "meetingTitle": "Afspraak",
+        "ongoingMeetingTitle": "Lopende afspraak"
+    },
+    "meetings": {
+        "loading": "Bezig met laden...",
+        "loadError": "Kan afspraken niet laden",
+        "noneAvailable": "Geen afspraken beschikbaar"
+    },
+    "meeting": {
+        "acceptSuccess": "Afspraak succesvol geaccepteerd!",
+        "acceptError": "Afspraak niet gevonden of al geaccepteerd / verlopen.",
+        "finishDescriptionRequired": "Voer een beschrijving in.",
+        "finishSuccess": "Afspraak succesvol afgerond!",
+        "dismiss": "Annuleren",
+        "accept": "Accepteren",
+        "finish": "Afspraak afronden",
+        "descriptionPlaceholder": "Voeg een beschrijving toe..."
+    },
+    "meetingCard": {
+        "visit": "Bezoek",
+        "justNow": "Zojuist",
+        "oneMinAgo": "1 min geleden",
+        "minAgo": "{{count}} min geleden"
+    }
+}

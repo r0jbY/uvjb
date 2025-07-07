@@ -13,6 +13,7 @@ import * as Notifications from 'expo-notifications';
 import MeetingCard from '../../Components/MeetingCard';
 import { getCurrentActiveMeeting, getMeetings } from '@/Services/Meetings';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/context/LanguageProvider';
 
 /* ──────────────────────────────────────────────────────────── */
 /* Types                                                       */
@@ -34,6 +35,7 @@ export default function MeetingScreen() {
   const { focusId } = useLocalSearchParams<Query>();
   const router = useRouter();
   const [checking, setChecking] = useState(true);
+  const { t } = useLanguage();
 
   useFocusEffect(
     useCallback(() => {
@@ -96,7 +98,7 @@ export default function MeetingScreen() {
       setData(meetings);
       setError(null);
     } catch {
-      setError('Failed to load meetings');
+      setError(t('meetings.loadError'));
     }
   }, [userId]);
 
@@ -146,12 +148,13 @@ export default function MeetingScreen() {
 
   /* ───── 6. UI states ───── */
   if (loading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-[#F7EFDA]">
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  return (
+    <View className="flex-1 items-center justify-center bg-[#F7EFDA]">
+      <ActivityIndicator size="large" />
+      <Text className="mt-4 text-[#426363]">{t('meetings.loading')}</Text>
+    </View>
+  );
+}
 
    if (checking) {
     return <ActivityIndicator style={{ flex:1, backgroundColor:'#F7EFDA' }}/>
@@ -176,7 +179,7 @@ export default function MeetingScreen() {
         contentContainerStyle={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <Text className="text-[#426363] text-3xl font-bold">No meetings available</Text>
+        <Text className="text-[#426363] text-3xl font-bold w-[80%] text-center">{t('meetings.noneAvailable')}</Text>
       </ScrollView>
     );
   }

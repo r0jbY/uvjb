@@ -1,0 +1,65 @@
+{
+  "profile": {
+    "sectionTitle": "Profile",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "address": "Address",
+    "active": "Active",
+    "inactive": "Inactive",
+    "save": "Save Changes",
+    "updateSuccess": "Profile updated!",
+    "updateFail": "Update failed. Please try again.",
+    "unsavedDialogTitle": "Discard changes?",
+    "unsavedDialogBody": "You have unsaved changes to your profile.",
+    "unsavedStay": "Stay",
+    "unsavedDiscard": "Discard"
+  },
+  "history": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "daysAgo": "{{count}} days ago",
+    "loading": "Loading...",
+    "descriptionLabel": "Description:"
+  },
+  "tabs": {
+    "meetings": "Meetings",
+    "history": "History",
+    "profile": "Profile"
+  },
+  "floatingMenu": {
+    "switchLabel": "Switch to {{lang}}",
+    "english": "English",
+    "dutch": "Nederlands",
+    "logout": "Log out",
+    "logoutTitle": "Logout",
+    "logoutMessage": "Are you sure you want to logout?"
+  },
+  "meetingsTabs": {
+    "meetingsTitle": "Meetings",
+    "meetingTitle": "Meeting",
+    "ongoingMeetingTitle": "Ongoing Meeting"
+  },
+  "meetings": {
+    "loading": "Loading...",
+    "loadError": "Failed to load meetings",
+    "noneAvailable": "No meetings available"
+  },
+  "meeting": {
+    "acceptSuccess": "Meeting successfully accepted!",
+    "acceptError": "Meeting not found or already accepted / expired.",
+    "finishDescriptionRequired": "Please enter a description.",
+    "finishSuccess": "Meeting successfully finished!",
+    "dismiss": "Dismiss",
+    "accept": "Accept",
+    "finish": "Finish Meeting",
+    "descriptionPlaceholder": "Add description..."
+  },
+  "meetingCard": {
+    "visit": "Visit",
+    "justNow": "Just now",
+    "oneMinAgo": "1 min ago",
+    "minAgo": "{{count}} min ago"
+  }
+}
